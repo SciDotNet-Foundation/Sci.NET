@@ -10,7 +10,6 @@ using Sci.NET.Mathematics.Attributes;
 using Sci.NET.Mathematics.Backends.Devices;
 using Sci.NET.Mathematics.Backends.Iterators;
 using Sci.NET.Mathematics.Backends.Managed.MicroKernels;
-using Sci.NET.Mathematics.Concurrency;
 using Sci.NET.Mathematics.Intrinsics;
 using Sci.NET.Mathematics.Tensors;
 
@@ -222,10 +221,10 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         var sR = d0.StrideRight;
         var sO = d0.StrideResult;
 
-        _ = LazyParallelExecutor.For(
+        _ = Parallel.For(
             0,
             extent,
-            ManagedTensorBackend.ParallelizationThreshold,
+            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
             i =>
             {
                 var offsetLeft = i * sL;
@@ -248,31 +247,33 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         {
             var rangePartitioner = Partitioner.Create(0L, extent, Math.Max(IntrinsicsHelper.AvxVectorSizeFp32 * 16, 4096));
 
-            _ = Parallel.ForEach(rangePartitioner, range =>
-            {
-                var (start, end) = range;
-                var i = start;
-
-                for (; i <= end - IntrinsicsHelper.AvxVectorSizeFp32; i += IntrinsicsHelper.AvxVectorSizeFp32)
+            _ = Parallel.ForEach(
+                rangePartitioner,
+                range =>
                 {
-                    var leftVector = Avx.LoadVector256(leftPtr + i);
-                    var rightVector = Avx.LoadVector256(rightPtr + i);
-                    var resultVector = TOp.ApplyAvxFp32(leftVector, rightVector);
-                    resultVector.Store(resultPtr + i);
-                }
+                    var (start, end) = range;
+                    var i = start;
 
-                for (; i < end; i++)
-                {
-                    resultPtr[i] = TOp.ApplyScalarFp32(leftPtr[i], rightPtr[i]);
-                }
-            });
+                    for (; i <= end - IntrinsicsHelper.AvxVectorSizeFp32; i += IntrinsicsHelper.AvxVectorSizeFp32)
+                    {
+                        var leftVector = Avx.LoadVector256(leftPtr + i);
+                        var rightVector = Avx.LoadVector256(rightPtr + i);
+                        var resultVector = TOp.ApplyAvxFp32(leftVector, rightVector);
+                        resultVector.Store(resultPtr + i);
+                    }
+
+                    for (; i < end; i++)
+                    {
+                        resultPtr[i] = TOp.ApplyScalarFp32(leftPtr[i], rightPtr[i]);
+                    }
+                });
         }
         else
         {
-            _ = LazyParallelExecutor.For(
+            _ = Parallel.For(
                 0,
                 extent,
-                ManagedTensorBackend.ParallelizationThreshold,
+                new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
                 i =>
                 {
                     var offsetLeft = i * sL;
@@ -296,31 +297,33 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         {
             var rangePartitioner = Partitioner.Create(0L, extent, Math.Max(IntrinsicsHelper.AvxVectorSizeFp64 * 16, 4096));
 
-            _ = Parallel.ForEach(rangePartitioner, range =>
-            {
-                var (start, end) = range;
-                var i = start;
-
-                for (; i <= end - IntrinsicsHelper.AvxVectorSizeFp64; i += IntrinsicsHelper.AvxVectorSizeFp64)
+            _ = Parallel.ForEach(
+                rangePartitioner,
+                range =>
                 {
-                    var leftVector = Avx.LoadVector256(leftPtr + i);
-                    var rightVector = Avx.LoadVector256(rightPtr + i);
-                    var resultVector = TOp.ApplyAvxFp64(leftVector, rightVector);
-                    resultVector.Store(resultPtr + i);
-                }
+                    var (start, end) = range;
+                    var i = start;
 
-                for (; i < end; i++)
-                {
-                    resultPtr[i] = TOp.ApplyScalarFp64(leftPtr[i], rightPtr[i]);
-                }
-            });
+                    for (; i <= end - IntrinsicsHelper.AvxVectorSizeFp64; i += IntrinsicsHelper.AvxVectorSizeFp64)
+                    {
+                        var leftVector = Avx.LoadVector256(leftPtr + i);
+                        var rightVector = Avx.LoadVector256(rightPtr + i);
+                        var resultVector = TOp.ApplyAvxFp64(leftVector, rightVector);
+                        resultVector.Store(resultPtr + i);
+                    }
+
+                    for (; i < end; i++)
+                    {
+                        resultPtr[i] = TOp.ApplyScalarFp64(leftPtr[i], rightPtr[i]);
+                    }
+                });
         }
         else
         {
-            _ = LazyParallelExecutor.For(
+            _ = Parallel.For(
                 0,
                 extent,
-                ManagedTensorBackend.ParallelizationThreshold,
+                new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
                 i =>
                 {
                     var offsetLeft = i * sL;
@@ -340,10 +343,10 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         var extent0 = dim0.Extent;
         var extent1 = dim1.Extent;
 
-        _ = LazyParallelExecutor.For(
+        _ = Parallel.For(
             0,
             extent0,
-            ManagedTensorBackend.ParallelizationThreshold,
+            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
             i =>
             {
                 var baseLeft = i * dim0.StrideLeft;
@@ -372,10 +375,10 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         const int prefetchDistance = 256;
         const int prefetchVectorCount = prefetchDistance / sizeof(float);
 
-        _ = LazyParallelExecutor.For(
+        _ = Parallel.For(
             0,
             extent0,
-            ManagedTensorBackend.ParallelizationThreshold,
+            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
             i =>
             {
                 var baseLeft = i * dim0.StrideLeft;
@@ -422,10 +425,10 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         const int prefetchDistance = 256;
         const int prefetchVectorCount = prefetchDistance / sizeof(double);
 
-        _ = LazyParallelExecutor.For(
+        _ = Parallel.For(
             0,
             extent0,
-            ManagedTensorBackend.ParallelizationThreshold,
+            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
             i =>
             {
                 var baseLeft = i * dim0.StrideLeft;
@@ -473,10 +476,10 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
             outerTotal *= _dimRanges[d].Extent;
         }
 
-        _ = LazyParallelExecutor.For(
+        _ = Parallel.For(
             0,
             outerTotal,
-            ManagedTensorBackend.ParallelizationThreshold,
+            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
             outerIdx =>
             {
                 var baseLeft = 0L;
@@ -521,10 +524,10 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         const int prefetchDistance = 256;
         const int prefetchVectorCount = prefetchDistance / sizeof(float);
 
-        _ = LazyParallelExecutor.For(
+        _ = Parallel.For(
             0,
             outerTotal,
-            ManagedTensorBackend.ParallelizationThreshold,
+            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
             outerIdx =>
             {
                 var baseLeft = 0L;
@@ -587,10 +590,10 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         const int prefetchDistance = 256;
         const int prefetchVectorCount = prefetchDistance / sizeof(double);
 
-        _ = LazyParallelExecutor.For(
+        _ = Parallel.For(
             0,
             outerTotal,
-            ManagedTensorBackend.ParallelizationThreshold,
+            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
             outerIdx =>
             {
                 var baseLeft = 0L;

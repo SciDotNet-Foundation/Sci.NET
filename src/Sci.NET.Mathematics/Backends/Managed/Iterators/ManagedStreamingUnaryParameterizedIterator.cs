@@ -17,7 +17,7 @@ internal static class ManagedStreamingUnaryParameterizedIterator
         where TOp : IUnaryParameterizedOperation<TOp, TNumber>, IUnaryParameterizedOperationAvx2<TOp>
         where TNumber : unmanaged, INumber<TNumber>
     {
-        var processes = ManagedTensorBackend.GetNumThreadsByElementCount<float>(n);
+        var processes = ManagedTensorBackend.GetNumThreadsByElementCount<TNumber>(n);
 
         if (device.IsAvx2Supported() && TOp.IsAvx2Supported())
         {

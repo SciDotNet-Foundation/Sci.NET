@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using Sci.NET.Mathematics.Backends.Devices;
 
@@ -168,10 +167,21 @@ public sealed class ManagedTensorBackend : ITensorBackend
     }
 
     internal static int GetNumThreadsByElementCount<TNumber>(long elementCount)
-        where TNumber : unmanaged, INumber<TNumber>
+        where TNumber : unmanaged
     {
         var maxUsefulThreads = Math.Max(1, elementCount * Unsafe.SizeOf<TNumber>() / MinBytesPerThread);
 
         return (int)Math.Min(maxUsefulThreads, MaxDegreeOfParallelism);
+    }
+
+    internal static int GetNumThreadsByElementCount<T1, T2>(long elementCount)
+        where T1 : unmanaged
+        where T2 : unmanaged
+    {
+        var maxUsefulThreads = Math.Min(
+            GetNumThreadsByElementCount<T1>(elementCount),
+            GetNumThreadsByElementCount<T2>(elementCount));
+
+        return Math.Min(maxUsefulThreads, MaxDegreeOfParallelism);
     }
 }

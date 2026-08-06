@@ -17,7 +17,7 @@ internal static class ManagedStreamingBinaryOperationIterator
         where TOp : IBinaryOperation<TNumber>, IBinaryOperationAvx2
         where TNumber : unmanaged, INumber<TNumber>
     {
-        var processes = ManagedTensorBackend.GetNumThreadsByElementCount<float>(n);
+        var processes = ManagedTensorBackend.GetNumThreadsByElementCount<TNumber>(n);
 
         if (device.IsAvx2Supported() && TOp.HasAvx2Implementation())
         {

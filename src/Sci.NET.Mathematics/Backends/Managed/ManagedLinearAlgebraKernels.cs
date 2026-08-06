@@ -10,7 +10,6 @@ using Sci.NET.Mathematics.Backends.Devices;
 using Sci.NET.Mathematics.Backends.Managed.Buffers;
 using Sci.NET.Mathematics.Backends.Managed.Iterators;
 using Sci.NET.Mathematics.Backends.Managed.MicroKernels.LinearAlgebra;
-using Sci.NET.Mathematics.Concurrency;
 using Sci.NET.Mathematics.Intrinsics;
 using Sci.NET.Mathematics.Memory;
 using Sci.NET.Mathematics.Performance;
@@ -87,17 +86,22 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
             return;
         }
 
-        LazyParallelExecutor.ForBlocked(
+        var iTiles = (leftRows + iBlock - 1) / iBlock;
+        var jTiles = (rightColumns + jBlock - 1) / jBlock;
+        var tileCount = iTiles * jTiles;
+
+        _ = Parallel.For(
             0,
-            leftRows,
-            0,
-            rightColumns,
-            iBlock,
-            jBlock,
-            (i0, j0) =>
+            tileCount,
+            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
+            flat =>
             {
-                var iMax = Math.Min(i0 + iBlock, leftRows);
-                var jMax = Math.Min(j0 + jBlock, rightColumns);
+                long ti = flat / jTiles;
+                long tj = flat - (ti * jTiles);
+                long i0 = ti * iBlock;
+                long j0 = tj * jBlock;
+                long iMax = Math.Min(i0 + iBlock, leftRows);
+                long jMax = Math.Min(j0 + jBlock, rightColumns);
 
                 for (var i = i0; i < iMax; i++)
                 {
@@ -149,26 +153,52 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
             return;
         }
 
-        using var sums = new ThreadLocal<TNumber>(() => TNumber.Zero, true);
+        var processes = ManagedTensorBackend.GetNumThreadsByElementCount<TNumber>(left.Length);
 
-        _ = LazyParallelExecutor.For(
-            0,
-            left.Length,
-            ManagedTensorBackend.ParallelizationThreshold,
-            i =>
-            {
-                var leftVector = leftMemoryBlock[i];
-                var rightVector = rightMemoryBlock[i];
-                sums.Value += leftVector * rightVector;
-            });
-
-        var sum = TNumber.Zero;
-        foreach (var threadSum in sums.Values)
+        if (processes == 1)
         {
-            sum += threadSum;
+            var sum = TNumber.Zero;
+
+            for (var i = 0; i < left.Length; i++)
+            {
+                sum += leftMemoryBlock[i] * rightMemoryBlock[i];
+            }
+
+            return;
         }
 
-        resultMemoryBlock[0] = sum;
+        var results = (TNumber*)NativeMemory.AllocZeroed((UIntPtr)processes, (UIntPtr)Unsafe.SizeOf<TNumber>());
+
+        try
+        {
+            _ = Parallel.For(
+                0,
+                processes,
+                new ParallelOptions { MaxDegreeOfParallelism = processes },
+                tid =>
+                {
+                    var start = tid * leftMemoryBlock.Length / processes;
+                    var end = (tid + 1) * leftMemoryBlock.Length / processes;
+                    var count = end - start;
+                    var accumulatedSum = TNumber.Zero;
+
+                    for (var i = 0; i < count; i++)
+                    {
+                        accumulatedSum += leftMemoryBlock[i] * rightMemoryBlock[i];
+                    }
+
+                    results[tid] = accumulatedSum;
+                });
+
+            for (var i = 0; i < processes; i++)
+            {
+                resultMemoryBlock[0] += results[i];
+            }
+        }
+        finally
+        {
+            NativeMemory.Free(results);
+        }
     }
 
     private static unsafe void MatrixMultiplyFmaAvxFp32(
