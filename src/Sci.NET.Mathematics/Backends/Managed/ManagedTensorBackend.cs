@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using Sci.NET.Mathematics.Backends.Devices;
+using Sci.NET.Mathematics.Concurrency;
 
 namespace Sci.NET.Mathematics.Backends.Managed;
 
@@ -36,6 +38,8 @@ public sealed class ManagedTensorBackend : ITensorBackend
         Permutation = new ManagedPermutationKernels();
         Normalisation = new ManagedNormalisationKernels();
         EqualityOperations = new ManagedEqualityOperationKernels();
+        ParallelExecutorThreadPool = new ParallelExecutorThreadPool(Environment.ProcessorCount);
+        ParallelExecutor = new ParallelExecutor(ParallelExecutorThreadPool);
     }
 
     /// <summary>
@@ -96,7 +100,17 @@ public sealed class ManagedTensorBackend : ITensorBackend
     /// <summary>
     /// Gets the singleton instance of the <see cref="ManagedTensorBackend"/>.
     /// </summary>
-    public static ITensorBackend Instance { get; } = new ManagedTensorBackend();
+    public static ManagedTensorBackend Instance { get; } = new();
+
+    /// <summary>
+    /// Gets the parallel executor used to run the backend's kernels.
+    /// </summary>
+    public ParallelExecutor ParallelExecutor { get; }
+
+    /// <summary>
+    /// Gets the thread pool backing <see cref="ParallelExecutor"/>.
+    /// </summary>
+    public ParallelExecutorThreadPool ParallelExecutorThreadPool { get; }
 
     /// <inheritdoc />
     public ITensorStorageKernels Storage { get; }
@@ -172,6 +186,15 @@ public sealed class ManagedTensorBackend : ITensorBackend
         var maxUsefulThreads = Math.Max(1, elementCount * Unsafe.SizeOf<TNumber>() / MinBytesPerThread);
 
         return (int)Math.Min(maxUsefulThreads, MaxDegreeOfParallelism);
+    }
+
+    internal static TIndex GetNumThreadsByElementCount<TIndex, TNumber>(TIndex elementCount)
+        where TIndex : IBinaryInteger<TIndex>
+        where TNumber : unmanaged
+    {
+        var maxUsefulThreads = TIndex.Max(TIndex.One, elementCount * TIndex.CreateChecked(Unsafe.SizeOf<TNumber>() / MinBytesPerThread));
+
+        return TIndex.Min(maxUsefulThreads, TIndex.CreateChecked(MaxDegreeOfParallelism));
     }
 
     internal static int GetNumThreadsByElementCount<T1, T2>(long elementCount)

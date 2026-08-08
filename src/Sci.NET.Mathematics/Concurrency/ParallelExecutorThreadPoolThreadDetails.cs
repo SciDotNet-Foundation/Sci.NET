@@ -3,11 +3,9 @@
 
 namespace Sci.NET.Mathematics.Concurrency;
 
-internal class ParallelExecutorThreadPoolThreadDetails
+internal sealed class ParallelExecutorThreadPoolThreadDetails
 {
     public required ParallelExecutorThreadPool ThreadPool { get; init; }
 
     public required int ThreadIdx { get; init; }
-
-    public required ThreadPriority ThreadPriority { get; init; }
 }

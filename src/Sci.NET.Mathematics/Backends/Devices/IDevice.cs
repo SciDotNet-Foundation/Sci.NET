@@ -34,4 +34,13 @@ public interface IDevice : IEquatable<IDevice>
     /// </summary>
     /// <returns>The <see cref="ITensorBackend"/> for the device.</returns>
     public ITensorBackend GetTensorBackend();
+
+    /// <summary>
+    /// Gets the tensor backend as a concrete type, or throws an exception if
+    /// the instance is not of the given type.
+    /// </summary>
+    /// <typeparam name="TBackend">The tensor backend type.</typeparam>
+    /// <returns>The typed tensor backend.</returns>
+    public TBackend GetTensorBackend<TBackend>()
+        where TBackend : ITensorBackend;
 }

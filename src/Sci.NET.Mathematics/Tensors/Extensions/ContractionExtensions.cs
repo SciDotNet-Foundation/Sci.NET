@@ -3,7 +3,7 @@
 
 using System.Diagnostics;
 using System.Numerics;
-using Sci.NET.Mathematics.Tensors.Exceptions;
+using Sci.NET.Mathematics.Exceptions;
 
 // ReSharper disable once CheckNamespace
 #pragma warning disable IDE0130 // API accessibility

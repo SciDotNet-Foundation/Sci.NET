@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Runtime.Intrinsics.X86;
 using Sci.NET.Mathematics.Backends.Devices;
 using Sci.NET.Mathematics.Backends.Managed.MicroKernels;
+using Sci.NET.Mathematics.Concurrency;
 using Sci.NET.Mathematics.Intrinsics;
 
 namespace Sci.NET.Mathematics.Backends.Managed.Iterators;
@@ -18,134 +19,58 @@ internal static class ManagedStreamingUnaryParameterizedIterator
         where TNumber : unmanaged, INumber<TNumber>
     {
         var processes = ManagedTensorBackend.GetNumThreadsByElementCount<TNumber>(n);
+        var backend = device.GetTensorBackend<ManagedTensorBackend>();
 
-        if (device.IsAvx2Supported() && TOp.IsAvx2Supported())
+        using var tasks = TNumber.Zero switch
         {
-            switch (TNumber.Zero)
-            {
-                case float when processes == 1:
+            float when device.IsAvx2Supported() && TOp.IsAvx2Supported() => ParallelExecutorTaskFactory
+                .RepeatedConstantOffset<long>(processes, tid =>
                     InnerLoopAvx2(
-                        0,
+                        tid,
                         n,
                         processes,
                         (float*)inputPtr,
                         (float*)resultPtr,
-                        instance);
-                    return;
-                case float when processes > 1:
-                    _ = Parallel.For(
-                        0,
-                        processes,
-                        new ParallelOptions { MaxDegreeOfParallelism = processes },
-                        tid => InnerLoopAvx2(
-                            tid,
-                            n,
-                            processes,
-                            (float*)inputPtr,
-                            (float*)resultPtr,
-                            instance));
-                    return;
-                case double when processes == 1:
+                        instance)),
+            double when device.IsAvx2Supported() && TOp.IsAvx2Supported() => ParallelExecutorTaskFactory
+                .RepeatedConstantOffset<long>(processes, tid =>
                     InnerLoopAvx2(
-                        0,
+                        tid,
                         n,
                         processes,
                         (double*)inputPtr,
                         (double*)resultPtr,
-                        instance);
-                    return;
-                case double when processes > 1:
-                    _ = Parallel.For(
-                        0,
-                        processes,
-                        new ParallelOptions { MaxDegreeOfParallelism = processes },
-                        tid => InnerLoopAvx2(
-                            tid,
-                            n,
-                            processes,
-                            (double*)inputPtr,
-                            (double*)resultPtr,
-                            instance));
-                    return;
-            }
-        }
-
-        if (processes == 1)
-        {
-            switch (TNumber.Zero)
-            {
-                case float:
-                    InnerLoopScalarFp32(
-                        0,
-                        n,
-                        processes,
-                        (float*)inputPtr,
-                        (float*)resultPtr,
-                        instance);
-                    return;
-                case double:
-                    InnerLoopScalarFp64(
-                        0,
-                        n,
-                        processes,
-                        (double*)inputPtr,
-                        (double*)resultPtr,
-                        instance);
-                    return;
-                default:
+                        instance)),
+            float => ParallelExecutorTaskFactory
+                .RepeatedConstantOffset<long>(processes, tid =>
                     InnerLoopScalar(
-                        0,
-                        n,
-                        processes,
-                        inputPtr,
-                        resultPtr,
-                        instance);
-                    return;
-            }
-        }
-
-        switch (TNumber.Zero)
-        {
-            case float:
-                _ = Parallel.For(
-                    0,
-                    processes,
-                    new ParallelOptions { MaxDegreeOfParallelism = processes },
-                    tid => InnerLoopScalarFp32(
                         tid,
                         n,
                         processes,
                         (float*)inputPtr,
                         (float*)resultPtr,
-                        instance));
-                return;
-            case double:
-                _ = Parallel.For(
-                    0,
-                    processes,
-                    new ParallelOptions { MaxDegreeOfParallelism = processes },
-                    tid => InnerLoopScalarFp64(
+                        instance)),
+            double => ParallelExecutorTaskFactory
+                .RepeatedConstantOffset<long>(processes, tid =>
+                    InnerLoopScalar(
                         tid,
                         n,
                         processes,
                         (double*)inputPtr,
                         (double*)resultPtr,
-                        instance));
-                return;
-            default:
-                _ = Parallel.For(
-                    0,
-                    processes,
-                    new ParallelOptions { MaxDegreeOfParallelism = processes },
-                    tid => InnerLoopScalar(
+                        instance)),
+            _ => ParallelExecutorTaskFactory
+                .RepeatedConstantOffset<long>(processes, tid =>
+                    InnerLoopScalar(
                         tid,
                         n,
                         processes,
                         inputPtr,
                         resultPtr,
-                        instance));
-                return;
-        }
+                        instance)),
+        };
+
+        backend.ParallelExecutor.Run(tasks);
     }
 
     private static unsafe void InnerLoopAvx2<TOp>(
@@ -239,7 +164,7 @@ internal static class ManagedStreamingUnaryParameterizedIterator
         }
     }
 
-    private static unsafe void InnerLoopScalarFp32<TOp>(
+    private static unsafe void InnerLoopScalar<TOp>(
         long tid,
         long n,
         long processes,
@@ -259,7 +184,7 @@ internal static class ManagedStreamingUnaryParameterizedIterator
         }
     }
 
-    private static unsafe void InnerLoopScalarFp64<TOp>(
+    private static unsafe void InnerLoopScalar<TOp>(
         long tid,
         long n,
         long processes,

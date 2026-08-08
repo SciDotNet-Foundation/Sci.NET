@@ -15,14 +15,20 @@ internal class ManagedBroadcastingKernels : IBroadcastingKernels
     {
         var tensorBlock = (SystemMemoryBlock<TNumber>)tensor.Memory;
         var resultBlock = (SystemMemoryBlock<TNumber>)result.Memory;
+        var backend = tensor.Device.GetTensorBackend<ManagedTensorBackend>();
 
         if (tensor.Shape.IsScalar)
         {
             var scalarValue = tensorBlock[0];
-            _ = Parallel.For(
-                0,
-                result.Shape.ElementCount,
-                i => resultBlock[i] = scalarValue);
+
+            backend
+                .ParallelExecutor
+                .For(
+                    0,
+                    result.Shape.ElementCount,
+                    ManagedTensorBackend.MaxDegreeOfParallelism,
+                    i => resultBlock[i] = scalarValue);
+
             return;
         }
 
@@ -32,25 +38,28 @@ internal class ManagedBroadcastingKernels : IBroadcastingKernels
         var srcPtr = tensorBlock.Pointer;
         var dstPtr = resultBlock.Pointer;
 
-        _ = Parallel.For(
-            0,
-            resultDims[0],
-            outerIdx =>
-            {
-                var baseSrcOffset = outerIdx * strides[0];
-                var baseDstOffset = outerIdx * resultStrides[0];
+        backend
+            .ParallelExecutor
+            .For(
+                0,
+                resultDims[0],
+                ManagedTensorBackend.MaxDegreeOfParallelism,
+                outerIdx =>
+                {
+                    var baseSrcOffset = outerIdx * strides[0];
+                    var baseDstOffset = outerIdx * resultStrides[0];
 
-                RecursiveBroadcast(
-                    depth: 1,
-                    rank: rank,
-                    srcOffset: baseSrcOffset,
-                    dstOffset: baseDstOffset,
-                    resultDims: resultDims,
-                    resultStrides: resultStrides,
-                    broadcastStrides: strides,
-                    srcPtr: srcPtr,
-                    dstPtr: dstPtr);
-            });
+                    RecursiveBroadcast(
+                        depth: 1,
+                        rank: rank,
+                        srcOffset: baseSrcOffset,
+                        dstOffset: baseDstOffset,
+                        resultDims: resultDims,
+                        resultStrides: resultStrides,
+                        broadcastStrides: strides,
+                        srcPtr: srcPtr,
+                        dstPtr: dstPtr);
+                });
     }
 
     private static unsafe void RecursiveBroadcast<TNumber>(

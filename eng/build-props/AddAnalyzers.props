@@ -1,5 +1,5 @@
 <Project>
-    <PropertyGroup>
+    <PropertyGroup Condition="'$(EnableAnalyzers)' == 'true'">
         <AnalysisLevel>latest</AnalysisLevel>
         <AnalysisMode>AllEnabledByDefault</AnalysisMode>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
@@ -8,7 +8,6 @@
         <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
         <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-
     </PropertyGroup>
     <ItemGroup Condition="'$(EnableAnalyzers)' == 'true'">
         <GlobalAnalyzerConfigFiles Include="$(RootDirectory)eng/build-props/analyzers/base.globalconfig"

@@ -3,7 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sci.NET.Mathematics.Tensors.Exceptions;
+namespace Sci.NET.Mathematics.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when a preview feature is not enabled.

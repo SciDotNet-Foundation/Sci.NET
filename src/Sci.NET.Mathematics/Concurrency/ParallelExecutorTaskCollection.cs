@@ -6,56 +6,114 @@ using System.Numerics;
 
 namespace Sci.NET.Mathematics.Concurrency;
 
-internal class ParallelExecutorTaskCollection<TIndex> : IEnumerable<ParallelExecutorTask<TIndex>>, IDisposable
+/// <summary>
+/// A batch of <see cref="ParallelExecutorTask{TIndex}"/> instances which share a single
+/// <see cref="CountdownEvent"/> for completion signalling.
+/// </summary>
+/// <typeparam name="TIndex">The integer type used for the virtual thread index.</typeparam>
+[PublicAPI]
+public sealed class ParallelExecutorTaskCollection<TIndex> : IEnumerable<ParallelExecutorTask<TIndex>>, IDisposable
     where TIndex : IBinaryInteger<TIndex>
 {
     private readonly ParallelExecutorTask<TIndex>[] _tasks;
-    private readonly WaitHandle[] _taskCompleteWaitHandles;
+    private readonly CountdownEvent _countdown;
 
-    public ParallelExecutorTaskCollection(ParallelExecutorTask<TIndex>[] tasks)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ParallelExecutorTaskCollection{TIndex}"/> class.
+    /// </summary>
+    /// <param name="tasks">The tasks in the batch.</param>
+    /// <param name="countdown">The countdown event shared by all tasks in the batch.</param>
+    public ParallelExecutorTaskCollection(ParallelExecutorTask<TIndex>[] tasks, CountdownEvent countdown)
     {
         _tasks = tasks;
-        _taskCompleteWaitHandles = new WaitHandle[tasks.Length];
-
-        for (var i = 0; i < tasks.Length; i++)
-        {
-            _taskCompleteWaitHandles[i] = tasks[i].WaitHandle;
-        }
+        _countdown = countdown;
     }
 
+    /// <summary>
+    /// Gets the number of tasks in the collection.
+    /// </summary>
+    public int Count => _tasks.Length;
+
+    /// <summary>
+    /// Gets a value indicating whether the collection has been disposed.
+    /// </summary>
     public bool IsDisposed { get; private set; }
 
+    /// <summary>
+    /// Blocks until every task in the collection has completed, then rethrows any exceptions
+    /// captured on the worker threads as a single <see cref="AggregateException"/>.
+    /// </summary>
+    /// <exception cref="AggregateException">Thrown when one or more task bodies threw.</exception>
     public void WaitAll()
     {
-        _ = WaitHandle.WaitAll(_taskCompleteWaitHandles);
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+
+        _countdown.Wait();
+
+        ThrowIfAnyTaskFaulted();
     }
 
+    /// <summary>
+    /// Blocks until every task in the collection has completed or the timeout elapses.
+    /// </summary>
+    /// <param name="timeout">The maximum time to wait.</param>
+    /// <returns><c>true</c> if all tasks completed within the timeout; otherwise <c>false</c>.</returns>
+    /// <exception cref="AggregateException">Thrown when all tasks completed but one or more task bodies threw.</exception>
+    public bool WaitAll(TimeSpan timeout)
+    {
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+
+        if (!_countdown.Wait(timeout))
+        {
+            return false;
+        }
+
+        ThrowIfAnyTaskFaulted();
+
+        return true;
+    }
+
+    /// <summary>
+    /// Returns an enumerator that iterates over the tasks in the collection.
+    /// </summary>
+    /// <returns>An enumerator over the tasks in the collection.</returns>
     public IEnumerator<ParallelExecutorTask<TIndex>> GetEnumerator()
     {
         return new ParallelExecutorTaskCollectionEnumerator<TIndex>(_tasks, this);
     }
 
+    /// <inheritdoc />
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
+        if (!IsDisposed)
+        {
+            _countdown.Dispose();
+            IsDisposed = true;
+        }
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void ThrowIfAnyTaskFaulted()
     {
-        if (disposing && !IsDisposed)
-        {
-            foreach (var parallelExecutorTask in _tasks)
-            {
-                parallelExecutorTask.Dispose();
-            }
+        List<Exception>? exceptions = null;
 
-            IsDisposed = true;
+        foreach (var task in _tasks)
+        {
+            if (task.Exception is not null)
+            {
+                exceptions ??= new List<Exception>();
+                exceptions.Add(task.Exception);
+            }
+        }
+
+        if (exceptions is not null)
+        {
+            throw new AggregateException(exceptions);
         }
     }
 }

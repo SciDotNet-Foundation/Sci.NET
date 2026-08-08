@@ -14,8 +14,7 @@ namespace Sci.NET.Benchmarks.Concurrency;
 [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "Benchmark")]
 public class ParallelExecutorBenchmarks
 {
-    [Params(256, 512, 1024, 248)]
-    public int VectorSize { get; set; }
+    [Params(256, 512, 1024, 248)] public int VectorSize { get; set; }
 
     private SystemMemoryBlock<float> _leftVector = null!;
     private SystemMemoryBlock<float> _rightVector = null!;
@@ -42,9 +41,9 @@ public class ParallelExecutorBenchmarks
     {
         var numWorkers = ManagedTensorBackend.GetNumThreadsByElementCount<float>(VectorSize);
 
-        _parallelExecutor.Run(
+        using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(
             numWorkers,
-            (idx) =>
+            idx =>
             {
                 InnerLoop(
                     idx,
@@ -54,6 +53,8 @@ public class ParallelExecutorBenchmarks
                     _rightVector.ToPointer(),
                     _resultVector.ToPointer());
             });
+
+        _parallelExecutor.Run(tasks);
     }
 
     [Benchmark]
@@ -64,7 +65,7 @@ public class ParallelExecutorBenchmarks
         Parallel.For(
             0,
             numWorkers,
-            (idx) =>
+            idx =>
             {
                 InnerLoop(
                     idx,

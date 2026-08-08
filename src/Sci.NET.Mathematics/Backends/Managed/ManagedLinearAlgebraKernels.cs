@@ -10,6 +10,7 @@ using Sci.NET.Mathematics.Backends.Devices;
 using Sci.NET.Mathematics.Backends.Managed.Buffers;
 using Sci.NET.Mathematics.Backends.Managed.Iterators;
 using Sci.NET.Mathematics.Backends.Managed.MicroKernels.LinearAlgebra;
+using Sci.NET.Mathematics.Concurrency;
 using Sci.NET.Mathematics.Intrinsics;
 using Sci.NET.Mathematics.Memory;
 using Sci.NET.Mathematics.Performance;
@@ -50,6 +51,7 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
         var leftMemoryBlockPtr = leftMemoryBlock.ToPointer();
         var rightMemoryBlockPtr = rightMemoryBlock.ToPointer();
         var resultMemoryBlockPtr = resultMemoryBlock.ToPointer();
+        var backend = left.Device.GetTensorBackend<ManagedTensorBackend>();
         var leftRows = left.Rows;
         var rightColumns = right.Columns;
         var leftColumns = left.Columns;
@@ -68,7 +70,8 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
                 (float*)resultMemoryBlockPtr,
                 leftRows,
                 rightColumns,
-                leftColumns);
+                leftColumns,
+                backend);
             return;
         }
 
@@ -82,7 +85,8 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
                 (double*)resultMemoryBlockPtr,
                 leftRows,
                 rightColumns,
-                leftColumns);
+                leftColumns,
+                backend);
             return;
         }
 
@@ -90,33 +94,36 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
         var jTiles = (rightColumns + jBlock - 1) / jBlock;
         var tileCount = iTiles * jTiles;
 
-        _ = Parallel.For(
-            0,
-            tileCount,
-            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
-            flat =>
-            {
-                long ti = flat / jTiles;
-                long tj = flat - (ti * jTiles);
-                long i0 = ti * iBlock;
-                long j0 = tj * jBlock;
-                long iMax = Math.Min(i0 + iBlock, leftRows);
-                long jMax = Math.Min(j0 + jBlock, rightColumns);
-
-                for (var i = i0; i < iMax; i++)
+        backend
+            .ParallelExecutor
+            .For(
+                0,
+                tileCount,
+                ManagedTensorBackend.MaxDegreeOfParallelism,
+                flat =>
                 {
-                    for (var j = j0; j < jMax; ++j)
-                    {
-                        var sum = TNumber.Zero;
-                        for (var k = 0; k < leftColumns; ++k)
-                        {
-                            sum += leftMemoryBlockPtr[(i * leftColumns) + k] * rightMemoryBlockPtr[(k * rightColumns) + j];
-                        }
+                    long ti = flat / jTiles;
+                    long tj = flat - (ti * jTiles);
+                    long i0 = ti * iBlock;
+                    long j0 = tj * jBlock;
+                    long iMax = Math.Min(i0 + iBlock, leftRows);
+                    long jMax = Math.Min(j0 + jBlock, rightColumns);
 
-                        resultMemoryBlockPtr[(i * rightColumns) + j] = sum;
+                    for (var i = i0; i < iMax; i++)
+                    {
+                        for (var j = j0; j < jMax; ++j)
+                        {
+                            var sum = TNumber.Zero;
+                            for (var k = 0; k < leftColumns; ++k)
+                            {
+                                sum += leftMemoryBlockPtr[(i * leftColumns) + k] *
+                                       rightMemoryBlockPtr[(k * rightColumns) + j];
+                            }
+
+                            resultMemoryBlockPtr[(i * rightColumns) + j] = sum;
+                        }
                     }
-                }
-            });
+                });
     }
 
     public unsafe void InnerProduct<TNumber>(Tensors.Vector<TNumber> left, Tensors.Vector<TNumber> right, Scalar<TNumber> result)
@@ -126,6 +133,7 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
         var rightMemoryBlock = (SystemMemoryBlock<TNumber>)right.Memory;
         var resultMemoryBlock = (SystemMemoryBlock<TNumber>)result.Memory;
         var cpuDevice = left.Device as ICpuComputeDevice;
+        var backend = left.Device.GetTensorBackend<ManagedTensorBackend>();
 
         if ((cpuDevice?.IsAvx2Supported() ?? false) &&
             IntrinsicsHelper.IsAvx2Supported() &&
@@ -135,7 +143,8 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
                 (float*)leftMemoryBlock.Pointer,
                 (float*)rightMemoryBlock.Pointer,
                 (float*)resultMemoryBlock.Pointer,
-                left.Length);
+                left.Length,
+                backend);
 
             return;
         }
@@ -148,7 +157,8 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
                 (double*)leftMemoryBlock.Pointer,
                 (double*)rightMemoryBlock.Pointer,
                 (double*)resultMemoryBlock.Pointer,
-                left.Length);
+                left.Length,
+                backend);
 
             return;
         }
@@ -164,6 +174,8 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
                 sum += leftMemoryBlock[i] * rightMemoryBlock[i];
             }
 
+            resultMemoryBlock[0] = sum;
+
             return;
         }
 
@@ -171,24 +183,21 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
 
         try
         {
-            _ = Parallel.For(
-                0,
-                processes,
-                new ParallelOptions { MaxDegreeOfParallelism = processes },
-                tid =>
+            using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(processes, tid =>
+            {
+                var start = tid * leftMemoryBlock.Length / processes;
+                var end = (tid + 1) * leftMemoryBlock.Length / processes;
+                var accumulatedSum = TNumber.Zero;
+
+                for (var i = start; i < end; i++)
                 {
-                    var start = tid * leftMemoryBlock.Length / processes;
-                    var end = (tid + 1) * leftMemoryBlock.Length / processes;
-                    var count = end - start;
-                    var accumulatedSum = TNumber.Zero;
+                    accumulatedSum += leftMemoryBlock[i] * rightMemoryBlock[i];
+                }
 
-                    for (var i = 0; i < count; i++)
-                    {
-                        accumulatedSum += leftMemoryBlock[i] * rightMemoryBlock[i];
-                    }
+                results[tid] = accumulatedSum;
+            });
 
-                    results[tid] = accumulatedSum;
-                });
+            backend.ParallelExecutor.Run(tasks);
 
             for (var i = 0; i < processes; i++)
             {
@@ -207,48 +216,29 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
         float* c,
         int m,
         int n,
-        int k)
+        int k,
+        ManagedTensorBackend backend)
     {
         var numTiles = (m + MatrixMultiplyMcFp32 - 1) / MatrixMultiplyMcFp32;
 
-        if (ManagedTensorBackend.ShouldParallelizeForTiles(numTiles))
-        {
-            using var allPanels = new ThreadLocal<Panel2dFp32>(
-                () =>
-                {
-                    var aBuffer = (float*)NativeMemory.AlignedAlloc(MatrixMultiplyMcFp32 * MatrixMultiplyKcFp32 * sizeof(float), 32);
-                    var bBuffer = (float*)NativeMemory.AlignedAlloc(MatrixMultiplyKcFp32 * MatrixMultiplyNcFp32 * sizeof(float), 32);
+        backend.ParallelExecutor
+            .For(
+            0,
+            numTiles,
+            ManagedTensorBackend.MaxDegreeOfParallelism,
+            () =>
+            {
+                var aBuffer = (float*)NativeMemory.AlignedAlloc(MatrixMultiplyMcFp32 * MatrixMultiplyKcFp32 * sizeof(float), 32);
+                var bBuffer = (float*)NativeMemory.AlignedAlloc(MatrixMultiplyKcFp32 * MatrixMultiplyNcFp32 * sizeof(float), 32);
 
-                    return new Panel2dFp32(aBuffer, bBuffer);
-                },
-                true);
-
-            _ = Parallel.For(
-                0,
-                numTiles,
-                new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
-                tileIdx => InnerLoop(tileIdx, allPanels.Value));
-
-            foreach (var panel in allPanels.Values)
+                return new Panel2dFp32(aBuffer, bBuffer);
+            },
+            InnerLoop,
+            panel =>
             {
                 NativeMemory.AlignedFree(panel.A);
                 NativeMemory.AlignedFree(panel.B);
-            }
-        }
-        else
-        {
-            var aBuffer = (float*)NativeMemory.AlignedAlloc(MatrixMultiplyMcFp32 * MatrixMultiplyKcFp32 * sizeof(float), 32);
-            var bBuffer = (float*)NativeMemory.AlignedAlloc(MatrixMultiplyKcFp32 * MatrixMultiplyNcFp32 * sizeof(float), 32);
-            var panels = new Panel2dFp32(aBuffer, bBuffer);
-
-            for (var tileIdx = 0; tileIdx < numTiles; tileIdx++)
-            {
-                InnerLoop(tileIdx, panels);
-            }
-
-            NativeMemory.AlignedFree(panels.A);
-            NativeMemory.AlignedFree(panels.B);
-        }
+            });
 
         void InnerLoop(int tileIdx, Panel2dFp32 panels)
         {
@@ -312,48 +302,28 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
         double* c,
         int m,
         int n,
-        int k)
+        int k,
+        ManagedTensorBackend backend)
     {
         var numTiles = (m + MatrixMultiplyMcFp64 - 1) / MatrixMultiplyMcFp64;
 
-        if (ManagedTensorBackend.ShouldParallelizeForTiles(numTiles))
-        {
-            using var allPanels = new ThreadLocal<Panel2dFp64>(
-                () =>
-                {
-                    var aBuffer = (double*)NativeMemory.AlignedAlloc(MatrixMultiplyMcFp64 * MatrixMultiplyKcFp64 * sizeof(double), 32);
-                    var bBuffer = (double*)NativeMemory.AlignedAlloc(MatrixMultiplyKcFp64 * MatrixMultiplyNcFp64 * sizeof(double), 32);
+        backend.ParallelExecutor.For(
+            0,
+            numTiles,
+            ManagedTensorBackend.MaxDegreeOfParallelism,
+            () =>
+            {
+                var aBuffer = (double*)NativeMemory.AlignedAlloc(MatrixMultiplyMcFp64 * MatrixMultiplyKcFp64 * sizeof(double), 32);
+                var bBuffer = (double*)NativeMemory.AlignedAlloc(MatrixMultiplyKcFp64 * MatrixMultiplyNcFp64 * sizeof(double), 32);
 
-                    return new Panel2dFp64(aBuffer, bBuffer);
-                },
-                true);
-
-            _ = Parallel.For(
-                0,
-                numTiles,
-                new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
-                tileIdx => InnerLoop(tileIdx, allPanels.Value));
-
-            foreach (var panel in allPanels.Values)
+                return new Panel2dFp64(aBuffer, bBuffer);
+            },
+            InnerLoop,
+            panel =>
             {
                 NativeMemory.AlignedFree(panel.A);
                 NativeMemory.AlignedFree(panel.B);
-            }
-        }
-        else
-        {
-            var aBuffer = (double*)NativeMemory.AlignedAlloc(MatrixMultiplyMcFp64 * MatrixMultiplyKcFp64 * sizeof(double), 32);
-            var bBuffer = (double*)NativeMemory.AlignedAlloc(MatrixMultiplyKcFp64 * MatrixMultiplyNcFp64 * sizeof(double), 32);
-            var panels = new Panel2dFp64(aBuffer, bBuffer);
-
-            for (var tileIdx = 0; tileIdx < numTiles; tileIdx++)
-            {
-                InnerLoop(tileIdx, panels);
-            }
-
-            NativeMemory.AlignedFree(panels.A);
-            NativeMemory.AlignedFree(panels.B);
-        }
+            });
 
         [MethodImpl(ImplementationOptions.HotPath)]
         void InnerLoop(int tileIdx, Panel2dFp64 panels)
@@ -867,7 +837,7 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
         }
     }
 
-    private static unsafe void InnerProductFp32FmaAvx(float* leftMemoryPtr, float* rightMemoryPtr, float* resultPtr, long n)
+    private static unsafe void InnerProductFp32FmaAvx(float* leftMemoryPtr, float* rightMemoryPtr, float* resultPtr, long n, ManagedTensorBackend backend)
     {
         if (n <= 0)
         {
@@ -876,24 +846,13 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
         }
 
         var processes = ManagedTensorBackend.GetNumThreadsByElementCount<float>(n);
-        var partials = new float[processes];
-
-        if (processes == 1)
-        {
-            InnerLoop(0);
-        }
-        else
-        {
-            _ = Parallel.For(
-                0,
-                processes,
-                new ParallelOptions { MaxDegreeOfParallelism = processes },
-                InnerLoop);
-        }
+        var partials = (float*)NativeMemory.AlignedAlloc((UIntPtr)(processes * Unsafe.SizeOf<float>()), IntrinsicsHelper.CalculateRequiredAlignment());
+        using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(processes, InnerLoop);
+        backend.ParallelExecutor.Run(tasks);
 
         // Neumaier Sum for accuracy
         float s = 0, c = 0;
-        for (var i = 0; i < partials.Length; i++)
+        for (var i = 0; i < processes; i++)
         {
             var t = s + partials[i];
             c += float.Abs(s) >= float.Abs(partials[i]) ? s - t + partials[i] : partials[i] - t + s;
@@ -955,7 +914,7 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
     }
 
     [MethodImpl(ImplementationOptions.HotPath)]
-    private static unsafe void InnerProductFp64FmaAvx(double* leftMemoryPtr, double* rightMemoryPtr, double* resultPtr, long n)
+    private static unsafe void InnerProductFp64FmaAvx(double* leftMemoryPtr, double* rightMemoryPtr, double* resultPtr, long n, ManagedTensorBackend backend)
     {
         if (n <= 0)
         {
@@ -964,23 +923,12 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
         }
 
         var processes = ManagedTensorBackend.GetNumThreadsByElementCount<double>(n);
-        var partials = new double[processes];
-
-        if (processes == 1)
-        {
-            InnerLoop(0);
-        }
-        else
-        {
-            _ = Parallel.For(
-                0,
-                processes,
-                new ParallelOptions { MaxDegreeOfParallelism = processes },
-                InnerLoop);
-        }
+        var partials = (double*)NativeMemory.AlignedAlloc((UIntPtr)(processes * Unsafe.SizeOf<double>()), IntrinsicsHelper.CalculateRequiredAlignment());
+        using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(processes, InnerLoop);
+        backend.ParallelExecutor.Run(tasks);
 
         double s = 0, c = 0;
-        for (var i = 0; i < partials.Length; i++)
+        for (var i = 0; i < processes; i++)
         {
             var t = s + partials[i];
             c += double.Abs(s) >= double.Abs(partials[i]) ? s - t + partials[i] : partials[i] - t + s;

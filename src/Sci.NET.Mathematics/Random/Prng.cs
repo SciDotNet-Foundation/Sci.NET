@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
+using Sci.NET.Mathematics.Backends.Managed;
 using Sci.NET.Mathematics.Memory;
 using Sci.NET.Mathematics.Numerics;
 
@@ -642,7 +643,21 @@ public class Prng
     private static void Fill<T>(SystemMemoryBlock<T> dst, Func<long, T> gen)
         where T : unmanaged
     {
-        _ = Parallel.For(0, dst.Length, i => dst[i] = gen(i));
+        var numThreads = ManagedTensorBackend.GetNumThreadsByElementCount<T>(dst.Length);
+
+        var chunk = dst.Length / numThreads;
+        var remainder = dst.Length % numThreads;
+
+        _ = Parallel.For(0, dst.Length, tid =>
+        {
+            var start = (tid * chunk) + Math.Min(tid, remainder);
+            var count = tid < remainder ? chunk + 1 : chunk;
+
+            for (var i = 0; i < count; i++)
+            {
+                dst[i] = gen(start + i);
+            }
+        });
     }
 
     private static ulong Mix64(ulong z)

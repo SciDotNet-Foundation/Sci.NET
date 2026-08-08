@@ -12,6 +12,7 @@ internal class ManagedPermutationKernels : IPermutationKernels
     public unsafe void Permute<TNumber>(ITensor<TNumber> source, ITensor<TNumber> result, int[] permutation)
         where TNumber : unmanaged, INumber<TNumber>
     {
+        var backend = source.Device.GetTensorBackend<ManagedTensorBackend>();
         var sourceBlock = (SystemMemoryBlock<TNumber>)source.Memory;
         var resultBlock = (SystemMemoryBlock<TNumber>)result.Memory;
         var rank = permutation.Length;
@@ -52,9 +53,10 @@ internal class ManagedPermutationKernels : IPermutationKernels
         var srcPtrBase = sourceBlock.Pointer;
         var dstPtrBase = resultBlock.Pointer;
 
-        _ = Parallel.For(
+        backend.ParallelExecutor.For(
             0,
             destDims[axisParallel],
+            ManagedTensorBackend.MaxDegreeOfParallelism,
             baseIdx =>
             {
                 var baseSrcOffset = baseIdx * permutedSrcStrides[axisParallel];

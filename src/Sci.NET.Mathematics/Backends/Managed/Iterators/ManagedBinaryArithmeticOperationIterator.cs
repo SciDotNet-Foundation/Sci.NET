@@ -10,6 +10,7 @@ using Sci.NET.Mathematics.Attributes;
 using Sci.NET.Mathematics.Backends.Devices;
 using Sci.NET.Mathematics.Backends.Iterators;
 using Sci.NET.Mathematics.Backends.Managed.MicroKernels;
+using Sci.NET.Mathematics.Exceptions;
 using Sci.NET.Mathematics.Intrinsics;
 using Sci.NET.Mathematics.Tensors;
 
@@ -24,11 +25,20 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
     private readonly unsafe TNumber* _rightPtr;
     private readonly unsafe TNumber* _resultPtr;
     private readonly ICpuComputeDevice _device;
+    private readonly ManagedTensorBackend _backend;
 
     [AssumesValidDevice]
-    public unsafe ManagedBinaryArithmeticOperationIterator(ITensor<TNumber> left, ITensor<TNumber> right, ITensor<TNumber> result)
+    public unsafe ManagedBinaryArithmeticOperationIterator(
+        ITensor<TNumber> left,
+        ITensor<TNumber> right,
+        ITensor<TNumber> result)
     {
-        _device = (ICpuComputeDevice)result.Device;
+        _device = result.Device as ICpuComputeDevice ??
+                  throw new TensorDataLocalityException(
+                      "The device {0} is invalid, it must be a CPU device",
+                      result.Device);
+        _backend = _device.GetTensorBackend() as ManagedTensorBackend ??
+                   throw new InvalidOperationException("The backend type is invalid.");
         _dimRanges = BuildDimRanges(left, right, result);
         _leftPtr = left.Memory.ToPointer();
         _rightPtr = right.Memory.ToPointer();
@@ -221,18 +231,20 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         var sR = d0.StrideRight;
         var sO = d0.StrideResult;
 
-        _ = Parallel.For(
-            0,
-            extent,
-            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
-            i =>
-            {
-                var offsetLeft = i * sL;
-                var offsetRight = i * sR;
-                var offsetResult = i * sO;
+        _backend
+            .ParallelExecutor
+            .For(
+                0,
+                extent,
+                ManagedTensorBackend.MaxDegreeOfParallelism,
+                i =>
+                {
+                    var offsetLeft = i * sL;
+                    var offsetRight = i * sR;
+                    var offsetResult = i * sO;
 
-                resultPtr[offsetResult] = TOp.ApplyScalar(leftPtr[offsetLeft], rightPtr[offsetRight]);
-            });
+                    resultPtr[offsetResult] = TOp.ApplyScalar(leftPtr[offsetLeft], rightPtr[offsetRight]);
+                });
     }
 
     private unsafe void Apply1dAvx2(float* leftPtr, float* rightPtr, float* resultPtr)
@@ -245,43 +257,48 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
 
         if (sL == 1 && sR == 1 && sO == 1)
         {
-            var rangePartitioner = Partitioner.Create(0L, extent, Math.Max(IntrinsicsHelper.AvxVectorSizeFp32 * 16, 4096));
+            var rangePartitioner =
+                Partitioner.Create(0L, extent, Math.Max(IntrinsicsHelper.AvxVectorSizeFp32 * 16, 4096));
 
-            _ = Parallel.ForEach(
-                rangePartitioner,
-                range =>
-                {
-                    var (start, end) = range;
-                    var i = start;
-
-                    for (; i <= end - IntrinsicsHelper.AvxVectorSizeFp32; i += IntrinsicsHelper.AvxVectorSizeFp32)
+            _backend
+                .ParallelExecutor
+                .ForEach(
+                    rangePartitioner,
+                    range =>
                     {
-                        var leftVector = Avx.LoadVector256(leftPtr + i);
-                        var rightVector = Avx.LoadVector256(rightPtr + i);
-                        var resultVector = TOp.ApplyAvxFp32(leftVector, rightVector);
-                        resultVector.Store(resultPtr + i);
-                    }
+                        var (start, end) = range;
+                        var i = start;
 
-                    for (; i < end; i++)
-                    {
-                        resultPtr[i] = TOp.ApplyScalarFp32(leftPtr[i], rightPtr[i]);
-                    }
-                });
+                        for (; i <= end - IntrinsicsHelper.AvxVectorSizeFp32; i += IntrinsicsHelper.AvxVectorSizeFp32)
+                        {
+                            var leftVector = Avx.LoadVector256(leftPtr + i);
+                            var rightVector = Avx.LoadVector256(rightPtr + i);
+                            var resultVector = TOp.ApplyAvxFp32(leftVector, rightVector);
+                            resultVector.Store(resultPtr + i);
+                        }
+
+                        for (; i < end; i++)
+                        {
+                            resultPtr[i] = TOp.ApplyScalarFp32(leftPtr[i], rightPtr[i]);
+                        }
+                    });
         }
         else
         {
-            _ = Parallel.For(
-                0,
-                extent,
-                new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
-                i =>
-                {
-                    var offsetLeft = i * sL;
-                    var offsetRight = i * sR;
-                    var offsetResult = i * sO;
+            _backend
+                .ParallelExecutor
+                .For(
+                    0,
+                    extent,
+                    ManagedTensorBackend.MaxDegreeOfParallelism,
+                    i =>
+                    {
+                        var offsetLeft = i * sL;
+                        var offsetRight = i * sR;
+                        var offsetResult = i * sO;
 
-                    resultPtr[offsetResult] = TOp.ApplyScalarFp32(leftPtr[offsetLeft], rightPtr[offsetRight]);
-                });
+                        resultPtr[offsetResult] = TOp.ApplyScalarFp32(leftPtr[offsetLeft], rightPtr[offsetRight]);
+                    });
         }
     }
 
@@ -295,43 +312,48 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
 
         if (sL == 1 && sR == 1 && sO == 1)
         {
-            var rangePartitioner = Partitioner.Create(0L, extent, Math.Max(IntrinsicsHelper.AvxVectorSizeFp64 * 16, 4096));
+            var rangePartitioner =
+                Partitioner.Create(0L, extent, Math.Max(IntrinsicsHelper.AvxVectorSizeFp64 * 16, 4096));
 
-            _ = Parallel.ForEach(
-                rangePartitioner,
-                range =>
-                {
-                    var (start, end) = range;
-                    var i = start;
-
-                    for (; i <= end - IntrinsicsHelper.AvxVectorSizeFp64; i += IntrinsicsHelper.AvxVectorSizeFp64)
+            _backend
+                .ParallelExecutor
+                .ForEach(
+                    rangePartitioner,
+                    range =>
                     {
-                        var leftVector = Avx.LoadVector256(leftPtr + i);
-                        var rightVector = Avx.LoadVector256(rightPtr + i);
-                        var resultVector = TOp.ApplyAvxFp64(leftVector, rightVector);
-                        resultVector.Store(resultPtr + i);
-                    }
+                        var (start, end) = range;
+                        var i = start;
 
-                    for (; i < end; i++)
-                    {
-                        resultPtr[i] = TOp.ApplyScalarFp64(leftPtr[i], rightPtr[i]);
-                    }
-                });
+                        for (; i <= end - IntrinsicsHelper.AvxVectorSizeFp64; i += IntrinsicsHelper.AvxVectorSizeFp64)
+                        {
+                            var leftVector = Avx.LoadVector256(leftPtr + i);
+                            var rightVector = Avx.LoadVector256(rightPtr + i);
+                            var resultVector = TOp.ApplyAvxFp64(leftVector, rightVector);
+                            resultVector.Store(resultPtr + i);
+                        }
+
+                        for (; i < end; i++)
+                        {
+                            resultPtr[i] = TOp.ApplyScalarFp64(leftPtr[i], rightPtr[i]);
+                        }
+                    });
         }
         else
         {
-            _ = Parallel.For(
-                0,
-                extent,
-                new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
-                i =>
-                {
-                    var offsetLeft = i * sL;
-                    var offsetRight = i * sR;
-                    var offsetResult = i * sO;
+            _backend
+                .ParallelExecutor
+                .For(
+                    0,
+                    extent,
+                    ManagedTensorBackend.MaxDegreeOfParallelism,
+                    i =>
+                    {
+                        var offsetLeft = i * sL;
+                        var offsetRight = i * sR;
+                        var offsetResult = i * sO;
 
-                    resultPtr[offsetResult] = TOp.ApplyScalarFp64(leftPtr[offsetLeft], rightPtr[offsetRight]);
-                });
+                        resultPtr[offsetResult] = TOp.ApplyScalarFp64(leftPtr[offsetLeft], rightPtr[offsetRight]);
+                    });
         }
     }
 
@@ -343,25 +365,27 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         var extent0 = dim0.Extent;
         var extent1 = dim1.Extent;
 
-        _ = Parallel.For(
-            0,
-            extent0,
-            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
-            i =>
-            {
-                var baseLeft = i * dim0.StrideLeft;
-                var baseRight = i * dim0.StrideRight;
-                var baseOut = i * dim0.StrideResult;
-
-                for (long j = 0; j < extent1; j++)
+        _backend
+            .ParallelExecutor
+            .For(
+                0,
+                extent0,
+                ManagedTensorBackend.MaxDegreeOfParallelism,
+                i =>
                 {
-                    var offLeft = baseLeft + (j * dim1.StrideLeft);
-                    var offRight = baseRight + (j * dim1.StrideRight);
-                    var offOut = baseOut + (j * dim1.StrideResult);
+                    var baseLeft = i * dim0.StrideLeft;
+                    var baseRight = i * dim0.StrideRight;
+                    var baseOut = i * dim0.StrideResult;
 
-                    resultPtr[offOut] = TOp.ApplyScalar(leftPtr[offLeft], rightPtr[offRight]);
-                }
-            });
+                    for (long j = 0; j < extent1; j++)
+                    {
+                        var offLeft = baseLeft + (j * dim1.StrideLeft);
+                        var offRight = baseRight + (j * dim1.StrideRight);
+                        var offOut = baseOut + (j * dim1.StrideResult);
+
+                        resultPtr[offOut] = TOp.ApplyScalar(leftPtr[offLeft], rightPtr[offRight]);
+                    }
+                });
     }
 
     private unsafe void Apply2dAvx2(float* leftPtr, float* rightPtr, float* resultPtr)
@@ -369,49 +393,57 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         var dim0 = _dimRanges[0];
         var dim1 = _dimRanges[1];
 
+        if (dim1.StrideLeft != 1 || dim1.StrideRight != 1 || dim1.StrideResult != 1)
+        {
+            Apply2dScalar((TNumber*)leftPtr, (TNumber*)rightPtr, (TNumber*)resultPtr);
+            return;
+        }
+
         var extent0 = dim0.Extent;
         var extent1 = dim1.Extent;
 
         const int prefetchDistance = 256;
         const int prefetchVectorCount = prefetchDistance / sizeof(float);
 
-        _ = Parallel.For(
-            0,
-            extent0,
-            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
-            i =>
-            {
-                var baseLeft = i * dim0.StrideLeft;
-                var baseRight = i * dim0.StrideRight;
-                var baseResult = i * dim0.StrideResult;
-
-                var j = 0L;
-                for (; j < extent1 - IntrinsicsHelper.AvxVectorSizeFp32; j += IntrinsicsHelper.AvxVectorSizeFp32)
+        _backend
+            .ParallelExecutor
+            .For(
+                0,
+                extent0,
+                ManagedTensorBackend.MaxDegreeOfParallelism,
+                i =>
                 {
-                    var offsetLeft = baseLeft + (j * dim1.StrideLeft);
-                    var offsetRight = baseRight + (j * dim1.StrideRight);
-                    var offsetResult = baseResult + (j * dim1.StrideResult);
+                    var baseLeft = i * dim0.StrideLeft;
+                    var baseRight = i * dim0.StrideRight;
+                    var baseResult = i * dim0.StrideResult;
 
-                    Sse.Prefetch0(leftPtr + offsetLeft + i + prefetchVectorCount);
-                    Sse.Prefetch0(rightPtr + offsetRight + i + prefetchVectorCount);
-                    Sse.PrefetchNonTemporal(resultPtr + offsetRight + i + prefetchVectorCount);
+                    var j = 0L;
+                    for (; j < extent1 - IntrinsicsHelper.AvxVectorSizeFp32; j += IntrinsicsHelper.AvxVectorSizeFp32)
+                    {
+                        var offsetLeft = baseLeft + (j * dim1.StrideLeft);
+                        var offsetRight = baseRight + (j * dim1.StrideRight);
+                        var offsetResult = baseResult + (j * dim1.StrideResult);
 
-                    var leftVector = Avx.LoadVector256(leftPtr + offsetLeft);
-                    var rightVector = Avx.LoadVector256(rightPtr + offsetRight);
-                    var result = TOp.ApplyAvxFp32(leftVector, rightVector);
+                        Sse.Prefetch0(leftPtr + offsetLeft + prefetchVectorCount);
+                        Sse.Prefetch0(rightPtr + offsetRight + prefetchVectorCount);
+                        Sse.PrefetchNonTemporal(resultPtr + offsetResult + prefetchVectorCount);
 
-                    Avx.Store(resultPtr + offsetResult, result);
-                }
+                        var leftVector = Avx.LoadVector256(leftPtr + offsetLeft);
+                        var rightVector = Avx.LoadVector256(rightPtr + offsetRight);
+                        var result = TOp.ApplyAvxFp32(leftVector, rightVector);
 
-                for (; j < extent1; j++)
-                {
-                    var offsetLeft = baseLeft + (j * dim1.StrideLeft);
-                    var offsetRight = baseRight + (j * dim1.StrideRight);
-                    var offsetResult = baseResult + (j * dim1.StrideResult);
+                        Avx.Store(resultPtr + offsetResult, result);
+                    }
 
-                    resultPtr[offsetResult] = TOp.ApplyScalarFp32(leftPtr[offsetLeft], rightPtr[offsetRight]);
-                }
-            });
+                    for (; j < extent1; j++)
+                    {
+                        var offsetLeft = baseLeft + (j * dim1.StrideLeft);
+                        var offsetRight = baseRight + (j * dim1.StrideRight);
+                        var offsetResult = baseResult + (j * dim1.StrideResult);
+
+                        resultPtr[offsetResult] = TOp.ApplyScalarFp32(leftPtr[offsetLeft], rightPtr[offsetRight]);
+                    }
+                });
     }
 
     private unsafe void Apply2dAvx2(double* leftPtr, double* rightPtr, double* resultPtr)
@@ -419,49 +451,57 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         var dim0 = _dimRanges[0];
         var dim1 = _dimRanges[1];
 
+        if (dim1.StrideLeft != 1 || dim1.StrideRight != 1 || dim1.StrideResult != 1)
+        {
+            Apply2dScalar((TNumber*)leftPtr, (TNumber*)rightPtr, (TNumber*)resultPtr);
+            return;
+        }
+
         var extent0 = dim0.Extent;
         var extent1 = dim1.Extent;
 
         const int prefetchDistance = 256;
         const int prefetchVectorCount = prefetchDistance / sizeof(double);
 
-        _ = Parallel.For(
-            0,
-            extent0,
-            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
-            i =>
-            {
-                var baseLeft = i * dim0.StrideLeft;
-                var baseRight = i * dim0.StrideRight;
-                var baseResult = i * dim0.StrideResult;
-
-                var j = 0L;
-                for (; j < extent1 - IntrinsicsHelper.AvxVectorSizeFp64; j += IntrinsicsHelper.AvxVectorSizeFp64)
+        _backend
+            .ParallelExecutor
+            .For(
+                0,
+                extent0,
+                ManagedTensorBackend.MaxDegreeOfParallelism,
+                i =>
                 {
-                    var offsetLeft = baseLeft + (j * dim1.StrideLeft);
-                    var offsetRight = baseRight + (j * dim1.StrideRight);
-                    var offsetResult = baseResult + (j * dim1.StrideResult);
+                    var baseLeft = i * dim0.StrideLeft;
+                    var baseRight = i * dim0.StrideRight;
+                    var baseResult = i * dim0.StrideResult;
 
-                    Sse.Prefetch0(leftPtr + offsetLeft + i + prefetchVectorCount);
-                    Sse.Prefetch0(rightPtr + offsetRight + i + prefetchVectorCount);
-                    Sse.PrefetchNonTemporal(resultPtr + offsetRight + i + prefetchVectorCount);
+                    var j = 0L;
+                    for (; j < extent1 - IntrinsicsHelper.AvxVectorSizeFp64; j += IntrinsicsHelper.AvxVectorSizeFp64)
+                    {
+                        var offsetLeft = baseLeft + (j * dim1.StrideLeft);
+                        var offsetRight = baseRight + (j * dim1.StrideRight);
+                        var offsetResult = baseResult + (j * dim1.StrideResult);
 
-                    var leftVector = Avx.LoadVector256(leftPtr + offsetLeft);
-                    var rightVector = Avx.LoadVector256(rightPtr + offsetRight);
-                    var result = TOp.ApplyAvxFp64(leftVector, rightVector);
+                        Sse.Prefetch0(leftPtr + offsetLeft + prefetchVectorCount);
+                        Sse.Prefetch0(rightPtr + offsetRight + prefetchVectorCount);
+                        Sse.PrefetchNonTemporal(resultPtr + offsetResult + prefetchVectorCount);
 
-                    Avx.Store(resultPtr + offsetResult, result);
-                }
+                        var leftVector = Avx.LoadVector256(leftPtr + offsetLeft);
+                        var rightVector = Avx.LoadVector256(rightPtr + offsetRight);
+                        var result = TOp.ApplyAvxFp64(leftVector, rightVector);
 
-                for (; j < extent1; j++)
-                {
-                    var offsetLeft = baseLeft + (j * dim1.StrideLeft);
-                    var offsetRight = baseRight + (j * dim1.StrideRight);
-                    var offsetResult = baseResult + (j * dim1.StrideResult);
+                        Avx.Store(resultPtr + offsetResult, result);
+                    }
 
-                    resultPtr[offsetResult] = TOp.ApplyScalarFp64(leftPtr[offsetLeft], rightPtr[offsetRight]);
-                }
-            });
+                    for (; j < extent1; j++)
+                    {
+                        var offsetLeft = baseLeft + (j * dim1.StrideLeft);
+                        var offsetRight = baseRight + (j * dim1.StrideRight);
+                        var offsetResult = baseResult + (j * dim1.StrideResult);
+
+                        resultPtr[offsetResult] = TOp.ApplyScalarFp64(leftPtr[offsetLeft], rightPtr[offsetRight]);
+                    }
+                });
     }
 
     private unsafe void ApplyNdScalar(TNumber* leftPtr, TNumber* rightPtr, TNumber* resultPtr)
@@ -476,37 +516,39 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
             outerTotal *= _dimRanges[d].Extent;
         }
 
-        _ = Parallel.For(
-            0,
-            outerTotal,
-            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
-            outerIdx =>
-            {
-                var baseLeft = 0L;
-                var baseRight = 0L;
-                var baseResult = 0L;
-
-                var tmp = outerIdx;
-                for (var dim = rank - 2; dim >= 0; dim--)
+        _backend
+            .ParallelExecutor
+            .For(
+                0,
+                outerTotal,
+                ManagedTensorBackend.MaxDegreeOfParallelism,
+                outerIdx =>
                 {
-                    var ext = _dimRanges[dim].Extent;
-                    var coord = tmp % ext;
-                    tmp /= ext;
+                    var baseLeft = 0L;
+                    var baseRight = 0L;
+                    var baseResult = 0L;
 
-                    baseLeft += coord * _dimRanges[dim].StrideLeft;
-                    baseRight += coord * _dimRanges[dim].StrideRight;
-                    baseResult += coord * _dimRanges[dim].StrideResult;
-                }
+                    var tmp = outerIdx;
+                    for (var dim = rank - 2; dim >= 0; dim--)
+                    {
+                        var ext = _dimRanges[dim].Extent;
+                        var coord = tmp % ext;
+                        tmp /= ext;
 
-                for (var j = 0L; j < innerExtent; j++)
-                {
-                    var offsetLeft = baseLeft + (j * innerDim.StrideLeft);
-                    var offsetRight = baseRight + (j * innerDim.StrideRight);
-                    var offsetResult = baseResult + (j * innerDim.StrideResult);
+                        baseLeft += coord * _dimRanges[dim].StrideLeft;
+                        baseRight += coord * _dimRanges[dim].StrideRight;
+                        baseResult += coord * _dimRanges[dim].StrideResult;
+                    }
 
-                    resultPtr[offsetResult] = TOp.ApplyScalar(leftPtr[offsetLeft], rightPtr[offsetRight]);
-                }
-            });
+                    for (var j = 0L; j < innerExtent; j++)
+                    {
+                        var offsetLeft = baseLeft + (j * innerDim.StrideLeft);
+                        var offsetRight = baseRight + (j * innerDim.StrideRight);
+                        var offsetResult = baseResult + (j * innerDim.StrideResult);
+
+                        resultPtr[offsetResult] = TOp.ApplyScalar(leftPtr[offsetLeft], rightPtr[offsetRight]);
+                    }
+                });
     }
 
     private unsafe void ApplyNdAvx2(float* leftPtr, float* rightPtr, float* resultPtr)
@@ -514,6 +556,12 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         var rank = _dimRanges.Length;
         var innerDim = _dimRanges[rank - 1];
         var innerExtent = innerDim.Extent;
+
+        if (innerDim.StrideLeft != 1 || innerDim.StrideRight != 1 || innerDim.StrideResult != 1)
+        {
+            ApplyNdScalar((TNumber*)leftPtr, (TNumber*)rightPtr, (TNumber*)resultPtr);
+            return;
+        }
 
         long outerTotal = 1;
         for (var d = 0; d < rank - 1; d++)
@@ -524,55 +572,59 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         const int prefetchDistance = 256;
         const int prefetchVectorCount = prefetchDistance / sizeof(float);
 
-        _ = Parallel.For(
-            0,
-            outerTotal,
-            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
-            outerIdx =>
-            {
-                var baseLeft = 0L;
-                var baseRight = 0L;
-                var baseResult = 0L;
-
-                var tmp = outerIdx;
-                for (var dim = rank - 2; dim >= 0; dim--)
+        _backend
+            .ParallelExecutor
+            .For(
+                0,
+                outerTotal,
+                ManagedTensorBackend.MaxDegreeOfParallelism,
+                outerIdx =>
                 {
-                    var ext = _dimRanges[dim].Extent;
-                    var coord = tmp % ext;
-                    tmp /= ext;
+                    var baseLeft = 0L;
+                    var baseRight = 0L;
+                    var baseResult = 0L;
 
-                    baseLeft += coord * _dimRanges[dim].StrideLeft;
-                    baseRight += coord * _dimRanges[dim].StrideRight;
-                    baseResult += coord * _dimRanges[dim].StrideResult;
-                }
+                    var tmp = outerIdx;
+                    for (var dim = rank - 2; dim >= 0; dim--)
+                    {
+                        var ext = _dimRanges[dim].Extent;
+                        var coord = tmp % ext;
+                        tmp /= ext;
 
-                var j = 0L;
-                for (; j < innerExtent - IntrinsicsHelper.AvxVectorSizeFp32; j += IntrinsicsHelper.AvxVectorSizeFp32)
-                {
-                    var offsetLeft = baseLeft + (j * innerDim.StrideLeft);
-                    var offsetRight = baseRight + (j * innerDim.StrideRight);
-                    var offsetResult = baseResult + (j * innerDim.StrideResult);
+                        baseLeft += coord * _dimRanges[dim].StrideLeft;
+                        baseRight += coord * _dimRanges[dim].StrideRight;
+                        baseResult += coord * _dimRanges[dim].StrideResult;
+                    }
 
-                    Sse.Prefetch0(leftPtr + offsetLeft + prefetchVectorCount);
-                    Sse.Prefetch0(rightPtr + offsetLeft + prefetchVectorCount);
-                    Sse.PrefetchNonTemporal(resultPtr + offsetLeft + prefetchVectorCount);
+                    var j = 0L;
+                    for (;
+                         j < innerExtent - IntrinsicsHelper.AvxVectorSizeFp32;
+                         j += IntrinsicsHelper.AvxVectorSizeFp32)
+                    {
+                        var offsetLeft = baseLeft + (j * innerDim.StrideLeft);
+                        var offsetRight = baseRight + (j * innerDim.StrideRight);
+                        var offsetResult = baseResult + (j * innerDim.StrideResult);
 
-                    var leftVector = Avx.LoadVector256(leftPtr + offsetLeft);
-                    var rightVector = Avx.LoadVector256(rightPtr + offsetRight);
-                    var result = TOp.ApplyAvxFp32(leftVector, rightVector);
+                        Sse.Prefetch0(leftPtr + offsetLeft + prefetchVectorCount);
+                        Sse.Prefetch0(rightPtr + offsetRight + prefetchVectorCount);
+                        Sse.PrefetchNonTemporal(resultPtr + offsetResult + prefetchVectorCount);
 
-                    Avx.Store(resultPtr + offsetResult, result);
-                }
+                        var leftVector = Avx.LoadVector256(leftPtr + offsetLeft);
+                        var rightVector = Avx.LoadVector256(rightPtr + offsetRight);
+                        var result = TOp.ApplyAvxFp32(leftVector, rightVector);
 
-                for (; j < innerExtent; j++)
-                {
-                    var offsetLeft = baseLeft + (j * innerDim.StrideLeft);
-                    var offsetRight = baseRight + (j * innerDim.StrideRight);
-                    var offsetResult = baseResult + (j * innerDim.StrideResult);
+                        Avx.Store(resultPtr + offsetResult, result);
+                    }
 
-                    resultPtr[offsetResult] = TOp.ApplyScalarFp32(leftPtr[offsetLeft], rightPtr[offsetRight]);
-                }
-            });
+                    for (; j < innerExtent; j++)
+                    {
+                        var offsetLeft = baseLeft + (j * innerDim.StrideLeft);
+                        var offsetRight = baseRight + (j * innerDim.StrideRight);
+                        var offsetResult = baseResult + (j * innerDim.StrideResult);
+
+                        resultPtr[offsetResult] = TOp.ApplyScalarFp32(leftPtr[offsetLeft], rightPtr[offsetRight]);
+                    }
+                });
     }
 
     private unsafe void ApplyNdAvx2(double* leftPtr, double* rightPtr, double* resultPtr)
@@ -580,6 +632,12 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         var rank = _dimRanges.Length;
         var innerDim = _dimRanges[rank - 1];
         var innerExtent = innerDim.Extent;
+
+        if (innerDim.StrideLeft != 1 || innerDim.StrideRight != 1 || innerDim.StrideResult != 1)
+        {
+            ApplyNdScalar((TNumber*)leftPtr, (TNumber*)rightPtr, (TNumber*)resultPtr);
+            return;
+        }
 
         long outerTotal = 1;
         for (var d = 0; d < rank - 1; d++)
@@ -590,54 +648,58 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         const int prefetchDistance = 256;
         const int prefetchVectorCount = prefetchDistance / sizeof(double);
 
-        _ = Parallel.For(
-            0,
-            outerTotal,
-            new ParallelOptions { MaxDegreeOfParallelism = ManagedTensorBackend.MaxDegreeOfParallelism },
-            outerIdx =>
-            {
-                var baseLeft = 0L;
-                var baseRight = 0L;
-                var baseResult = 0L;
-
-                var tmp = outerIdx;
-                for (var dim = rank - 2; dim >= 0; dim--)
+        _backend
+            .ParallelExecutor
+            .For(
+                0,
+                outerTotal,
+                ManagedTensorBackend.MaxDegreeOfParallelism,
+                outerIdx =>
                 {
-                    var ext = _dimRanges[dim].Extent;
-                    var coord = tmp % ext;
-                    tmp /= ext;
+                    var baseLeft = 0L;
+                    var baseRight = 0L;
+                    var baseResult = 0L;
 
-                    baseLeft += coord * _dimRanges[dim].StrideLeft;
-                    baseRight += coord * _dimRanges[dim].StrideRight;
-                    baseResult += coord * _dimRanges[dim].StrideResult;
-                }
+                    var tmp = outerIdx;
+                    for (var dim = rank - 2; dim >= 0; dim--)
+                    {
+                        var ext = _dimRanges[dim].Extent;
+                        var coord = tmp % ext;
+                        tmp /= ext;
 
-                var j = 0L;
-                for (; j < innerExtent - IntrinsicsHelper.AvxVectorSizeFp64; j += IntrinsicsHelper.AvxVectorSizeFp64)
-                {
-                    var offsetLeft = baseLeft + (j * innerDim.StrideLeft);
-                    var offsetRight = baseRight + (j * innerDim.StrideRight);
-                    var offsetResult = baseResult + (j * innerDim.StrideResult);
+                        baseLeft += coord * _dimRanges[dim].StrideLeft;
+                        baseRight += coord * _dimRanges[dim].StrideRight;
+                        baseResult += coord * _dimRanges[dim].StrideResult;
+                    }
 
-                    Sse.Prefetch0(leftPtr + offsetLeft + prefetchVectorCount);
-                    Sse.Prefetch0(rightPtr + offsetLeft + prefetchVectorCount);
-                    Sse.PrefetchNonTemporal(resultPtr + offsetLeft + prefetchVectorCount);
+                    var j = 0L;
+                    for (;
+                         j < innerExtent - IntrinsicsHelper.AvxVectorSizeFp64;
+                         j += IntrinsicsHelper.AvxVectorSizeFp64)
+                    {
+                        var offsetLeft = baseLeft + (j * innerDim.StrideLeft);
+                        var offsetRight = baseRight + (j * innerDim.StrideRight);
+                        var offsetResult = baseResult + (j * innerDim.StrideResult);
 
-                    var leftVector = Avx.LoadVector256(leftPtr + offsetLeft);
-                    var rightVector = Avx.LoadVector256(rightPtr + offsetRight);
-                    var result = TOp.ApplyAvxFp64(leftVector, rightVector);
+                        Sse.Prefetch0(leftPtr + offsetLeft + prefetchVectorCount);
+                        Sse.Prefetch0(rightPtr + offsetRight + prefetchVectorCount);
+                        Sse.PrefetchNonTemporal(resultPtr + offsetResult + prefetchVectorCount);
 
-                    Avx.Store(resultPtr + offsetResult, result);
-                }
+                        var leftVector = Avx.LoadVector256(leftPtr + offsetLeft);
+                        var rightVector = Avx.LoadVector256(rightPtr + offsetRight);
+                        var result = TOp.ApplyAvxFp64(leftVector, rightVector);
 
-                for (; j < innerExtent; j++)
-                {
-                    var offsetLeft = baseLeft + (j * innerDim.StrideLeft);
-                    var offsetRight = baseRight + (j * innerDim.StrideRight);
-                    var offsetResult = baseResult + (j * innerDim.StrideResult);
+                        Avx.Store(resultPtr + offsetResult, result);
+                    }
 
-                    resultPtr[offsetResult] = TOp.ApplyScalarFp64(leftPtr[offsetLeft], rightPtr[offsetRight]);
-                }
-            });
+                    for (; j < innerExtent; j++)
+                    {
+                        var offsetLeft = baseLeft + (j * innerDim.StrideLeft);
+                        var offsetRight = baseRight + (j * innerDim.StrideRight);
+                        var offsetResult = baseResult + (j * innerDim.StrideResult);
+
+                        resultPtr[offsetResult] = TOp.ApplyScalarFp64(leftPtr[offsetLeft], rightPtr[offsetRight]);
+                    }
+                });
     }
 }

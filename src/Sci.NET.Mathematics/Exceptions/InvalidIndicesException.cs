@@ -3,7 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sci.NET.Mathematics.Tensors.Exceptions;
+namespace Sci.NET.Mathematics.Exceptions;
 
 /// <summary>
 /// An exception thrown when the indices are invalid.

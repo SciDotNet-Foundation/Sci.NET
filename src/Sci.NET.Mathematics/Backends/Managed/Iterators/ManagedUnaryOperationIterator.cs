@@ -56,12 +56,12 @@ internal static class ManagedUnaryOperationIterator
         ManagedStreamingUnaryParameterizedIterator.Apply(inputPtr, resultPtr, instance, n, device);
     }
 
-    public static unsafe void ApplyMixedPrecision<TOp, TIn, TOut>(TIn* inputPtr, TOut* resultPtr, long n)
+    public static unsafe void ApplyMixedPrecision<TOp, TIn, TOut>(TIn* inputPtr, TOut* resultPtr, long n, ICpuComputeDevice device)
         where TOp : IMixedPrecisionUnaryOperation<TIn, TOut>
         where TIn : unmanaged, INumber<TIn>
         where TOut : unmanaged, INumber<TOut>
     {
         // Keeping this abstracted for possible future use of blocked iterator
-        ManagedStreamingUnaryMixedPrecisionOperationIterator.Apply<TOp, TIn, TOut>(inputPtr, resultPtr, n);
+        ManagedStreamingUnaryMixedPrecisionOperationIterator.Apply<TOp, TIn, TOut>(inputPtr, resultPtr, n, device);
     }
 }

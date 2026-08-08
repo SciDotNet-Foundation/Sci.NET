@@ -12,7 +12,6 @@
         <DirectoryBuildPropsPath>$(MSBuildThisFileDirectory)</DirectoryBuildPropsPath>
         <Configurations>Debug;Release</Configurations>
         <EnableAnalyzers>true</EnableAnalyzers>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <RootDirectory>$(MSBuildThisFileDirectory)\..\</RootDirectory>
         <CompilerGeneratedFilesOutputPath>$(RootDirectory)\Artifacts\obj\GeneratedFiles</CompilerGeneratedFilesOutputPath>

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
+using System.Runtime.CompilerServices;
 using Sci.NET.Mathematics.Backends.Managed;
 using Sci.NET.Mathematics.Intrinsics;
 using Sci.NET.Mathematics.Runtime;
@@ -53,6 +54,20 @@ public class CpuComputeDevice : ICpuComputeDevice
     public ITensorBackend GetTensorBackend()
     {
         return ManagedTensorBackend.Instance;
+    }
+
+    /// <inheritdoc />
+    public TBackend GetTensorBackend<TBackend>()
+        where TBackend : ITensorBackend
+    {
+        if (typeof(TBackend) != typeof(ManagedTensorBackend) ||
+            typeof(TBackend).IsAssignableFrom(typeof(ManagedTensorBackend)))
+        {
+            throw new InvalidCastException("Could not convert the backend instance to the given type.");
+        }
+
+        var backend = ManagedTensorBackend.Instance;
+        return Unsafe.As<ManagedTensorBackend, TBackend>(ref backend);
     }
 
     /// <inheritdoc />

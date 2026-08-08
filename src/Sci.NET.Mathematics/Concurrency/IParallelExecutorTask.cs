@@ -4,17 +4,19 @@
 namespace Sci.NET.Mathematics.Concurrency;
 
 /// <summary>
-/// An interface represeting a task for parallel execution.
+/// An interface representing a task for parallel execution.
 /// </summary>
-internal interface IParallelExecutorTask : IDisposable
+internal interface IParallelExecutorTask
 {
     /// <summary>
-    /// Gets the wait handle which signals the completion of the <see cref="IParallelExecutorTask"/>.
+    /// Gets the exception thrown by the task body, if any.
     /// </summary>
-    public EventWaitHandle WaitHandle { get; }
+    public Exception? Exception { get; }
 
     /// <summary>
-    /// Invokes the underlying action of the <see cref="IParallelExecutorTask"/>.
+    /// Invokes the underlying action of the <see cref="IParallelExecutorTask"/>, capturing any
+    /// exception into <see cref="Exception"/> and signalling completion. This method never throws,
+    /// so a faulting task body cannot kill a pool worker thread.
     /// </summary>
-    public void InvokeAction();
+    public void Execute();
 }

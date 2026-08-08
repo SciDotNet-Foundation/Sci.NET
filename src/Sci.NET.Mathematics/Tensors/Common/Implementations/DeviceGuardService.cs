@@ -3,7 +3,7 @@
 
 using Sci.NET.Mathematics.Backends;
 using Sci.NET.Mathematics.Backends.Devices;
-using Sci.NET.Mathematics.Tensors.Exceptions;
+using Sci.NET.Mathematics.Exceptions;
 
 namespace Sci.NET.Mathematics.Tensors.Common.Implementations;
 

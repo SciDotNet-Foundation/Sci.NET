@@ -6,7 +6,7 @@ using System.Numerics;
 
 namespace Sci.NET.Mathematics.Concurrency;
 
-internal class ParallelExecutorTaskCollectionEnumerator<TIndex> : IEnumerator<ParallelExecutorTask<TIndex>>
+internal sealed class ParallelExecutorTaskCollectionEnumerator<TIndex> : IEnumerator<ParallelExecutorTask<TIndex>>
     where TIndex : IBinaryInteger<TIndex>
 {
     private readonly ParallelExecutorTaskCollection<TIndex> _collection;
@@ -17,20 +17,21 @@ internal class ParallelExecutorTaskCollectionEnumerator<TIndex> : IEnumerator<Pa
     {
         _items = items;
         _collection = taskCollection;
+        _currentIndex = -1;
     }
 
     public ParallelExecutorTask<TIndex> Current => _items[_currentIndex];
 
-    object IEnumerator.Current => _items[_currentIndex];
+    object IEnumerator.Current => Current;
 
     public bool MoveNext()
     {
-        if (_currentIndex >= _items.Length)
+        if (_collection.IsDisposed)
         {
             return false;
         }
 
-        if (_collection.IsDisposed)
+        if (_currentIndex + 1 >= _items.Length)
         {
             return false;
         }
@@ -42,7 +43,7 @@ internal class ParallelExecutorTaskCollectionEnumerator<TIndex> : IEnumerator<Pa
 
     public void Reset()
     {
-        _currentIndex = 0;
+        _currentIndex = -1;
     }
 
     public void Dispose()

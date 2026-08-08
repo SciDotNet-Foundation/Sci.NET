@@ -3,8 +3,9 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Sci.NET.Mathematics.Backends.Devices;
+using Sci.NET.Mathematics.Tensors;
 
-namespace Sci.NET.Mathematics.Tensors.Exceptions;
+namespace Sci.NET.Mathematics.Exceptions;
 
 /// <summary>
 /// An exception thrown when a tensor operation is attempted on between <see cref="ITensor{TNumber}"/>
