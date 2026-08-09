@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
-using Sci.NET.Mathematics.Backends.Managed;
 using Sci.NET.Mathematics.Memory;
 using Sci.NET.Mathematics.Numerics;
 
@@ -370,13 +368,15 @@ public class Prng
     public void FillNormal(SystemMemoryBlock<BFloat16> dst, BFloat16 mean, BFloat16 std, ulong stream = 0)
     {
         var streamId = GetNextStream(stream);
-        Fill(dst, i =>
-        {
-            var meanF = (float)mean;
-            var stdF = (float)std;
-            var normal = NormalF(_seed, i, streamId);
-            return meanF + (stdF * normal);
-        });
+        Fill(
+            dst,
+            i =>
+            {
+                var meanF = (float)mean;
+                var stdF = (float)std;
+                var normal = NormalF(_seed, i, streamId);
+                return meanF + (stdF * normal);
+            });
     }
 
     /// <summary>
@@ -389,13 +389,15 @@ public class Prng
     public void FillNormal(SystemMemoryBlock<Half> dst, Half mean, Half std, ulong stream = 0)
     {
         var streamId = GetNextStream(stream);
-        Fill(dst, i =>
-        {
-            var meanF = (float)mean;
-            var stdF = (float)std;
-            var normal = NormalF(_seed, i, streamId);
-            return (Half)(meanF + (stdF * normal));
-        });
+        Fill(
+            dst,
+            i =>
+            {
+                var meanF = (float)mean;
+                var stdF = (float)std;
+                var normal = NormalF(_seed, i, streamId);
+                return (Half)(meanF + (stdF * normal));
+            });
     }
 
     /// <summary>
@@ -643,21 +645,7 @@ public class Prng
     private static void Fill<T>(SystemMemoryBlock<T> dst, Func<long, T> gen)
         where T : unmanaged
     {
-        var numThreads = ManagedTensorBackend.GetNumThreadsByElementCount<T>(dst.Length);
-
-        var chunk = dst.Length / numThreads;
-        var remainder = dst.Length % numThreads;
-
-        _ = Parallel.For(0, dst.Length, tid =>
-        {
-            var start = (tid * chunk) + Math.Min(tid, remainder);
-            var count = tid < remainder ? chunk + 1 : chunk;
-
-            for (var i = 0; i < count; i++)
-            {
-                dst[i] = gen(start + i);
-            }
-        });
+        _ = Parallel.For(0, dst.Length, i => dst[i] = gen(i));
     }
 
     private static ulong Mix64(ulong z)
@@ -687,7 +675,6 @@ public class Prng
         }
     }
 
-    [SuppressMessage("Roslynator", "RCS1252:Normalize usage of infinite loop", Justification = "Readability.")]
     private static ulong UniformRange64(ulong seed, long index, ulong stream, ulong s)
     {
         // Based on "Fast Random Integer Generation in an Interval" by Daniel Lemire
@@ -710,7 +697,6 @@ public class Prng
         }
     }
 
-    [SuppressMessage("Roslynator", "RCS1252:Normalize usage of infinite loop", Justification = "Readability.")]
     private static uint UniformRange32(ulong seed, long index, ulong stream, uint s)
     {
         // Based on "Fast Random Integer Generation in an Interval" by Daniel Lemire

@@ -15,13 +15,12 @@ internal class ManagedBroadcastingKernels : IBroadcastingKernels
     {
         var tensorBlock = (SystemMemoryBlock<TNumber>)tensor.Memory;
         var resultBlock = (SystemMemoryBlock<TNumber>)result.Memory;
-        var backend = tensor.Device.GetTensorBackend<ManagedTensorBackend>();
 
         if (tensor.Shape.IsScalar)
         {
             var scalarValue = tensorBlock[0];
 
-            backend
+            ManagedTensorBackend
                 .ParallelExecutor
                 .For(
                     0,
@@ -38,7 +37,7 @@ internal class ManagedBroadcastingKernels : IBroadcastingKernels
         var srcPtr = tensorBlock.Pointer;
         var dstPtr = resultBlock.Pointer;
 
-        backend
+        ManagedTensorBackend
             .ParallelExecutor
             .For(
                 0,

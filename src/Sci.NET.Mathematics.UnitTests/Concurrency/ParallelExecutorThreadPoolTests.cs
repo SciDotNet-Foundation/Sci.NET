@@ -23,7 +23,12 @@ public class ParallelExecutorThreadPoolTests
         using var pool = new ParallelExecutorThreadPool(2);
 
         pool.Threads.Should().HaveCount(2);
-        pool.Threads.Should().OnlyContain(thread => thread.IsBackground);
+        pool
+            .Threads
+            .Should()
+            .AllSatisfy(x => x.Should().NotBeNull())
+            .And
+            .OnlyContain(thread => thread!.IsBackground);
     }
 
     [Fact]
@@ -31,7 +36,12 @@ public class ParallelExecutorThreadPoolTests
     {
         using var pool = new ParallelExecutorThreadPool(2, ThreadPriority.BelowNormal);
 
-        pool.Threads.Should().OnlyContain(thread => thread.Priority == ThreadPriority.BelowNormal);
+        pool
+            .Threads
+            .Should()
+            .AllSatisfy(x => x.Should().NotBeNull())
+            .And
+            .OnlyContain(thread => thread!.Priority == ThreadPriority.BelowNormal);
     }
 
     [Fact]
@@ -41,7 +51,11 @@ public class ParallelExecutorThreadPoolTests
 
         pool.Dispose();
 
-        pool.Threads.Should().OnlyContain(thread => !thread.IsAlive);
+        pool
+            .Threads.Should()
+            .AllSatisfy(x => x.Should().NotBeNull())
+            .And
+            .OnlyContain(thread => !thread!.IsAlive);
     }
 
     [Fact]
@@ -109,13 +123,13 @@ public class ParallelExecutorThreadPoolTests
         var observedOnWorker = false;
         using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(
             1,
-            _ => observedOnWorker = ParallelExecutorThreadPool.IsWorkerThread);
+            _ => observedOnWorker = ParallelExecutorThreadPoolThread.IsWorkerThread);
 
         pool.EnqueueItems(workItems);
         workItems.WaitAll();
 
         observedOnWorker.Should().BeTrue();
-        ParallelExecutorThreadPool.IsWorkerThread.Should().BeFalse();
+        ParallelExecutorThreadPoolThread.IsWorkerThread.Should().BeFalse();
     }
 
     [Fact]
@@ -131,12 +145,63 @@ public class ParallelExecutorThreadPoolTests
             act.Should().Throw<AggregateException>();
         }
 
-        pool.Threads.Should().OnlyContain(thread => thread.IsAlive);
+        pool
+            .Threads.Should()
+            .AllSatisfy(thread => thread.Should().NotBeNull())
+            .And
+            .OnlyContain(thread => thread!.IsAlive);
 
         using var healthyItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(4, _ => { });
 
         pool.EnqueueItems(healthyItems);
 
         healthyItems.WaitAll(TimeSpan.FromSeconds(30)).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ReplaceWorkerThreads_DoesItProperly()
+    {
+        // Arrange
+        const int replicas = 4;
+        using var pool = new ParallelExecutorThreadPool(replicas);
+        var values = new bool[replicas];
+
+        var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(
+            replicas,
+            i =>
+            {
+                Thread.Sleep(1000);
+
+                values[i] = true;
+            });
+
+        var oldThreads = pool.Threads.ToArray();
+
+        var workerThread = new Thread(() => pool.EnqueueItems(tasks));
+        workerThread.Start();
+
+        // Act
+        Thread.Sleep(500);
+        pool.ReplaceWorkerThreads(2, ThreadPriority.BelowNormal);
+
+        // Assert
+        workerThread.Join();
+        var newThreads = pool.Threads.ToArray();
+
+        values.Should().AllBeEquivalentTo(true);
+
+        foreach (var oldThread in oldThreads)
+        {
+            oldThread.Should().NotBeNull();
+            oldThread.IsAlive.Should().BeFalse();
+        }
+
+        pool.Threads.Count.Should().Be(2);
+        foreach (var newThread in newThreads)
+        {
+            newThread.Should().NotBeNull();
+            newThread.IsAlive.Should().BeTrue();
+            newThread.Priority.Should().Be(ThreadPriority.BelowNormal);
+        }
     }
 }

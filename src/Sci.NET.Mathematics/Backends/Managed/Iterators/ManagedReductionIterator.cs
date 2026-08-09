@@ -41,10 +41,10 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
                 break;
 
             case ReductionPattern.ContiguousOuter:
-                ApplyContiguousOuter(inputMemory.ToPointer(), outputMemory.ToPointer(), geometry, (ICpuComputeDevice)input.Device);
+                ApplyContiguousOuter(inputMemory.ToPointer(), outputMemory.ToPointer(), geometry);
                 break;
             case ReductionPattern.Strided:
-                ApplyStrided(inputMemory.ToPointer(), outputMemory.ToPointer(), geometry, (ICpuComputeDevice)input.Device);
+                ApplyStrided(inputMemory.ToPointer(), outputMemory.ToPointer(), geometry);
                 break;
             default:
                 throw new InvalidOperationException($"Unsupported reduction pattern: {geometry.Pattern}");
@@ -58,29 +58,27 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
         ICpuComputeDevice device)
     {
         var count = geometry.TotalElements;
-        var backend = device.GetTensorBackend<ManagedTensorBackend>();
 
         if (device.IsAvx2Supported() && TReduction.HasAvx2Implementation())
         {
             switch (TNumber.Zero)
             {
                 case float:
-                    ApplyFullReductionAvx256Fp32((float*)input.ToPointer(), (float*)output.ToPointer(), count, backend);
+                    ApplyFullReductionAvx256Fp32((float*)input.ToPointer(), (float*)output.ToPointer(), count);
                     return;
                 case double:
-                    ApplyFullReductionAvx256Fp64((double*)input.ToPointer(), (double*)output.ToPointer(), count, backend);
+                    ApplyFullReductionAvx256Fp64((double*)input.ToPointer(), (double*)output.ToPointer(), count);
                     return;
             }
         }
 
-        ApplyFullReductionScalar(input.ToPointer(), output.ToPointer(), count, backend);
+        ApplyFullReductionScalar(input.ToPointer(), output.ToPointer(), count);
     }
 
     private static unsafe void ApplyFullReductionAvx256Fp32(
         float* input,
         float* output,
-        long n,
-        ManagedTensorBackend backend)
+        long n)
     {
         var numThreads = ManagedTensorBackend.GetNumThreadsByElementCount<float>(n);
         var partials = new float[numThreads];
@@ -89,7 +87,7 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
             numThreads,
             tid => ApplyFullReductionAvx256Fp32InnerLoop(tid, numThreads, n, input, partials));
 
-        backend.ParallelExecutor.Run(tasks);
+        ManagedTensorBackend.ParallelExecutor.Run(tasks);
 
         var result = TReduction.Identity;
         foreach (var partial in partials)
@@ -156,8 +154,7 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
     private static unsafe void ApplyFullReductionAvx256Fp64(
         double* input,
         double* output,
-        long n,
-        ManagedTensorBackend backend)
+        long n)
     {
         var numThreads = ManagedTensorBackend.GetNumThreadsByElementCount<double>(n);
         var partials = new double[numThreads];
@@ -166,7 +163,7 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
             numThreads,
             tid => ApplyFullReductionAvx256Fp64InnerLoop(tid, numThreads, n, input, partials));
 
-        backend.ParallelExecutor.Run(tasks);
+        ManagedTensorBackend.ParallelExecutor.Run(tasks);
 
         var result = TReduction.Identity;
         foreach (var partial in partials)
@@ -233,8 +230,7 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
     private static unsafe void ApplyFullReductionScalar(
         TNumber* input,
         TNumber* output,
-        long n,
-        ManagedTensorBackend backend)
+        long n)
     {
         var numThreads = ManagedTensorBackend.GetNumThreadsByElementCount<double>(n);
         var partials = new TNumber[numThreads];
@@ -243,7 +239,7 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
             numThreads,
             tid => ApplyFullReductionScalarInnerLoop(tid, numThreads, n, input, partials));
 
-        backend.ParallelExecutor.Run(tasks);
+        ManagedTensorBackend.ParallelExecutor.Run(tasks);
 
         var result = TReduction.Identity;
         foreach (var partial in partials)
@@ -276,7 +272,6 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
         in ReductionGeometry geometry,
         ICpuComputeDevice device)
     {
-        var backend = device.GetTensorBackend<ManagedTensorBackend>();
         var outerCount = geometry.OuterCount;
         var innerCount = geometry.InnerCount;
 
@@ -286,25 +281,24 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
             switch (TNumber.Zero)
             {
                 case float:
-                    ApplyContiguousInnerAvx256Fp32((float*)input.ToPointer(), (float*)output.ToPointer(), outerCount, innerCount, backend);
+                    ApplyContiguousInnerAvx256Fp32((float*)input.ToPointer(), (float*)output.ToPointer(), outerCount, innerCount);
                     return;
                 case double:
-                    ApplyContiguousInnerAvx256Fp64((double*)input.ToPointer(), (double*)output.ToPointer(), outerCount, innerCount, backend);
+                    ApplyContiguousInnerAvx256Fp64((double*)input.ToPointer(), (double*)output.ToPointer(), outerCount, innerCount);
                     return;
             }
         }
 
-        ApplyContiguousInnerScalar(input.ToPointer(), output.ToPointer(), outerCount, innerCount, backend);
+        ApplyContiguousInnerScalar(input.ToPointer(), output.ToPointer(), outerCount, innerCount);
     }
 
     private static unsafe void ApplyContiguousInnerAvx256Fp32(
         float* input,
         float* output,
         long outerCount,
-        long innerCount,
-        ManagedTensorBackend backend)
+        long innerCount)
     {
-        backend.ParallelExecutor.For(
+        ManagedTensorBackend.ParallelExecutor.For(
             0,
             outerCount,
             ManagedTensorBackend.MaxDegreeOfParallelism,
@@ -356,10 +350,9 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
         double* input,
         double* output,
         long outerCount,
-        long innerCount,
-        ManagedTensorBackend backend)
+        long innerCount)
     {
-        backend.ParallelExecutor.For(
+        ManagedTensorBackend.ParallelExecutor.For(
             0,
             outerCount,
             ManagedTensorBackend.MaxDegreeOfParallelism,
@@ -411,10 +404,9 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
         TNumber* input,
         TNumber* output,
         long outerCount,
-        long innerCount,
-        ManagedTensorBackend backend)
+        long innerCount)
     {
-        backend.ParallelExecutor.For(
+        ManagedTensorBackend.ParallelExecutor.For(
             0,
             outerCount,
             ManagedTensorBackend.MaxDegreeOfParallelism,
@@ -437,15 +429,14 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
     private static unsafe void ApplyContiguousOuter(
         TNumber* input,
         TNumber* output,
-        in ReductionGeometry geometry,
-        ICpuComputeDevice device)
+        in ReductionGeometry geometry)
     {
         var outerCount = geometry.OuterCount;
         var innerCount = geometry.InnerCount;
         var stride = geometry.OuterStride;
 
         // No AVX implementation for this pattern yet
-        device.GetTensorBackend<ManagedTensorBackend>()
+        ManagedTensorBackend
             .ParallelExecutor
             .For(
                 0,
@@ -468,8 +459,7 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
     private static unsafe void ApplyStrided(
         TNumber* input,
         TNumber* output,
-        in ReductionGeometry geometry,
-        ICpuComputeDevice device)
+        in ReductionGeometry geometry)
     {
         // No AVX implementation for this pattern yet
         var outerCount = geometry.OuterCount;
@@ -487,8 +477,7 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
             resultShape[d] = geometry.InputShape[resultToTensorDim[d]];
         }
 
-        device
-            .GetTensorBackend<ManagedTensorBackend>()
+        ManagedTensorBackend
             .ParallelExecutor
             .For(
                 0,

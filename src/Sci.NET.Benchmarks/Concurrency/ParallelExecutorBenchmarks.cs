@@ -14,13 +14,14 @@ namespace Sci.NET.Benchmarks.Concurrency;
 [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "Benchmark")]
 public class ParallelExecutorBenchmarks
 {
-    [Params(256, 512, 1024, 248)] public int VectorSize { get; set; }
+    [Params(32768, 131072, 524288)]
+    public int VectorSize { get; set; }
 
     private SystemMemoryBlock<float> _leftVector = null!;
     private SystemMemoryBlock<float> _rightVector = null!;
     private SystemMemoryBlock<float> _resultVector = null!;
     private ParallelExecutor _parallelExecutor = null!;
-    private ParallelExecutorThreadPool _threadPool = null!;
+    private ParallelExecutorThreadPool _parallelExecutorThreadPool = null!;
 
     [GlobalSetup]
     public void GlobalSetup()
@@ -32,8 +33,8 @@ public class ParallelExecutorBenchmarks
         Prng.Instance.FillUniform(_leftVector, 0.0f, 1.0f);
         Prng.Instance.FillUniform(_rightVector, 0.0f, 1.0f);
 
-        _threadPool = new ParallelExecutorThreadPool(Environment.ProcessorCount);
-        _parallelExecutor = new ParallelExecutor(_threadPool);
+        _parallelExecutorThreadPool = new ParallelExecutorThreadPool(Environment.ProcessorCount);
+        _parallelExecutor = new ParallelExecutor(_parallelExecutorThreadPool);
     }
 
     [Benchmark]
@@ -62,19 +63,32 @@ public class ParallelExecutorBenchmarks
     {
         var numWorkers = ManagedTensorBackend.GetNumThreadsByElementCount<float>(VectorSize);
 
-        Parallel.For(
-            0,
-            numWorkers,
-            idx =>
-            {
-                InnerLoop(
-                    idx,
-                    VectorSize,
-                    numWorkers,
-                    _leftVector.ToPointer(),
-                    _rightVector.ToPointer(),
-                    _resultVector.ToPointer());
-            });
+        if (numWorkers == 1)
+        {
+            InnerLoop(
+                0,
+                VectorSize,
+                1,
+                _leftVector.ToPointer(),
+                _rightVector.ToPointer(),
+                _resultVector.ToPointer());
+        }
+        else
+        {
+            Parallel.For(
+                0,
+                numWorkers,
+                idx =>
+                {
+                    InnerLoop(
+                        idx,
+                        VectorSize,
+                        numWorkers,
+                        _leftVector.ToPointer(),
+                        _rightVector.ToPointer(),
+                        _resultVector.ToPointer());
+                });
+        }
     }
 
     private static unsafe void InnerLoop(
@@ -102,6 +116,6 @@ public class ParallelExecutorBenchmarks
         _rightVector.Dispose();
         _resultVector.Dispose();
 
-        _threadPool.Dispose();
+        _parallelExecutorThreadPool.Dispose();
     }
 }

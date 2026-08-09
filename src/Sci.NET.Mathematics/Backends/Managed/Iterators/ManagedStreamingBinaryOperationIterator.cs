@@ -19,7 +19,6 @@ internal static class ManagedStreamingBinaryOperationIterator
         where TNumber : unmanaged, INumber<TNumber>
     {
         var processes = ManagedTensorBackend.GetNumThreadsByElementCount<TNumber>(n);
-        var backend = device.GetTensorBackend<ManagedTensorBackend>();
 
         using var tasks = TNumber.Zero switch
         {
@@ -70,7 +69,7 @@ internal static class ManagedStreamingBinaryOperationIterator
                         resultPtr)),
         };
 
-        backend.ParallelExecutor.Run(tasks);
+        ManagedTensorBackend.ParallelExecutor.Run(tasks);
     }
 
     private static unsafe void InnerLoopAvx2<TOp>(

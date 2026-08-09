@@ -1,8 +1,8 @@
 // Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Concurrent;
 using System.Numerics;
+using Sci.NET.Mathematics.Collections;
 
 namespace Sci.NET.Mathematics.Concurrency;
 
@@ -15,9 +15,9 @@ public sealed class ParallelExecutorThreadPool : IDisposable
 {
     private static readonly TimeSpan WorkerJoinTimeout = TimeSpan.FromSeconds(5);
 
-    private readonly Thread[] _threads;
-    private readonly BlockingCollection<IParallelExecutorTask> _workItems;
-    private volatile bool _disposed;
+    private readonly PausableBoundedBlockingCollection<IParallelExecutorTask> _tasks;
+    private readonly List<ParallelExecutorThreadPoolThread> _threads;
+    private bool _disposed;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ParallelExecutorThreadPool"/> class and starts
@@ -30,42 +30,18 @@ public sealed class ParallelExecutorThreadPool : IDisposable
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(numThreads);
 
-        _threads = new Thread[numThreads];
-        _workItems = new BlockingCollection<IParallelExecutorTask>();
+        _disposed = false;
+        _threads = new List<ParallelExecutorThreadPoolThread>();
+        _tasks = new PausableBoundedBlockingCollection<IParallelExecutorTask>(numThreads);
 
-        for (var i = 0; i < numThreads; i++)
-        {
-            _threads[i] = new Thread(ThreadBody)
-            {
-                IsBackground = true,
-                Name = $"Sci.NET.ParallelExecutor Worker {i}",
-                Priority = priority
-            };
-
-            _threads[i]
-                .Start(
-                    new ParallelExecutorThreadPoolThreadDetails
-                    {
-                        ThreadIdx = i,
-                        ThreadPool = this
-                    });
-        }
-
+        CreateThreads(numThreads, priority, true);
         ParallelExecutorEventSource.Log.ThreadPoolStarted(numThreads);
     }
 
     /// <summary>
-    /// Gets a value indicating whether the calling thread is a worker thread belonging to any
-    /// <see cref="ParallelExecutorThreadPool"/>. Used to detect re-entrant (nested) parallelism,
-    /// which would otherwise deadlock the pool.
-    /// </summary>
-    [field: ThreadStatic]
-    public static bool IsWorkerThread { get; private set; }
-
-    /// <summary>
     /// Gets the worker threads owned by the pool.
     /// </summary>
-    public IReadOnlyList<Thread> Threads => _threads;
+    public IReadOnlyList<Thread?> Threads => [.. _threads.Select(x => x.GetUnderlyingThread())];
 
     /// <summary>
     /// Enqueues a single work item for execution on the pool.
@@ -80,7 +56,7 @@ public sealed class ParallelExecutorThreadPool : IDisposable
         ArgumentNullException.ThrowIfNull(workItem);
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        _workItems.Add(workItem);
+        _tasks.Add(workItem);
     }
 
     /// <summary>
@@ -98,16 +74,46 @@ public sealed class ParallelExecutorThreadPool : IDisposable
 
         foreach (var item in workItem)
         {
-            _workItems.Add(item);
+            _tasks.Add(item);
         }
 
         ParallelExecutorEventSource.Log.BatchEnqueued(workItem.Count);
     }
 
     /// <summary>
-    /// Shuts the pool down: no further work can be enqueued, already-queued work is drained, and
-    /// the worker threads are joined (with a timeout, so a stuck task body cannot hang Dispose).
+    /// Replaces the worker threads with the given number of threads, each of which have the given priority.
     /// </summary>
+    /// <param name="numThreads">The number of workers to use.</param>
+    /// <param name="priority">The priority of the worker threads.</param>
+    /// <exception cref="ObjectDisposedException">The <see cref="ParallelExecutor"/> has been disposed.</exception>
+    /// <remarks>
+    /// This method will block the current thread until the queued threads have been exhausted, then the threads will be
+    /// replaced.
+    /// </remarks>
+    public void ReplaceWorkerThreads(int numThreads, ThreadPriority priority)
+    {
+        _tasks.PauseAdding();
+
+        // Wait until all threads have exited.
+        ParallelExecutorEventSource.Log.ThreadPoolStopping();
+        JoinRunningThreads();
+
+        _threads.Clear();
+
+        // Don't start the threads yet, they will instantly exit due to the
+        // pause still being active.
+        CreateThreads(numThreads, priority, false);
+
+        _tasks.ResumeAdding();
+
+        ParallelExecutorEventSource.Log.ThreadPoolStarted(numThreads);
+        foreach (var parallelExecutorThreadPoolThread in _threads)
+        {
+            parallelExecutorThreadPoolThread.Start();
+        }
+    }
+
+    /// <inheritdoc />
     public void Dispose()
     {
         if (_disposed)
@@ -119,32 +125,40 @@ public sealed class ParallelExecutorThreadPool : IDisposable
 
         ParallelExecutorEventSource.Log.ThreadPoolStopping();
 
-        _workItems.CompleteAdding();
+        _tasks.CompleteAdding();
 
-        for (var i = 0; i < _threads.Length; i++)
-        {
-            if (!_threads[i].Join(WorkerJoinTimeout))
-            {
-                ParallelExecutorEventSource.Log.WorkerThreadJoinTimedOut(i);
-            }
-        }
+        JoinRunningThreads(WorkerJoinTimeout);
 
-        _workItems.Dispose();
+        _tasks.Dispose();
     }
 
-    private static void ThreadBody(object? boxedThreadParams)
+    private void CreateThreads(int numThreads, ThreadPriority priority, bool shouldStart)
     {
-        var threadParams = (ParallelExecutorThreadPoolThreadDetails)(boxedThreadParams ?? throw new ArgumentNullException(nameof(boxedThreadParams)));
-
-        IsWorkerThread = true;
-
-        ParallelExecutorEventSource.Log.WorkerThreadStarted(threadParams.ThreadIdx);
-
-        foreach (var item in threadParams.ThreadPool._workItems.GetConsumingEnumerable())
+        for (var i = 0; i < numThreads; i++)
         {
-            item.Execute();
-        }
+            var thread = new ParallelExecutorThreadPoolThread(_tasks)
+            {
+                ThreadIdx = i,
+                Priority = priority
+            };
 
-        ParallelExecutorEventSource.Log.WorkerThreadStopped(threadParams.ThreadIdx);
+            _threads.Add(thread);
+
+            if (shouldStart)
+            {
+                thread.Start();
+            }
+        }
+    }
+
+    private void JoinRunningThreads(TimeSpan? timeout = null)
+    {
+        foreach (var thread in _threads)
+        {
+            if (!thread.Join(timeout))
+            {
+                ParallelExecutorEventSource.Log.WorkerThreadJoinTimedOut(thread.ThreadIdx);
+            }
+        }
     }
 }

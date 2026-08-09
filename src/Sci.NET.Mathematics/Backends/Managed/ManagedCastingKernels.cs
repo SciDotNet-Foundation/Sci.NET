@@ -2,7 +2,6 @@
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
 using System.Numerics;
-using Sci.NET.Mathematics.Backends.Devices;
 using Sci.NET.Mathematics.Backends.Managed.Iterators;
 using Sci.NET.Mathematics.Backends.Managed.MicroKernels.Casting;
 using Sci.NET.Mathematics.Memory;
@@ -22,7 +21,6 @@ internal class ManagedCastingKernels : ICastingKernels
         ManagedUnaryOperationIterator.ApplyMixedPrecision<CastTruncatingMicroKernel<TIn, TOut>, TIn, TOut>(
             inputMemoryBlock.ToPointer(),
             resultMemoryBlock.ToPointer(),
-            inputMemoryBlock.Length,
-            (ICpuComputeDevice)input.Device);
+            inputMemoryBlock.Length);
     }
 }

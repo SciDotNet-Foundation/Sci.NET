@@ -2,7 +2,6 @@
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
 using System.Numerics;
-using Sci.NET.Mathematics.Backends.Devices;
 using Sci.NET.Mathematics.Backends.Managed.MicroKernels;
 using Sci.NET.Mathematics.Concurrency;
 
@@ -10,13 +9,12 @@ namespace Sci.NET.Mathematics.Backends.Managed.Iterators;
 
 internal static class ManagedStreamingUnaryMixedPrecisionOperationIterator
 {
-    public static unsafe void Apply<TOp, TIn, TOut>(TIn* inputPtr, TOut* resultPtr, long n, ICpuComputeDevice device)
+    public static unsafe void Apply<TOp, TIn, TOut>(TIn* inputPtr, TOut* resultPtr, long n)
         where TOp : IMixedPrecisionUnaryOperation<TIn, TOut>
         where TIn : unmanaged, INumber<TIn>
         where TOut : unmanaged, INumber<TOut>
     {
         var processes = ManagedTensorBackend.GetNumThreadsByElementCount<TIn, TOut>(n);
-        var backend = device.GetTensorBackend<ManagedTensorBackend>();
 
         using var tasks = ParallelExecutorTaskFactory
             .RepeatedConstantOffset<long>(processes, tid =>
@@ -27,7 +25,7 @@ internal static class ManagedStreamingUnaryMixedPrecisionOperationIterator
                     inputPtr,
                     resultPtr));
 
-        backend.ParallelExecutor.Run(tasks);
+        ManagedTensorBackend.ParallelExecutor.Run(tasks);
     }
 
     private static unsafe void InnerLoopScalar<TOp, TIn, TOut>(

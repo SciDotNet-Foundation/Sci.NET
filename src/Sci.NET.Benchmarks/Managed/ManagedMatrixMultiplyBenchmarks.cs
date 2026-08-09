@@ -10,7 +10,6 @@ using Sci.NET.Mathematics.Tensors;
 
 namespace Sci.NET.Benchmarks.Managed;
 
-[MemoryDiagnoser]
 public class ManagedMatrixMultiplyBenchmarks<TNumber> : IDisposable
     where TNumber : unmanaged, INumber<TNumber>
 {

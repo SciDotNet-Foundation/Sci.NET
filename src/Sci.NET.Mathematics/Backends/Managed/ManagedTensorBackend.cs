@@ -14,6 +14,8 @@ namespace Sci.NET.Mathematics.Backends.Managed;
 [PublicAPI]
 public sealed class ManagedTensorBackend : ITensorBackend
 {
+    private static ParallelExecutorThreadPool _threadPool = null!;
+
     static ManagedTensorBackend()
     {
         ResetToDefaults();
@@ -39,23 +41,12 @@ public sealed class ManagedTensorBackend : ITensorBackend
         Normalisation = new ManagedNormalisationKernels();
         EqualityOperations = new ManagedEqualityOperationKernels();
         ParallelExecutorThreadPool = new ParallelExecutorThreadPool(Environment.ProcessorCount);
-        ParallelExecutor = new ParallelExecutor(ParallelExecutorThreadPool);
     }
 
     /// <summary>
-    /// Gets or sets the maximum degree of parallelism for operations in the managed backend.
+    /// Gets the maximum degree of parallelism for operations in the managed backend.
     /// </summary>
-    public static int MaxDegreeOfParallelism
-    {
-        get;
-        set
-        {
-            ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(value, Environment.ProcessorCount);
-
-            field = value;
-        }
-    }
+    public static int MaxDegreeOfParallelism { get; private set; }
 
     /// <summary>
     /// Gets or sets the minimum number of bytes processed per thread in parallel operations.
@@ -67,19 +58,6 @@ public sealed class ManagedTensorBackend : ITensorBackend
         {
             ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
-            field = value;
-        }
-    }
-
-    /// <summary>
-    /// Gets or sets the threshold for parallelization in terms of number of elements.
-    /// </summary>
-    public static int ParallelizationThreshold
-    {
-        get;
-        set
-        {
-            ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
             field = value;
         }
     }
@@ -98,14 +76,14 @@ public sealed class ManagedTensorBackend : ITensorBackend
     }
 
     /// <summary>
+    /// Gets the parallel executor used to run the backend's kernels.
+    /// </summary>
+    public static ParallelExecutor ParallelExecutor { get; private set; } = null!;
+
+    /// <summary>
     /// Gets the singleton instance of the <see cref="ManagedTensorBackend"/>.
     /// </summary>
     public static ManagedTensorBackend Instance { get; } = new();
-
-    /// <summary>
-    /// Gets the parallel executor used to run the backend's kernels.
-    /// </summary>
-    public ParallelExecutor ParallelExecutor { get; }
 
     /// <summary>
     /// Gets the thread pool backing <see cref="ParallelExecutor"/>.
@@ -161,8 +139,26 @@ public sealed class ManagedTensorBackend : ITensorBackend
     {
         MaxDegreeOfParallelism = Environment.ProcessorCount;
         MinBytesPerThread = 256 * 1024; // 256 KiB per thread
-        ParallelizationThreshold = 100_000;
         ParallelizationTileThreshold = 2;
+
+        _threadPool = new ParallelExecutorThreadPool(MaxDegreeOfParallelism, ThreadPriority.Normal);
+        ParallelExecutor = new ParallelExecutor(_threadPool);
+    }
+
+    /// <summary>
+    /// Sets the options for the <see cref="ParallelExecutor"/>, including the <paramref name="numThreads"/> and <paramref name="threadPriority"/>.
+    /// The <see cref="MaxDegreeOfParallelism"/> is set to the <paramref name="numThreads"/>.
+    /// </summary>
+    /// <param name="numThreads">The number of threads to create.</param>
+    /// <param name="threadPriority">The priority of the <see cref="ParallelExecutor"/> worker threads.</param>
+    public static void SetParallelExecutorOptions(int numThreads, ThreadPriority threadPriority = ThreadPriority.Normal)
+    {
+        // TODO -> This needs to be made thread safe.
+        _threadPool.Dispose();
+
+        MaxDegreeOfParallelism = numThreads;
+        _threadPool = new ParallelExecutorThreadPool(numThreads, threadPriority);
+        ParallelExecutor = new ParallelExecutor(_threadPool);
     }
 
     internal static int GetMaxDegreeOfParallelism(long tileCount)

@@ -25,7 +25,6 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
     private readonly unsafe TNumber* _rightPtr;
     private readonly unsafe TNumber* _resultPtr;
     private readonly ICpuComputeDevice _device;
-    private readonly ManagedTensorBackend _backend;
 
     [AssumesValidDevice]
     public unsafe ManagedBinaryArithmeticOperationIterator(
@@ -37,8 +36,6 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
                   throw new TensorDataLocalityException(
                       "The device {0} is invalid, it must be a CPU device",
                       result.Device);
-        _backend = _device.GetTensorBackend() as ManagedTensorBackend ??
-                   throw new InvalidOperationException("The backend type is invalid.");
         _dimRanges = BuildDimRanges(left, right, result);
         _leftPtr = left.Memory.ToPointer();
         _rightPtr = right.Memory.ToPointer();
@@ -231,7 +228,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         var sR = d0.StrideRight;
         var sO = d0.StrideResult;
 
-        _backend
+        ManagedTensorBackend
             .ParallelExecutor
             .For(
                 0,
@@ -260,7 +257,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
             var rangePartitioner =
                 Partitioner.Create(0L, extent, Math.Max(IntrinsicsHelper.AvxVectorSizeFp32 * 16, 4096));
 
-            _backend
+            ManagedTensorBackend
                 .ParallelExecutor
                 .ForEach(
                     rangePartitioner,
@@ -285,7 +282,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         }
         else
         {
-            _backend
+            ManagedTensorBackend
                 .ParallelExecutor
                 .For(
                     0,
@@ -315,7 +312,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
             var rangePartitioner =
                 Partitioner.Create(0L, extent, Math.Max(IntrinsicsHelper.AvxVectorSizeFp64 * 16, 4096));
 
-            _backend
+            ManagedTensorBackend
                 .ParallelExecutor
                 .ForEach(
                     rangePartitioner,
@@ -340,7 +337,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         }
         else
         {
-            _backend
+            ManagedTensorBackend
                 .ParallelExecutor
                 .For(
                     0,
@@ -365,7 +362,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         var extent0 = dim0.Extent;
         var extent1 = dim1.Extent;
 
-        _backend
+        ManagedTensorBackend
             .ParallelExecutor
             .For(
                 0,
@@ -405,7 +402,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         const int prefetchDistance = 256;
         const int prefetchVectorCount = prefetchDistance / sizeof(float);
 
-        _backend
+        ManagedTensorBackend
             .ParallelExecutor
             .For(
                 0,
@@ -463,7 +460,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         const int prefetchDistance = 256;
         const int prefetchVectorCount = prefetchDistance / sizeof(double);
 
-        _backend
+        ManagedTensorBackend
             .ParallelExecutor
             .For(
                 0,
@@ -516,7 +513,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
             outerTotal *= _dimRanges[d].Extent;
         }
 
-        _backend
+        ManagedTensorBackend
             .ParallelExecutor
             .For(
                 0,
@@ -572,7 +569,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         const int prefetchDistance = 256;
         const int prefetchVectorCount = prefetchDistance / sizeof(float);
 
-        _backend
+        ManagedTensorBackend
             .ParallelExecutor
             .For(
                 0,
@@ -648,7 +645,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         const int prefetchDistance = 256;
         const int prefetchVectorCount = prefetchDistance / sizeof(double);
 
-        _backend
+        ManagedTensorBackend
             .ParallelExecutor
             .For(
                 0,

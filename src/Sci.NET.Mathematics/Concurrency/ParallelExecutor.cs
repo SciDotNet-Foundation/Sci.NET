@@ -12,7 +12,7 @@ namespace Sci.NET.Mathematics.Concurrency;
 /// Executes batches of work items in parallel on a <see cref="ParallelExecutorThreadPool"/>.
 /// </summary>
 [PublicAPI]
-public sealed class ParallelExecutor
+public sealed class ParallelExecutor : IDisposable
 {
     private readonly ParallelExecutorThreadPool _threadPool;
 
@@ -23,9 +23,33 @@ public sealed class ParallelExecutor
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="threadPool"/> is <c>null</c>.</exception>
     public ParallelExecutor(ParallelExecutorThreadPool threadPool)
     {
-        ArgumentNullException.ThrowIfNull(threadPool);
-
         _threadPool = threadPool;
+    }
+
+    /// <summary>
+    /// Finalizes an instance of the <see cref="ParallelExecutor"/> class.
+    /// </summary>
+    ~ParallelExecutor()
+    {
+        Dispose(false);
+    }
+
+    /// <summary>
+    /// Replaces the worker threads with the given number of threads, each of which have the given priority.
+    /// </summary>
+    /// <param name="numThreads">The number of workers to use.</param>
+    /// <param name="priority">The priority of the worker threads.</param>
+    /// <exception cref="ObjectDisposedException">The <see cref="ParallelExecutor"/> has been disposed.</exception>
+    /// <remarks>
+    /// This method will block the current thread until the queued threads have been exhausted, then the threads will be
+    /// replaced.
+    /// </remarks>
+    public void ReplaceWorkerThreads(int numThreads, ThreadPriority priority = ThreadPriority.Normal)
+    {
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(numThreads, Environment.ProcessorCount);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(numThreads);
+
+        _threadPool.ReplaceWorkerThreads(numThreads, priority);
     }
 
     /// <summary>
@@ -39,13 +63,12 @@ public sealed class ParallelExecutor
     /// <param name="taskCollection">The batch of tasks to execute.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="taskCollection"/> is <c>null</c>.</exception>
     /// <exception cref="AggregateException">Thrown when one or more task bodies threw.</exception>
-    public void Run<TIndex>(
-        ParallelExecutorTaskCollection<TIndex> taskCollection)
+    public void Run<TIndex>(ParallelExecutorTaskCollection<TIndex> taskCollection)
         where TIndex : IBinaryInteger<TIndex>
     {
         ArgumentNullException.ThrowIfNull(taskCollection);
 
-        if (taskCollection.Count == 1 || ParallelExecutorThreadPool.IsWorkerThread)
+        if (taskCollection.Count == 1 || ParallelExecutorThreadPoolThread.IsWorkerThread)
         {
             RunSequential(taskCollection);
             return;
@@ -198,6 +221,13 @@ public sealed class ParallelExecutor
         Run(tasks);
     }
 
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
     private static void RunSequential<TIndex>(ParallelExecutorTaskCollection<TIndex> tasks)
         where TIndex : IBinaryInteger<TIndex>
     {
@@ -220,5 +250,13 @@ public sealed class ParallelExecutor
         var start = fromInclusive + (tid * chunk) + TIndex.Min(tid, remainder);
         var count = tid < remainder ? chunk + TIndex.One : chunk;
         return (start, count);
+    }
+
+    private void Dispose(bool isDisposing)
+    {
+        if (isDisposing)
+        {
+            _threadPool.Dispose();
+        }
     }
 }
