@@ -69,15 +69,35 @@ public sealed class ParallelExecutorThreadPool : IDisposable
     public void EnqueueItems<TIndex>(ParallelExecutorTaskCollection<TIndex> workItem)
         where TIndex : IBinaryInteger<TIndex>
     {
+        EnqueueItems(workItem, workItem?.Count ?? 0);
+    }
+
+    /// <summary>
+    /// Enqueues the first <paramref name="count"/> tasks of a batch for execution on the pool.
+    /// Used by <see cref="ParallelExecutor"/> to hold one task back for the calling thread.
+    /// </summary>
+    /// <typeparam name="TIndex">The integer type used for the virtual thread index.</typeparam>
+    /// <param name="workItem">The batch of tasks to enqueue.</param>
+    /// <param name="count">The number of tasks to enqueue, starting from the first.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="workItem"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="count"/> is negative or exceeds the batch size.</exception>
+    /// <exception cref="ObjectDisposedException">Thrown when the pool has been disposed.</exception>
+    public void EnqueueItems<TIndex>(ParallelExecutorTaskCollection<TIndex> workItem, int count)
+        where TIndex : IBinaryInteger<TIndex>
+    {
         ArgumentNullException.ThrowIfNull(workItem);
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(count, workItem.Count);
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        foreach (var item in workItem)
+        var tasks = workItem.TasksSpan;
+
+        for (var i = 0; i < count; i++)
         {
-            _tasks.Add(item);
+            _tasks.Add(tasks[i]);
         }
 
-        ParallelExecutorEventSource.Log.BatchEnqueued(workItem.Count);
+        ParallelExecutorEventSource.Log.BatchEnqueued(count);
     }
 
     /// <summary>

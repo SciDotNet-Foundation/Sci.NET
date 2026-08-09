@@ -20,6 +20,8 @@ namespace Sci.NET.Mathematics.Collections;
 public sealed class PausableBoundedBlockingCollection<T> : IDisposable, IReadOnlyCollection<T>
 {
     private const int AddingIsCompletedMask = unchecked((int)0x80000000);
+    private const int BlockedWaiterPollMilliseconds = 50;
+    private const int ConsumerSpinIterations = 50;
 
     private readonly ManualResetEventSlim _pauseGate;
     private readonly IProducerConsumerCollection<T> _collection;
@@ -279,28 +281,13 @@ public sealed class PausableBoundedBlockingCollection<T> : IDisposable, IReadOnl
             throw new InvalidOperationException("The queue is complete; no further items may be added.");
         }
 
-        using var linked = CancellationTokenSource.CreateLinkedTokenSource(
-            cancellationToken,
-            _producersCancellationTokenSource.Token);
-
-        try
+        if (cancellationToken.CanBeCanceled)
         {
-            _pauseGate.Wait(linked.Token);
+            WaitForFreeSlotCancellable(cancellationToken);
         }
-        catch (OperationCanceledException)
+        else
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            throw new InvalidOperationException("Adding was completed while this producer was waiting to unpause.");
-        }
-
-        try
-        {
-            _ = _freeNodes.Wait(Timeout.Infinite, linked.Token);
-        }
-        catch (OperationCanceledException)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            throw new InvalidOperationException("Adding was completed while this producer was waiting for a free slot.");
+            WaitForFreeSlotFast();
         }
 
         var spinWait = default(SpinWait);
@@ -359,18 +346,12 @@ public sealed class PausableBoundedBlockingCollection<T> : IDisposable, IReadOnl
             return false;
         }
 
-        using var linked = CancellationTokenSource.CreateLinkedTokenSource(
-            cancellationToken,
-            _consumersCancellationTokenSource.Token,
-            _pausedCancellationTokenSource.Token);
+        var acquired = cancellationToken.CanBeCanceled
+            ? WaitForOccupiedSlotCancellable(cancellationToken)
+            : WaitForOccupiedSlotFast();
 
-        try
+        if (!acquired)
         {
-            _ = _occupiedNodes.Wait(Timeout.Infinite, linked.Token);
-        }
-        catch (OperationCanceledException)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
             return false;
         }
 
@@ -403,6 +384,112 @@ public sealed class PausableBoundedBlockingCollection<T> : IDisposable, IReadOnl
         }
 
         return removeSucceeded;
+    }
+
+    private void WaitForFreeSlotCancellable(CancellationToken cancellationToken)
+    {
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(
+            cancellationToken,
+            _producersCancellationTokenSource.Token);
+
+        try
+        {
+            _pauseGate.Wait(linked.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            throw new InvalidOperationException("Adding was completed while this producer was waiting to unpause.");
+        }
+
+        try
+        {
+            _ = _freeNodes.Wait(Timeout.Infinite, linked.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            throw new InvalidOperationException("Adding was completed while this producer was waiting for a free slot.");
+        }
+    }
+
+    private void WaitForFreeSlotFast()
+    {
+        _pauseGate.Wait();
+
+        while (!_freeNodes.Wait(BlockedWaiterPollMilliseconds))
+        {
+            if (IsAddingCompleted)
+            {
+                throw new InvalidOperationException("Adding was completed while this producer was waiting for a free slot.");
+            }
+
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
+        }
+    }
+
+    private bool WaitForOccupiedSlotCancellable(CancellationToken cancellationToken)
+    {
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(
+            cancellationToken,
+            _consumersCancellationTokenSource.Token,
+            _pausedCancellationTokenSource.Token);
+
+        try
+        {
+            _ = _occupiedNodes.Wait(Timeout.Infinite, linked.Token);
+            return true;
+        }
+        catch (OperationCanceledException)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return false;
+        }
+    }
+
+    private bool WaitForOccupiedSlotFast()
+    {
+        var spinner = default(SpinWait);
+
+        while (spinner.Count < ConsumerSpinIterations)
+        {
+            if (_occupiedNodes.CurrentCount > 0 && _occupiedNodes.Wait(0))
+            {
+                return true;
+            }
+
+            if (ShouldStopConsuming())
+            {
+                return false;
+            }
+
+            spinner.SpinOnce(sleep1Threshold: -1);
+        }
+
+        while (!_occupiedNodes.Wait(BlockedWaiterPollMilliseconds))
+        {
+            if (ShouldStopConsuming())
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private bool ShouldStopConsuming()
+    {
+        if (_isDisposed)
+        {
+            return true;
+        }
+
+        if (_occupiedNodes.CurrentCount > 0)
+        {
+            return false;
+        }
+
+        return _currentAdders == AddingIsCompletedMask || !_pauseGate.IsSet;
     }
 
     private bool ShouldExitForEmptyQueueAndPausedAddingOrDisposed()

@@ -23,6 +23,8 @@ public sealed class ParallelExecutor : IDisposable
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="threadPool"/> is <c>null</c>.</exception>
     public ParallelExecutor(ParallelExecutorThreadPool threadPool)
     {
+        ArgumentNullException.ThrowIfNull(threadPool);
+
         _threadPool = threadPool;
     }
 
@@ -46,7 +48,7 @@ public sealed class ParallelExecutor : IDisposable
     /// </remarks>
     public void ReplaceWorkerThreads(int numThreads, ThreadPriority priority = ThreadPriority.Normal)
     {
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(numThreads, Environment.ProcessorCount);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(numThreads, Environment.ProcessorCount);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(numThreads);
 
         _threadPool.ReplaceWorkerThreads(numThreads, priority);
@@ -68,13 +70,20 @@ public sealed class ParallelExecutor : IDisposable
     {
         ArgumentNullException.ThrowIfNull(taskCollection);
 
+        if (taskCollection.Count == 0)
+        {
+            return;
+        }
+
         if (taskCollection.Count == 1 || ParallelExecutorThreadPoolThread.IsWorkerThread)
         {
             RunSequential(taskCollection);
             return;
         }
 
-        _threadPool.EnqueueItems(taskCollection);
+        _threadPool.EnqueueItems(taskCollection, taskCollection.Count - 1);
+
+        taskCollection.TasksSpan[taskCollection.Count - 1].Execute();
 
         taskCollection.WaitAll();
     }
@@ -111,6 +120,12 @@ public sealed class ParallelExecutor : IDisposable
         if (numWorkers > n)
         {
             numWorkers = n;
+        }
+
+        if (numWorkers == TIndex.One || ParallelExecutorThreadPoolThread.IsWorkerThread)
+        {
+            ForSequential(fromInclusive, toExclusive, body);
+            return;
         }
 
         var chunk = n / numWorkers;
@@ -157,6 +172,8 @@ public sealed class ParallelExecutor : IDisposable
         where TState : unmanaged
     {
         ArgumentNullException.ThrowIfNull(body);
+        ArgumentNullException.ThrowIfNull(threadLocalSetup);
+        ArgumentNullException.ThrowIfNull(threadLocalCleanup);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(numWorkers);
 
         if (toExclusive <= fromInclusive)
@@ -169,6 +186,12 @@ public sealed class ParallelExecutor : IDisposable
         if (numWorkers > n)
         {
             numWorkers = n;
+        }
+
+        if (numWorkers == TIndex.One || ParallelExecutorThreadPoolThread.IsWorkerThread)
+        {
+            ForSequential(fromInclusive, toExclusive, threadLocalSetup, body, threadLocalCleanup);
+            return;
         }
 
         var chunk = n / numWorkers;
@@ -231,12 +254,56 @@ public sealed class ParallelExecutor : IDisposable
     private static void RunSequential<TIndex>(ParallelExecutorTaskCollection<TIndex> tasks)
         where TIndex : IBinaryInteger<TIndex>
     {
-        foreach (var task in tasks)
+        foreach (var task in tasks.TasksSpan)
         {
             task.Execute();
         }
 
         tasks.WaitAll();
+    }
+
+    private static void ForSequential<TIndex>(TIndex fromInclusive, TIndex toExclusive, Action<TIndex> body)
+        where TIndex : IBinaryInteger<TIndex>
+    {
+        try
+        {
+            for (var i = fromInclusive; i < toExclusive; i++)
+            {
+                body(i);
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new AggregateException(ex);
+        }
+    }
+
+    private static void ForSequential<TIndex, TState>(
+        TIndex fromInclusive,
+        TIndex toExclusive,
+        Func<TState> threadLocalSetup,
+        Action<TIndex, TState> body,
+        Action<TState> threadLocalCleanup)
+        where TIndex : IBinaryInteger<TIndex>
+        where TState : unmanaged
+    {
+        var state = threadLocalSetup();
+
+        try
+        {
+            for (var i = fromInclusive; i < toExclusive; i++)
+            {
+                body(i, state);
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new AggregateException(ex);
+        }
+        finally
+        {
+            threadLocalCleanup(state);
+        }
     }
 
     [MethodImpl(ImplementationOptions.HotPath)]

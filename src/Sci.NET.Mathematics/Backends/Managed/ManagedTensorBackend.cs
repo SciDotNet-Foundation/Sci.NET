@@ -188,9 +188,9 @@ public sealed class ManagedTensorBackend : ITensorBackend
         where TIndex : IBinaryInteger<TIndex>
         where TNumber : unmanaged
     {
-        var maxUsefulThreads = TIndex.Max(TIndex.One, elementCount * TIndex.CreateChecked(Unsafe.SizeOf<TNumber>() / MinBytesPerThread));
+        var maxUsefulThreads = Math.Max(1L, long.CreateChecked(elementCount) * Unsafe.SizeOf<TNumber>() / MinBytesPerThread);
 
-        return TIndex.Min(maxUsefulThreads, TIndex.CreateChecked(MaxDegreeOfParallelism));
+        return TIndex.CreateChecked(Math.Min(maxUsefulThreads, MaxDegreeOfParallelism));
     }
 
     internal static int GetNumThreadsByElementCount<T1, T2>(long elementCount)

@@ -40,6 +40,12 @@ public sealed class ParallelExecutorTaskCollection<TIndex> : IEnumerable<Paralle
     public bool IsDisposed { get; private set; }
 
     /// <summary>
+    /// Gets the tasks in the batch as a span, avoiding the enumerator allocation of
+    /// <see cref="GetEnumerator"/> on hot paths.
+    /// </summary>
+    internal ReadOnlySpan<ParallelExecutorTask<TIndex>> TasksSpan => _tasks;
+
+    /// <summary>
     /// Blocks until every task in the collection has completed, then rethrows any exceptions
     /// captured on the worker threads as a single <see cref="AggregateException"/>.
     /// </summary>

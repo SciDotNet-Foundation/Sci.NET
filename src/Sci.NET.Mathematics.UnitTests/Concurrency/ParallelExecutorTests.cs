@@ -127,6 +127,32 @@ public sealed class ParallelExecutorTests : IDisposable
     }
 
     [Fact]
+    public void Run_ExecutesLastTaskOnCallingThread()
+    {
+        var sut = new ParallelExecutor(_threadPool);
+        var callingThreadId = Environment.CurrentManagedThreadId;
+        var threadIdPerTask = new int[4];
+        using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(
+            4,
+            tid => threadIdPerTask[tid] = Environment.CurrentManagedThreadId);
+
+        sut.Run(tasks);
+
+        threadIdPerTask[3].Should().Be(callingThreadId, "the calling thread should participate by running the last task");
+    }
+
+    [Fact]
+    public void ReplaceWorkerThreads_AcceptsProcessorCountThreads()
+    {
+        using var pool = new ParallelExecutorThreadPool(2);
+        var sut = new ParallelExecutor(pool);
+
+        var act = () => sut.ReplaceWorkerThreads(Environment.ProcessorCount);
+
+        act.Should().NotThrow("a thread per logical processor is the default configuration and must be allowed");
+    }
+
+    [Fact]
     public void Run_FallsBackToSequential_WhenCalledFromWorkerThread()
     {
         var sut = new ParallelExecutor(_threadPool);
