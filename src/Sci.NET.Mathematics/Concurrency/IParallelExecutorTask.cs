@@ -6,7 +6,7 @@ namespace Sci.NET.Mathematics.Concurrency;
 /// <summary>
 /// An interface representing a task for parallel execution.
 /// </summary>
-internal interface IParallelExecutorTask
+public interface IParallelExecutorTask
 {
     /// <summary>
     /// Gets the exception thrown by the task body, if any.

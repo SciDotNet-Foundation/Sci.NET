@@ -6,21 +6,21 @@ using System.Numerics;
 
 namespace Sci.NET.Mathematics.Concurrency;
 
-internal sealed class ParallelExecutorTaskCollectionEnumerator<TIndex> : IEnumerator<ParallelExecutorTask<TIndex>>
+internal sealed class ParallelExecutorTaskCollectionEnumerator<TIndex> : IEnumerator<IParallelExecutorCountdownVirtualIndexTask<TIndex>>
     where TIndex : IBinaryInteger<TIndex>
 {
     private readonly ParallelExecutorTaskCollection<TIndex> _collection;
-    private readonly ParallelExecutorTask<TIndex>[] _items;
+    private readonly IParallelExecutorCountdownVirtualIndexTask<TIndex>[] _items;
     private int _currentIndex;
 
-    public ParallelExecutorTaskCollectionEnumerator(ParallelExecutorTask<TIndex>[] items, ParallelExecutorTaskCollection<TIndex> taskCollection)
+    public ParallelExecutorTaskCollectionEnumerator(IParallelExecutorCountdownVirtualIndexTask<TIndex>[] items, ParallelExecutorTaskCollection<TIndex> taskCollection)
     {
         _items = items;
         _collection = taskCollection;
         _currentIndex = -1;
     }
 
-    public ParallelExecutorTask<TIndex> Current => _items[_currentIndex];
+    public IParallelExecutorCountdownVirtualIndexTask<TIndex> Current => _items[_currentIndex];
 
     object IEnumerator.Current => Current;
 

@@ -6,17 +6,19 @@ using System.Numerics;
 namespace Sci.NET.Mathematics.Concurrency;
 
 /// <summary>
-/// A single unit of work executed by a <see cref="ParallelExecutorThreadPool"/> worker thread.
+/// A single unit of work executed by a <see cref="ParallelExecutorThreadPool"/> worker thread, containing
+/// a local state of type <typeparamref name="TState"/>.
 /// </summary>
 /// <typeparam name="TIndex">The integer type used for the virtual thread index.</typeparam>
-[PublicAPI]
-public sealed class ParallelExecutorTask<TIndex> : IParallelExecutorCountdownVirtualIndexTask<TIndex>
+/// <typeparam name="TState">The type of the local state.</typeparam>
+public sealed class ParallelExecutorTaskWithState<TIndex, TState> : IParallelExecutorCountdownVirtualIndexTask<TIndex>
     where TIndex : IBinaryInteger<TIndex>
+    where TState : struct
 {
     /// <summary>
-    /// Finalizes an instance of the <see cref="ParallelExecutorTask{TIndex}"/> class.
+    /// Finalizes an instance of the <see cref="ParallelExecutorTaskWithState{TIndex, TState}"/> class.
     /// </summary>
-    ~ParallelExecutorTask()
+    ~ParallelExecutorTaskWithState()
     {
         Dispose(false);
     }
@@ -24,13 +26,18 @@ public sealed class ParallelExecutorTask<TIndex> : IParallelExecutorCountdownVir
     /// <summary>
     /// Gets the action invoked when the task executes.
     /// </summary>
-    public required Action<TIndex> Action { get; init; }
+    public required Action<TIndex, TState> Action { get; init; }
 
     /// <inheritdoc />
     public required CountdownEvent Countdown { get; init; }
 
     /// <inheritdoc />
     public required TIndex VirtualThreadIdx { get; init; }
+
+    /// <summary>
+    /// Gets the state object for the thread.
+    /// </summary>
+    public required TState State { get; init; }
 
     /// <inheritdoc />
     public Exception? Exception { get; private set; }
@@ -40,7 +47,7 @@ public sealed class ParallelExecutorTask<TIndex> : IParallelExecutorCountdownVir
     {
         try
         {
-            Action(VirtualThreadIdx);
+            Action(VirtualThreadIdx, State);
         }
         catch (Exception ex)
         {

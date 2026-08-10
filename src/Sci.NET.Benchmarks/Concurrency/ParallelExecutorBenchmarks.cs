@@ -10,7 +10,7 @@ using Sci.NET.Mathematics.Random;
 
 namespace Sci.NET.Benchmarks.Concurrency;
 
-[MaxIterationCount(4096)]
+[Config(typeof(PipeProfilerConfig))]
 [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "Benchmark")]
 public class ParallelExecutorBenchmarks
 {
@@ -20,7 +20,6 @@ public class ParallelExecutorBenchmarks
     private SystemMemoryBlock<float> _leftVector = null!;
     private SystemMemoryBlock<float> _rightVector = null!;
     private SystemMemoryBlock<float> _resultVector = null!;
-    private ParallelExecutor _parallelExecutor = null!;
     private ParallelExecutorThreadPool _parallelExecutorThreadPool = null!;
 
     [GlobalSetup]
@@ -34,79 +33,135 @@ public class ParallelExecutorBenchmarks
         Prng.Instance.FillUniform(_rightVector, 0.0f, 1.0f);
 
         _parallelExecutorThreadPool = new ParallelExecutorThreadPool(Environment.ProcessorCount);
-        _parallelExecutor = new ParallelExecutor(_parallelExecutorThreadPool);
     }
 
     [Benchmark]
-    public unsafe void UsingNewParallel()
+    public unsafe void ParallelExecutorFor()
     {
         var numWorkers = ManagedTensorBackend.GetNumThreadsByElementCount<float>(VectorSize);
 
-        using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(
+        var innerLoopState = new InnerLoopState
+        {
+            LeftPtr = _leftVector.ToPointer(),
+            RightPtr = _rightVector.ToPointer(),
+            ResultPtr = _resultVector.ToPointer()
+        };
+
+        ManagedTensorBackend.ParallelExecutor.For(
+            0L,
+            VectorSize,
             numWorkers,
-            idx =>
-            {
-                InnerLoop(
-                    idx,
-                    VectorSize,
-                    numWorkers,
-                    _leftVector.ToPointer(),
-                    _rightVector.ToPointer(),
-                    _resultVector.ToPointer());
-            });
-
-        _parallelExecutor.Run(tasks);
+            innerLoopState,
+            InnerLoop);
     }
 
     [Benchmark]
-    public unsafe void UsingOldParallel()
+    public unsafe void ThreadPoolForDontPreferLocal()
     {
         var numWorkers = ManagedTensorBackend.GetNumThreadsByElementCount<float>(VectorSize);
 
-        if (numWorkers == 1)
+        var innerLoopState = new InnerLoopState
         {
-            InnerLoop(
-                0,
-                VectorSize,
-                1,
-                _leftVector.ToPointer(),
-                _rightVector.ToPointer(),
-                _resultVector.ToPointer());
-        }
-        else
-        {
-            Parallel.For(
-                0,
-                numWorkers,
-                idx =>
-                {
-                    InnerLoop(
-                        idx,
-                        VectorSize,
-                        numWorkers,
-                        _leftVector.ToPointer(),
-                        _rightVector.ToPointer(),
-                        _resultVector.ToPointer());
-                });
-        }
+            LeftPtr = _leftVector.ToPointer(),
+            RightPtr = _rightVector.ToPointer(),
+            ResultPtr = _resultVector.ToPointer()
+        };
+
+        ParallelUtils.ThreadPoolFor(
+            0,
+            VectorSize,
+            numWorkers,
+            false,
+            innerLoopState,
+            InnerLoop);
     }
 
-    private static unsafe void InnerLoop(
-        long tid,
-        long n,
-        long processes,
-        float* leftPtr,
-        float* rightPtr,
-        float* resultPtr)
+    [Benchmark]
+    public unsafe void ThreadPoolForPreferLocal()
     {
-        var start = tid * n / processes;
-        var end = (tid + 1) * n / processes;
-        var count = end - start;
+        var numWorkers = ManagedTensorBackend.GetNumThreadsByElementCount<float>(VectorSize);
 
-        for (var i = 0; i < count; i++)
+        var innerLoopState = new InnerLoopState
         {
-            resultPtr[start + i] = leftPtr[start + i] + rightPtr[start + i];
-        }
+            LeftPtr = _leftVector.ToPointer(),
+            RightPtr = _rightVector.ToPointer(),
+            ResultPtr = _resultVector.ToPointer()
+        };
+
+        ParallelUtils.ThreadPoolFor(
+            0,
+            VectorSize,
+            numWorkers,
+            true,
+            innerLoopState,
+            InnerLoop);
+    }
+
+    [Benchmark]
+    public unsafe void ThreadPoolReferenceTypeForDontPreferLocal()
+    {
+        var numWorkers = ManagedTensorBackend.GetNumThreadsByElementCount<float>(VectorSize);
+
+        var innerLoopState = new InnerLoopStateReferenceType
+        {
+            LeftPtr = _leftVector.ToPointer(),
+            RightPtr = _rightVector.ToPointer(),
+            ResultPtr = _resultVector.ToPointer()
+        };
+
+        ParallelUtils.ThreadPoolForReferenceType(
+            0,
+            VectorSize,
+            numWorkers,
+            false,
+            innerLoopState,
+            InnerLoop);
+    }
+
+    [Benchmark]
+    public unsafe void ThreadPoolReferenceTypeForPreferLocal()
+    {
+        var numWorkers = ManagedTensorBackend.GetNumThreadsByElementCount<float>(VectorSize);
+
+        var innerLoopState = new InnerLoopStateReferenceType
+        {
+            LeftPtr = _leftVector.ToPointer(),
+            RightPtr = _rightVector.ToPointer(),
+            ResultPtr = _resultVector.ToPointer()
+        };
+
+        ParallelUtils.ThreadPoolForReferenceType(
+            0,
+            VectorSize,
+            numWorkers,
+            true,
+            innerLoopState,
+            InnerLoop);
+    }
+
+    [Benchmark]
+    public unsafe void TplFor()
+    {
+        var numWorkers = ManagedTensorBackend.GetNumThreadsByElementCount<float>(VectorSize);
+
+        var innerLoopState = new InnerLoopState
+        {
+            LeftPtr = _leftVector.ToPointer(),
+            RightPtr = _rightVector.ToPointer(),
+            ResultPtr = _resultVector.ToPointer()
+        };
+
+        ParallelUtils.TplFor(0, _leftVector.Length, numWorkers, innerLoopState, InnerLoop);
+    }
+
+    private static unsafe void InnerLoop(long idx, InnerLoopState state)
+    {
+        state.ResultPtr[idx] = state.LeftPtr[idx] * state.RightPtr[idx];
+    }
+
+    private static unsafe void InnerLoop(long idx, InnerLoopStateReferenceType state)
+    {
+        state.ResultPtr[idx] = state.LeftPtr[idx] * state.RightPtr[idx];
     }
 
     [GlobalCleanup]

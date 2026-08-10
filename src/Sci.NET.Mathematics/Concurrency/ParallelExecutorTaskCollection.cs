@@ -12,10 +12,10 @@ namespace Sci.NET.Mathematics.Concurrency;
 /// </summary>
 /// <typeparam name="TIndex">The integer type used for the virtual thread index.</typeparam>
 [PublicAPI]
-public sealed class ParallelExecutorTaskCollection<TIndex> : IEnumerable<ParallelExecutorTask<TIndex>>, IDisposable
+public sealed class ParallelExecutorTaskCollection<TIndex> : IEnumerable<IParallelExecutorCountdownVirtualIndexTask<TIndex>>, IDisposable
     where TIndex : IBinaryInteger<TIndex>
 {
-    private readonly ParallelExecutorTask<TIndex>[] _tasks;
+    private readonly IParallelExecutorCountdownVirtualIndexTask<TIndex>[] _tasks;
     private readonly CountdownEvent _countdown;
 
     /// <summary>
@@ -23,7 +23,7 @@ public sealed class ParallelExecutorTaskCollection<TIndex> : IEnumerable<Paralle
     /// </summary>
     /// <param name="tasks">The tasks in the batch.</param>
     /// <param name="countdown">The countdown event shared by all tasks in the batch.</param>
-    public ParallelExecutorTaskCollection(ParallelExecutorTask<TIndex>[] tasks, CountdownEvent countdown)
+    public ParallelExecutorTaskCollection(IParallelExecutorCountdownVirtualIndexTask<TIndex>[] tasks, CountdownEvent countdown)
     {
         _tasks = tasks;
         _countdown = countdown;
@@ -43,7 +43,7 @@ public sealed class ParallelExecutorTaskCollection<TIndex> : IEnumerable<Paralle
     /// Gets the tasks in the batch as a span, avoiding the enumerator allocation of
     /// <see cref="GetEnumerator"/> on hot paths.
     /// </summary>
-    internal ReadOnlySpan<ParallelExecutorTask<TIndex>> TasksSpan => _tasks;
+    internal ReadOnlySpan<IParallelExecutorCountdownVirtualIndexTask<TIndex>> TasksSpan => _tasks;
 
     /// <summary>
     /// Blocks until every task in the collection has completed, then rethrows any exceptions
@@ -83,7 +83,7 @@ public sealed class ParallelExecutorTaskCollection<TIndex> : IEnumerable<Paralle
     /// Returns an enumerator that iterates over the tasks in the collection.
     /// </summary>
     /// <returns>An enumerator over the tasks in the collection.</returns>
-    public IEnumerator<ParallelExecutorTask<TIndex>> GetEnumerator()
+    public IEnumerator<IParallelExecutorCountdownVirtualIndexTask<TIndex>> GetEnumerator()
     {
         return new ParallelExecutorTaskCollectionEnumerator<TIndex>(_tasks, this);
     }
@@ -101,6 +101,11 @@ public sealed class ParallelExecutorTaskCollection<TIndex> : IEnumerable<Paralle
         {
             _countdown.Dispose();
             IsDisposed = true;
+
+            foreach (var task in _tasks)
+            {
+                task.Dispose();
+            }
         }
     }
 

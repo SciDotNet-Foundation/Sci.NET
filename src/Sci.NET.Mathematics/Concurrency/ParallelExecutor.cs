@@ -151,6 +151,78 @@ public sealed class ParallelExecutor : IDisposable
     /// <paramref name="toExclusive"/>.
     /// </summary>
     /// <typeparam name="TIndex">The integer type used for the loop index.</typeparam>
+    /// <typeparam name="TState">The type of the loop action state.</typeparam>
+    /// <param name="fromInclusive">The index to start from (inclusive).</param>
+    /// <param name="toExclusive">The index to iterate to (exclusive).</param>
+    /// <param name="numWorkers">The number of workers to partition the range across.</param>
+    /// <param name="state">The state passed to the loop action.</param>
+    /// <param name="body">The body of the loop.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="body"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="numWorkers"/> is not positive.</exception>
+    /// <exception cref="AggregateException">Thrown when one or more invocations of <paramref name="body"/> threw.</exception>
+    public void For<TIndex, TState>(
+        TIndex fromInclusive,
+        TIndex toExclusive,
+        TIndex numWorkers,
+        TState state,
+        Action<TIndex, TState> body)
+        where TIndex : struct, IBinaryInteger<TIndex>
+        where TState : struct
+    {
+        ArgumentNullException.ThrowIfNull(body);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(numWorkers);
+
+        if (toExclusive <= fromInclusive)
+        {
+            return;
+        }
+
+        var n = toExclusive - fromInclusive;
+
+        if (numWorkers > n)
+        {
+            numWorkers = n;
+        }
+
+        var chunk = n / numWorkers;
+        var remainder = n % numWorkers;
+
+        if (numWorkers == TIndex.One || ParallelExecutorThreadPoolThread.IsWorkerThread)
+        {
+            ForSequential(
+                new ParallelExecutorForLoopState<TIndex, TState>
+                {
+                    FromInclusive = fromInclusive,
+                    ToExclusive = toExclusive,
+                    State = state,
+                    Body = body,
+                    Chunk = TIndex.Zero,
+                    Remainder = TIndex.Zero
+                });
+            return;
+        }
+
+        using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(
+            numWorkers,
+            new ParallelExecutorForLoopState<TIndex, TState>
+            {
+                FromInclusive = fromInclusive,
+                ToExclusive = toExclusive,
+                State = state,
+                Body = body,
+                Chunk = chunk,
+                Remainder = remainder
+            },
+            ForInnerLoop);
+
+        Run(tasks);
+    }
+
+    /// <summary>
+    /// Executes <paramref name="body"/> for every index in the range <paramref name="fromInclusive"/> to
+    /// <paramref name="toExclusive"/>.
+    /// </summary>
+    /// <typeparam name="TIndex">The integer type used for the loop index.</typeparam>
     /// <typeparam name="TState">The type for the local state.</typeparam>
     /// <param name="fromInclusive">The index to start from (inclusive).</param>
     /// <param name="toExclusive">The index to iterate to (exclusive).</param>
@@ -262,6 +334,23 @@ public sealed class ParallelExecutor : IDisposable
         tasks.WaitAll();
     }
 
+    private static void ForSequential<TIndex, TState>(ParallelExecutorForLoopState<TIndex, TState> state)
+        where TIndex : struct, IBinaryInteger<TIndex>
+        where TState : struct
+    {
+        try
+        {
+            for (var i = state.FromInclusive; i < state.ToExclusive; i++)
+            {
+                state.Body(i, state.State);
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new AggregateException(ex);
+        }
+    }
+
     private static void ForSequential<TIndex>(TIndex fromInclusive, TIndex toExclusive, Action<TIndex> body)
         where TIndex : IBinaryInteger<TIndex>
     {
@@ -303,6 +392,19 @@ public sealed class ParallelExecutor : IDisposable
         finally
         {
             threadLocalCleanup(state);
+        }
+    }
+
+    private static void ForInnerLoop<TIndex, TState>(TIndex threadIdx, ParallelExecutorForLoopState<TIndex, TState> state)
+        where TIndex : struct, IBinaryInteger<TIndex>
+        where TState : struct
+    {
+        var start = state.FromInclusive + (threadIdx * state.Chunk) + TIndex.Min(threadIdx, state.Remainder);
+        var count = threadIdx < state.Remainder ? state.Chunk + TIndex.One : state.Chunk;
+
+        for (var i = TIndex.Zero; i < count; i++)
+        {
+            state.Body(start + i, state.State);
         }
     }
 
