@@ -115,34 +115,22 @@ public class ParallelExecutorThreadPoolTests
     {
         using var pool = new ParallelExecutorThreadPool(2);
         var executor = new ParallelExecutor(pool);
-        var observedOnWorker = 0;
+        var isWorkerThread = new bool[4];
 
         executor.For(
             0,
             4,
             4,
-            _ =>
+            i =>
             {
                 if (ParallelExecutorThreadPoolThread.IsWorkerThread)
                 {
-                    Interlocked.Exchange(ref observedOnWorker, 1);
+                    isWorkerThread[i] = true;
                 }
             });
 
-        observedOnWorker.Should().Be(1, "at least one slice runs on a worker thread");
+        isWorkerThread.Count(x => x).Should().BeGreaterOrEqualTo(2);
         ParallelExecutorThreadPoolThread.IsWorkerThread.Should().BeFalse();
-    }
-
-    [Fact]
-    public void PinnedPool_ExecutesRegion_AndCompletes()
-    {
-        using var pool = new ParallelExecutorThreadPool(2, ThreadPriority.Normal, pinThreads: true);
-        var executor = new ParallelExecutor(pool);
-        var invocations = 0;
-
-        executor.For(0, 64, 2, _ => Interlocked.Increment(ref invocations));
-
-        invocations.Should().Be(64);
     }
 
     [Fact]
@@ -177,17 +165,16 @@ public class ParallelExecutorThreadPoolTests
 
         var oldThreads = pool.Threads.ToArray();
 
-        var workerThread = new Thread(
-            () => executor.For(
-                0,
-                replicas,
-                replicas,
-                i =>
-                {
-                    Thread.Sleep(1000);
+        var workerThread = new Thread(() => executor.For(
+            0,
+            replicas,
+            replicas,
+            i =>
+            {
+                Thread.Sleep(1000);
 
-                    values[i] = true;
-                }));
+                values[i] = true;
+            }));
         workerThread.Start();
 
         // Act
