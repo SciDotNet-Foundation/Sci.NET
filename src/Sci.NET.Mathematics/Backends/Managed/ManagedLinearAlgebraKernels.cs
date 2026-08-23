@@ -177,26 +177,32 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
 
         try
         {
-            using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(processes, tid =>
-            {
-                var start = tid * leftMemoryBlock.Length / processes;
-                var end = (tid + 1) * leftMemoryBlock.Length / processes;
-                var accumulatedSum = TNumber.Zero;
-
-                for (var i = start; i < end; i++)
+            using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(
+                processes,
+                tid =>
                 {
-                    accumulatedSum += leftMemoryBlock[i] * rightMemoryBlock[i];
-                }
+                    var start = tid * leftMemoryBlock.Length / processes;
+                    var end = (tid + 1) * leftMemoryBlock.Length / processes;
+                    var accumulatedSum = TNumber.Zero;
 
-                results[tid] = accumulatedSum;
-            });
+                    for (var i = start; i < end; i++)
+                    {
+                        accumulatedSum += leftMemoryBlock[i] * rightMemoryBlock[i];
+                    }
+
+                    results[tid] = accumulatedSum;
+                });
 
             ManagedTensorBackend.ParallelExecutor.Run(tasks);
 
+            var sum = TNumber.Zero;
+
             for (var i = 0; i < processes; i++)
             {
-                resultMemoryBlock[0] += results[i];
+                sum += results[i];
             }
+
+            resultMemoryBlock[0] = sum;
         }
         finally
         {
@@ -840,19 +846,28 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
 
         var processes = ManagedTensorBackend.GetNumThreadsByElementCount<float>(n);
         var partials = (float*)NativeMemory.AlignedAlloc((UIntPtr)(processes * Unsafe.SizeOf<float>()), IntrinsicsHelper.CalculateRequiredAlignment());
-        using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(processes, InnerLoop);
-        ManagedTensorBackend.ParallelExecutor.Run(tasks);
 
-        // Neumaier Sum for accuracy
-        float s = 0, c = 0;
-        for (var i = 0; i < processes; i++)
+        try
         {
-            var t = s + partials[i];
-            c += float.Abs(s) >= float.Abs(partials[i]) ? s - t + partials[i] : partials[i] - t + s;
-            s = t;
-        }
+            using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(processes, InnerLoop);
 
-        resultPtr[0] = s + c;
+            ManagedTensorBackend.ParallelExecutor.Run(tasks);
+
+            // Neumaier Sum for accuracy
+            float s = 0, c = 0;
+            for (var i = 0; i < processes; i++)
+            {
+                var t = s + partials[i];
+                c += float.Abs(s) >= float.Abs(partials[i]) ? s - t + partials[i] : partials[i] - t + s;
+                s = t;
+            }
+
+            resultPtr[0] = s + c;
+        }
+        finally
+        {
+            NativeMemory.AlignedFree(partials);
+        }
 
         void InnerLoop(int tid)
         {
@@ -917,18 +932,26 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
 
         var processes = ManagedTensorBackend.GetNumThreadsByElementCount<double>(n);
         var partials = (double*)NativeMemory.AlignedAlloc((UIntPtr)(processes * Unsafe.SizeOf<double>()), IntrinsicsHelper.CalculateRequiredAlignment());
-        using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(processes, InnerLoop);
-        ManagedTensorBackend.ParallelExecutor.Run(tasks);
 
-        double s = 0, c = 0;
-        for (var i = 0; i < processes; i++)
+        try
         {
-            var t = s + partials[i];
-            c += double.Abs(s) >= double.Abs(partials[i]) ? s - t + partials[i] : partials[i] - t + s;
-            s = t;
-        }
+            using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(processes, InnerLoop);
+            ManagedTensorBackend.ParallelExecutor.Run(tasks);
 
-        resultPtr[0] = s + c;
+            double s = 0, c = 0;
+            for (var i = 0; i < processes; i++)
+            {
+                var t = s + partials[i];
+                c += double.Abs(s) >= double.Abs(partials[i]) ? s - t + partials[i] : partials[i] - t + s;
+                s = t;
+            }
+
+            resultPtr[0] = s + c;
+        }
+        finally
+        {
+            NativeMemory.AlignedFree(partials);
+        }
 
         void InnerLoop(int tid)
         {

@@ -35,6 +35,11 @@ internal static partial class ProcessorAffinity
         // cpu_set_t is a bitmask indexed by CPU; size it generously so high core indices fit.
         // Up to 1024 logical processors.
         const int maskBytes = 128;
+        if ((uint)cpuIndex >= maskBytes * 8)
+        {
+            return;
+        }
+
         var mask = new byte[maskBytes];
         mask[cpuIndex / 8] = (byte)(1 << (cpuIndex % 8));
 

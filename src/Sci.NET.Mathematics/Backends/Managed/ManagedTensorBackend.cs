@@ -40,7 +40,6 @@ public sealed class ManagedTensorBackend : ITensorBackend
         Permutation = new ManagedPermutationKernels();
         Normalisation = new ManagedNormalisationKernels();
         EqualityOperations = new ManagedEqualityOperationKernels();
-        ParallelExecutorThreadPool = new ParallelExecutorThreadPool(Environment.ProcessorCount);
     }
 
     /// <summary>
@@ -84,11 +83,6 @@ public sealed class ManagedTensorBackend : ITensorBackend
     /// Gets the singleton instance of the <see cref="ManagedTensorBackend"/>.
     /// </summary>
     public static ManagedTensorBackend Instance { get; } = new();
-
-    /// <summary>
-    /// Gets the thread pool backing <see cref="ParallelExecutor"/>.
-    /// </summary>
-    public ParallelExecutorThreadPool ParallelExecutorThreadPool { get; }
 
     /// <inheritdoc />
     public ITensorStorageKernels Storage { get; }
@@ -153,12 +147,11 @@ public sealed class ManagedTensorBackend : ITensorBackend
     /// <param name="threadPriority">The priority of the <see cref="ParallelExecutor"/> worker threads.</param>
     public static void SetParallelExecutorOptions(int numThreads, ThreadPriority threadPriority = ThreadPriority.Normal)
     {
-        // TODO -> This needs to be made thread safe.
-        _threadPool.Dispose();
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(numThreads);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(numThreads, Environment.ProcessorCount);
 
         MaxDegreeOfParallelism = numThreads;
-        _threadPool = new ParallelExecutorThreadPool(numThreads, threadPriority);
-        ParallelExecutor = new ParallelExecutor(_threadPool);
+        _threadPool.ReplaceWorkerThreads(numThreads, priority: threadPriority);
     }
 
     internal static int GetMaxDegreeOfParallelism(long tileCount)
