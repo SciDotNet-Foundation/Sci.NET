@@ -4,15 +4,16 @@
 using System.Collections.Concurrent;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Sci.NET.Mathematics.Performance;
 
 namespace Sci.NET.Mathematics.Concurrency;
 
 /// <summary>
-/// Executes batches of work items in parallel on a <see cref="ParallelExecutorThreadPool"/>.
+/// Executes balanced fork-join parallel regions on a <see cref="ParallelExecutorThreadPool"/>. Each
+/// region statically partitions its range across the participating threads; the calling thread runs
+/// one slice itself and blocks until the workers have finished.
 /// </summary>
 [PublicAPI]
-public sealed class ParallelExecutor : IDisposable
+public sealed unsafe class ParallelExecutor : IDisposable
 {
     private readonly ParallelExecutorThreadPool _threadPool;
 
@@ -43,8 +44,8 @@ public sealed class ParallelExecutor : IDisposable
     /// <param name="priority">The priority of the worker threads.</param>
     /// <exception cref="ObjectDisposedException">The <see cref="ParallelExecutor"/> has been disposed.</exception>
     /// <remarks>
-    /// This method will block the current thread until the queued threads have been exhausted, then the threads will be
-    /// replaced.
+    /// This method will block the current thread until the running workers have exited, then the threads
+    /// will be replaced.
     /// </remarks>
     public void ReplaceWorkerThreads(int numThreads, ThreadPriority priority = ThreadPriority.Normal)
     {
@@ -56,8 +57,8 @@ public sealed class ParallelExecutor : IDisposable
 
     /// <summary>
     /// Executes every task in <paramref name="taskCollection"/> and blocks until they have all
-    /// completed. Single-task collections, and calls made from a pool worker thread (nested
-    /// parallelism), are executed sequentially on the calling thread to avoid deadlocking the pool.
+    /// completed. Single-task collections, and calls made from a thread already inside a region (nested
+    /// parallelism), are executed sequentially on the calling thread to avoid oversubscribing the pool.
     /// The caller retains ownership of <paramref name="taskCollection"/> and is responsible for
     /// disposing it.
     /// </summary>
@@ -75,16 +76,21 @@ public sealed class ParallelExecutor : IDisposable
             return;
         }
 
-        if (taskCollection.Count == 1 || ParallelExecutorThreadPoolThread.IsWorkerThread)
+        if (taskCollection.Count == 1 || ShouldRunSequentially())
         {
             RunSequential(taskCollection);
             return;
         }
 
-        _threadPool.EnqueueItems(taskCollection, taskCollection.Count - 1);
+        var count = taskCollection.Count;
+        var participants = Math.Min(count, _threadPool.MaxParticipants);
+        var chunk = (long)count / participants;
+        var remainder = (long)count % participants;
 
-        taskCollection.TasksSpan[taskCollection.Count - 1].Execute();
+        _threadPool.Invoke(participants, &RunTasksTrampoline, taskCollection.Tasks, 0L, chunk, remainder);
 
+        // The barrier has already run every task; the countdown is drained, so this only rethrows any
+        // captured task exceptions as an AggregateException.
         taskCollection.WaitAll();
     }
 
@@ -122,28 +128,19 @@ public sealed class ParallelExecutor : IDisposable
             numWorkers = n;
         }
 
-        if (numWorkers == TIndex.One || ParallelExecutorThreadPoolThread.IsWorkerThread)
+        if (numWorkers == TIndex.One || ShouldRunSequentially())
         {
             ForSequential(fromInclusive, toExclusive, body);
             return;
         }
 
-        var chunk = n / numWorkers;
-        var remainder = n % numWorkers;
+        var from = long.CreateChecked(fromInclusive);
+        var participants = Math.Min(int.CreateChecked(numWorkers), _threadPool.MaxParticipants);
+        var length = long.CreateChecked(n);
+        var chunk = length / participants;
+        var remainder = length % participants;
 
-        void Loop(TIndex tid)
-        {
-            var (start, count) = CalculateForParameters(fromInclusive, tid, chunk, remainder);
-
-            for (var i = TIndex.Zero; i < count; i++)
-            {
-                body(start + i);
-            }
-        }
-
-        using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(numWorkers, Loop);
-
-        Run(tasks);
+        _threadPool.Invoke(participants, &ForClosureTrampoline<TIndex>, body, from, chunk, remainder);
     }
 
     /// <summary>
@@ -184,38 +181,21 @@ public sealed class ParallelExecutor : IDisposable
             numWorkers = n;
         }
 
-        var chunk = n / numWorkers;
-        var remainder = n % numWorkers;
-
-        if (numWorkers == TIndex.One || ParallelExecutorThreadPoolThread.IsWorkerThread)
+        if (numWorkers == TIndex.One || ShouldRunSequentially())
         {
-            ForSequential(
-                new ParallelExecutorForLoopState<TIndex, TState>
-                {
-                    FromInclusive = fromInclusive,
-                    ToExclusive = toExclusive,
-                    State = state,
-                    Body = body,
-                    Chunk = TIndex.Zero,
-                    Remainder = TIndex.Zero
-                });
+            ForSequential(fromInclusive, toExclusive, state, body);
             return;
         }
 
-        using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(
-            numWorkers,
-            new ParallelExecutorForLoopState<TIndex, TState>
-            {
-                FromInclusive = fromInclusive,
-                ToExclusive = toExclusive,
-                State = state,
-                Body = body,
-                Chunk = chunk,
-                Remainder = remainder
-            },
-            ForInnerLoop);
+        var from = long.CreateChecked(fromInclusive);
+        var participants = Math.Min(int.CreateChecked(numWorkers), _threadPool.MaxParticipants);
+        var length = long.CreateChecked(n);
+        var chunk = length / participants;
+        var remainder = length % participants;
 
-        Run(tasks);
+        var payload = new ForStatePayload<TIndex, TState>(body, state);
+
+        _threadPool.Invoke(participants, &ForStateTrampoline<TIndex, TState>, payload, from, chunk, remainder);
     }
 
     /// <summary>
@@ -260,39 +240,23 @@ public sealed class ParallelExecutor : IDisposable
             numWorkers = n;
         }
 
-        if (numWorkers == TIndex.One || ParallelExecutorThreadPoolThread.IsWorkerThread)
+        if (numWorkers == TIndex.One || ShouldRunSequentially())
         {
             ForSequential(fromInclusive, toExclusive, threadLocalSetup, body, threadLocalCleanup);
             return;
         }
 
-        var chunk = n / numWorkers;
-        var remainder = n % numWorkers;
-
         using var threadLocalState = new ThreadLocal<TState>(threadLocalSetup, trackAllValues: true);
-
-        void Loop(TIndex tid)
-        {
-            var (start, count) = CalculateForParameters(fromInclusive, tid, chunk, remainder);
-            var buffer = threadLocalState.Value;
-
-            for (var i = TIndex.Zero; i < count; i++)
-            {
-                body(start + i, buffer);
-            }
-        }
 
         try
         {
-            using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(numWorkers, Loop);
-
-            Run(tasks);
+            For(fromInclusive, toExclusive, numWorkers, idx => body(idx, threadLocalState.Value));
         }
         finally
         {
-            foreach (var state in threadLocalState.Values)
+            foreach (var value in threadLocalState.Values)
             {
-                threadLocalCleanup(state);
+                threadLocalCleanup(value);
             }
         }
     }
@@ -323,6 +287,59 @@ public sealed class ParallelExecutor : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    private static bool ShouldRunSequentially()
+    {
+        return ParallelExecutorThreadPoolThread.IsWorkerThread || ParallelExecutorThreadPool.IsRegionActive;
+    }
+
+    private static void RunTasksTrampoline(object? state, long workerIndex, long from, long chunk, long remainder)
+    {
+        var tasks = Unsafe.As<IParallelExecutorTask[]>(state)!;
+        var (start, count) = SliceFor(workerIndex, from, chunk, remainder);
+
+        for (var i = 0L; i < count; i++)
+        {
+            tasks[start + i].Execute();
+        }
+    }
+
+    private static void ForClosureTrampoline<TIndex>(object? state, long workerIndex, long from, long chunk, long remainder)
+        where TIndex : IBinaryInteger<TIndex>
+    {
+        var body = Unsafe.As<Action<TIndex>>(state)!;
+        var (start, count) = SliceFor(workerIndex, from, chunk, remainder);
+        var index = TIndex.CreateChecked(start);
+
+        for (var i = 0L; i < count; i++)
+        {
+            body(index);
+            index++;
+        }
+    }
+
+    private static void ForStateTrampoline<TIndex, TState>(object? state, long workerIndex, long from, long chunk, long remainder)
+        where TIndex : struct, IBinaryInteger<TIndex>
+        where TState : struct
+    {
+        var payload = Unsafe.As<ForStatePayload<TIndex, TState>>(state)!;
+        var (start, count) = SliceFor(workerIndex, from, chunk, remainder);
+        var index = TIndex.CreateChecked(start);
+
+        for (var i = 0L; i < count; i++)
+        {
+            payload.Body(index, payload.State);
+            index++;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static (long Start, long Count) SliceFor(long workerIndex, long from, long chunk, long remainder)
+    {
+        var start = from + (workerIndex * chunk) + Math.Min(workerIndex, remainder);
+        var count = workerIndex < remainder ? chunk + 1 : chunk;
+        return (start, count);
+    }
+
     private static void RunSequential<TIndex>(ParallelExecutorTaskCollection<TIndex> tasks)
         where TIndex : IBinaryInteger<TIndex>
     {
@@ -334,23 +351,6 @@ public sealed class ParallelExecutor : IDisposable
         tasks.WaitAll();
     }
 
-    private static void ForSequential<TIndex, TState>(ParallelExecutorForLoopState<TIndex, TState> state)
-        where TIndex : struct, IBinaryInteger<TIndex>
-        where TState : struct
-    {
-        try
-        {
-            for (var i = state.FromInclusive; i < state.ToExclusive; i++)
-            {
-                state.Body(i, state.State);
-            }
-        }
-        catch (Exception ex)
-        {
-            throw new AggregateException(ex);
-        }
-    }
-
     private static void ForSequential<TIndex>(TIndex fromInclusive, TIndex toExclusive, Action<TIndex> body)
         where TIndex : IBinaryInteger<TIndex>
     {
@@ -359,6 +359,27 @@ public sealed class ParallelExecutor : IDisposable
             for (var i = fromInclusive; i < toExclusive; i++)
             {
                 body(i);
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new AggregateException(ex);
+        }
+    }
+
+    private static void ForSequential<TIndex, TState>(
+        TIndex fromInclusive,
+        TIndex toExclusive,
+        TState state,
+        Action<TIndex, TState> body)
+        where TIndex : struct, IBinaryInteger<TIndex>
+        where TState : struct
+    {
+        try
+        {
+            for (var i = fromInclusive; i < toExclusive; i++)
+            {
+                body(i, state);
             }
         }
         catch (Exception ex)
@@ -395,37 +416,26 @@ public sealed class ParallelExecutor : IDisposable
         }
     }
 
-    private static void ForInnerLoop<TIndex, TState>(TIndex threadIdx, ParallelExecutorForLoopState<TIndex, TState> state)
-        where TIndex : struct, IBinaryInteger<TIndex>
-        where TState : struct
-    {
-        var start = state.FromInclusive + (threadIdx * state.Chunk) + TIndex.Min(threadIdx, state.Remainder);
-        var count = threadIdx < state.Remainder ? state.Chunk + TIndex.One : state.Chunk;
-
-        for (var i = TIndex.Zero; i < count; i++)
-        {
-            state.Body(start + i, state.State);
-        }
-    }
-
-    [MethodImpl(ImplementationOptions.HotPath)]
-    private static (TIndex Start, TIndex Count) CalculateForParameters<TIndex>(
-        TIndex fromInclusive,
-        TIndex tid,
-        TIndex chunk,
-        TIndex remainder)
-        where TIndex : IBinaryInteger<TIndex>
-    {
-        var start = fromInclusive + (tid * chunk) + TIndex.Min(tid, remainder);
-        var count = tid < remainder ? chunk + TIndex.One : chunk;
-        return (start, count);
-    }
-
     private void Dispose(bool isDisposing)
     {
         if (isDisposing)
         {
             _threadPool.Dispose();
         }
+    }
+
+    private sealed class ForStatePayload<TIndex, TState>
+        where TIndex : struct, IBinaryInteger<TIndex>
+        where TState : struct
+    {
+        public ForStatePayload(Action<TIndex, TState> body, TState state)
+        {
+            Body = body;
+            State = state;
+        }
+
+        public Action<TIndex, TState> Body { get; }
+
+        public TState State { get; }
     }
 }

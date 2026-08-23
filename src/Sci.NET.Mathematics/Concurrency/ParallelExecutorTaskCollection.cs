@@ -39,11 +39,9 @@ public sealed class ParallelExecutorTaskCollection<TIndex> : IEnumerable<IParall
     /// </summary>
     public bool IsDisposed { get; private set; }
 
-    /// <summary>
-    /// Gets the tasks in the batch as a span, avoiding the enumerator allocation of
-    /// <see cref="GetEnumerator"/> on hot paths.
-    /// </summary>
     internal ReadOnlySpan<IParallelExecutorCountdownVirtualIndexTask<TIndex>> TasksSpan => _tasks;
+
+    internal IParallelExecutorTask[] Tasks => _tasks;
 
     /// <summary>
     /// Blocks until every task in the collection has completed, then rethrows any exceptions
@@ -101,11 +99,6 @@ public sealed class ParallelExecutorTaskCollection<TIndex> : IEnumerable<IParall
         {
             _countdown.Dispose();
             IsDisposed = true;
-
-            foreach (var task in _tasks)
-            {
-                task.Dispose();
-            }
         }
     }
 

@@ -14,14 +14,6 @@ public sealed class ParallelExecutorTask<TIndex> : IParallelExecutorCountdownVir
     where TIndex : IBinaryInteger<TIndex>
 {
     /// <summary>
-    /// Finalizes an instance of the <see cref="ParallelExecutorTask{TIndex}"/> class.
-    /// </summary>
-    ~ParallelExecutorTask()
-    {
-        Dispose(false);
-    }
-
-    /// <summary>
     /// Gets the action invoked when the task executes.
     /// </summary>
     public required Action<TIndex> Action { get; init; }
@@ -50,21 +42,6 @@ public sealed class ParallelExecutorTask<TIndex> : IParallelExecutorCountdownVir
         finally
         {
             _ = Countdown.Signal();
-        }
-    }
-
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    private void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            Countdown.Dispose();
         }
     }
 }

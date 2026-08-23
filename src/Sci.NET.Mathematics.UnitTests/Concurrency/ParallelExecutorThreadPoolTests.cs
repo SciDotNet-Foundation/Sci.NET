@@ -59,7 +59,7 @@ public class ParallelExecutorThreadPoolTests
     }
 
     [Fact]
-    public void Dispose_CompletesQueuedWork_BeforeStoppingThreads()
+    public void Dispose_CompletesInFlightWork_BeforeStoppingThreads()
     {
         var pool = new ParallelExecutorThreadPool(2);
         var executor = new ParallelExecutor(pool);
@@ -84,66 +84,75 @@ public class ParallelExecutorThreadPoolTests
     }
 
     [Fact]
-    public void EnqueueItems_Throws_AfterDispose()
+    public void Run_Throws_AfterDispose()
     {
         var pool = new ParallelExecutorThreadPool(2);
         pool.Dispose();
+        var executor = new ParallelExecutor(pool);
 
         using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(2, _ => { });
-        var act = () => pool.EnqueueItems(workItems);
+        var act = () => executor.Run(workItems);
 
         act.Should().Throw<ObjectDisposedException>();
-    }
-
-    [Fact]
-    public void EnqueueItems_Throws_WhenCollectionIsNull()
-    {
-        using var pool = new ParallelExecutorThreadPool(2);
-
-        var act = () => pool.EnqueueItems<int>(null!);
-
-        act.Should().Throw<ArgumentNullException>();
     }
 
     [Fact]
     public void Pool_ProcessesMoreTasksThanThreads()
     {
         using var pool = new ParallelExecutorThreadPool(2);
-        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(64, _ => { });
+        var executor = new ParallelExecutor(pool);
+        var invocations = 0;
 
-        pool.EnqueueItems(workItems);
+        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(64, _ => Interlocked.Increment(ref invocations));
 
-        workItems.WaitAll(TimeSpan.FromSeconds(30)).Should().BeTrue();
+        executor.Run(workItems);
+
+        invocations.Should().Be(64);
     }
 
     [Fact]
     public void IsWorkerThread_IsTrueOnWorkerThreads_AndFalseOnCallerThreads()
     {
         using var pool = new ParallelExecutorThreadPool(2);
-        var observedOnWorker = false;
-        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(
-            1,
-            _ => observedOnWorker = ParallelExecutorThreadPoolThread.IsWorkerThread);
+        var executor = new ParallelExecutor(pool);
+        var observedOnWorker = 0;
 
-        pool.EnqueueItems(workItems);
-        workItems.WaitAll();
+        executor.For(
+            0,
+            4,
+            4,
+            _ =>
+            {
+                if (ParallelExecutorThreadPoolThread.IsWorkerThread)
+                {
+                    Interlocked.Exchange(ref observedOnWorker, 1);
+                }
+            });
 
-        observedOnWorker.Should().BeTrue();
+        observedOnWorker.Should().Be(1, "at least one slice runs on a worker thread");
         ParallelExecutorThreadPoolThread.IsWorkerThread.Should().BeFalse();
+    }
+
+    [Fact]
+    public void PinnedPool_ExecutesRegion_AndCompletes()
+    {
+        using var pool = new ParallelExecutorThreadPool(2, ThreadPriority.Normal, pinThreads: true);
+        var executor = new ParallelExecutor(pool);
+        var invocations = 0;
+
+        executor.For(0, 64, 2, _ => Interlocked.Increment(ref invocations));
+
+        invocations.Should().Be(64);
     }
 
     [Fact]
     public void WorkerThread_SurvivesFaultingTask()
     {
         using var pool = new ParallelExecutorThreadPool(1);
+        var executor = new ParallelExecutor(pool);
 
-        using (var faultingItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(1, _ => throw new InvalidOperationException("boom")))
-        {
-            pool.EnqueueItems(faultingItems);
-            var act = () => faultingItems.WaitAll();
-
-            act.Should().Throw<AggregateException>();
-        }
+        var faulting = () => executor.For(0, 2, 2, _ => throw new InvalidOperationException("boom"));
+        faulting.Should().Throw<AggregateException>();
 
         pool
             .Threads.Should()
@@ -151,11 +160,10 @@ public class ParallelExecutorThreadPoolTests
             .And
             .OnlyContain(thread => thread!.IsAlive);
 
-        using var healthyItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(4, _ => { });
+        var invocations = 0;
+        executor.For(0, 4, 2, _ => Interlocked.Increment(ref invocations));
 
-        pool.EnqueueItems(healthyItems);
-
-        healthyItems.WaitAll(TimeSpan.FromSeconds(30)).Should().BeTrue();
+        invocations.Should().Be(4);
     }
 
     [Fact]
@@ -164,20 +172,22 @@ public class ParallelExecutorThreadPoolTests
         // Arrange
         const int replicas = 4;
         using var pool = new ParallelExecutorThreadPool(replicas);
+        var executor = new ParallelExecutor(pool);
         var values = new bool[replicas];
-
-        var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(
-            replicas,
-            i =>
-            {
-                Thread.Sleep(1000);
-
-                values[i] = true;
-            });
 
         var oldThreads = pool.Threads.ToArray();
 
-        var workerThread = new Thread(() => pool.EnqueueItems(tasks));
+        var workerThread = new Thread(
+            () => executor.For(
+                0,
+                replicas,
+                replicas,
+                i =>
+                {
+                    Thread.Sleep(1000);
+
+                    values[i] = true;
+                }));
         workerThread.Start();
 
         // Act

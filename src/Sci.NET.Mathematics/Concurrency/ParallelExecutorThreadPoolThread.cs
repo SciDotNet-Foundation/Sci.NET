@@ -1,18 +1,16 @@
 // Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using Sci.NET.Mathematics.Collections;
-
 namespace Sci.NET.Mathematics.Concurrency;
 
 internal sealed class ParallelExecutorThreadPoolThread
 {
-    private readonly PausableBoundedBlockingCollection<IParallelExecutorTask> _taskCollection;
+    private readonly ParallelExecutorThreadPool _pool;
     private Thread? _thread;
 
-    public ParallelExecutorThreadPoolThread(PausableBoundedBlockingCollection<IParallelExecutorTask> taskCollection)
+    public ParallelExecutorThreadPoolThread(ParallelExecutorThreadPool pool)
     {
-        _taskCollection = taskCollection;
+        _pool = pool;
     }
 
     [field: ThreadStatic]
@@ -22,9 +20,14 @@ internal sealed class ParallelExecutorThreadPoolThread
 
     public required ThreadPriority Priority { get; init; }
 
+    public static void MarkWorkerThread()
+    {
+        IsWorkerThread = true;
+    }
+
     public void Start()
     {
-        _thread = new Thread(ThreadBody)
+        _thread = new Thread(static state => ((ParallelExecutorThreadPoolThread)state!).Run())
         {
             Name = $"Sci.NET.ParallelExecutor Worker {ThreadIdx}",
             IsBackground = true,
@@ -60,20 +63,8 @@ internal sealed class ParallelExecutorThreadPoolThread
         return _thread;
     }
 
-    private static void ThreadBody(object? boxedThreadInstance)
+    private void Run()
     {
-        var thread = boxedThreadInstance as ParallelExecutorThreadPoolThread ??
-                     throw new InvalidOperationException("The thread started with the wrong parameters");
-
-        IsWorkerThread = true;
-
-        ParallelExecutorEventSource.Log.WorkerThreadStarted(thread.ThreadIdx);
-
-        foreach (var item in thread._taskCollection.GetConsumingEnumerable())
-        {
-            item.Execute();
-        }
-
-        ParallelExecutorEventSource.Log.WorkerThreadStopped(thread.ThreadIdx);
+        _pool.RunWorker(ThreadIdx);
     }
 }

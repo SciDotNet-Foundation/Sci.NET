@@ -56,54 +56,6 @@ public static class ParallelExecutorTaskFactory
     }
 
     /// <summary>
-    /// Creates a batch of <paramref name="replicas"/> tasks which each invoke <paramref name="action"/>
-    /// with their own virtual thread index (0, 1, ..., replicas - 1). All tasks in the batch share a
-    /// single <see cref="CountdownEvent"/> for completion signalling.
-    /// </summary>
-    /// <typeparam name="TIndex">The integer type used for the virtual thread index.</typeparam>
-    /// <typeparam name="TState">The type for the local state.</typeparam>
-    /// <param name="replicas">The number of tasks to create.</param>
-    /// <param name="state">The state passed to the loop action.</param>
-    /// <param name="action">The action each task invokes.</param>
-    /// <returns>A disposable collection of the created tasks.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="action"/> is <c>null</c>.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="replicas"/> is not positive or exceeds <see cref="int.MaxValue"/>.</exception>
-    public static ParallelExecutorTaskCollection<TIndex> RepeatedConstantOffset<TIndex, TState>(
-        TIndex replicas,
-        TState state,
-        Action<TIndex, TState> action)
-        where TIndex : IBinaryInteger<TIndex>
-        where TState : struct
-    {
-        ArgumentNullException.ThrowIfNull(action);
-
-        var replicasLong = long.CreateChecked(replicas);
-
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(replicasLong, nameof(replicas));
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(replicasLong, int.MaxValue, nameof(replicas));
-
-        var count = (int)replicasLong;
-        var countdown = new CountdownEvent(count);
-        var currentTaskIndex = TIndex.Zero;
-        var tasks = new IParallelExecutorCountdownVirtualIndexTask<TIndex>[count];
-
-        for (var i = 0; i < count; i++)
-        {
-            tasks[i] = new ParallelExecutorTaskWithState<TIndex, TState>
-            {
-                Countdown = countdown,
-                Action = action,
-                VirtualThreadIdx = currentTaskIndex,
-                State = state
-            };
-
-            currentTaskIndex++;
-        }
-
-        return new ParallelExecutorTaskCollection<TIndex>(tasks, countdown);
-    }
-
-    /// <summary>
     /// Creates a batch of tasks, one per element produced by <paramref name="partitioner"/>, which
     /// each invoke <paramref name="action"/> with their element. The partitioner is fully enumerated
     /// before this method returns.

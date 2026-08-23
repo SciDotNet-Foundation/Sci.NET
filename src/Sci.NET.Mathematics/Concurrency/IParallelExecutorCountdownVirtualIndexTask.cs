@@ -7,10 +7,11 @@ namespace Sci.NET.Mathematics.Concurrency;
 
 /// <summary>
 /// A single unit of work executed by a <see cref="ParallelExecutorThreadPool"/> worker thread with
-/// a countdown and virtual thread index.
+/// a countdown and virtual thread index. The <see cref="Countdown"/> is owned and disposed by the
+/// enclosing <see cref="ParallelExecutorTaskCollection{TIndex}"/>, not by the task.
 /// </summary>
 /// <typeparam name="TIndex">The integer type used for the virtual thread index.</typeparam>
-public interface IParallelExecutorCountdownVirtualIndexTask<TIndex> : IParallelExecutorTask, IDisposable
+public interface IParallelExecutorCountdownVirtualIndexTask<TIndex> : IParallelExecutorTask
     where TIndex : IBinaryInteger<TIndex>
 {
     /// <summary>
