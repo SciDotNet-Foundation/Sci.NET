@@ -3,42 +3,43 @@
 
 using BenchmarkDotNet.Running;
 using Sci.NET.Benchmarks.Concurrency;
+using Sci.NET.Benchmarks.Managed;
 
-// // Linear algebra benchmarks
-// BenchmarkRunner.Run<ManagedMatrixMultiplyBenchmarks<float>>(config);
-// BenchmarkRunner.Run<ManagedMatrixMultiplyBenchmarks<double>>(config);
-// BenchmarkRunner.Run<ManagedInnerProductBenchmarks<float>>(config);
-// BenchmarkRunner.Run<ManagedInnerProductBenchmarks<double>>(config);
-// BenchmarkRunner.Run<ManagedContractionBenchmarks<float>>(config);
-// BenchmarkRunner.Run<ManagedContractionBenchmarks<double>>(config);
-// BenchmarkRunner.Run<ManagedHypotBenchmarks<float>>(config);
-// BenchmarkRunner.Run<ManagedHypotBenchmarks<double>>(config);
-//
-// // Reduction benchmarks
-// BenchmarkRunner.Run<ManagedReductionBenchmarks<float>>(config);
-// BenchmarkRunner.Run<ManagedReductionBenchmarks<double>>(config);
-//
-// // Arithmetic benchmarks
-// BenchmarkRunner.Run<ManagedBinaryArithmeticBenchmarks<float>>(config);
-// BenchmarkRunner.Run<ManagedBinaryArithmeticBenchmarks<double>>(config);
-// BenchmarkRunner.Run<ManagedUnaryArithmeticBenchmarks<float>>(config);
-// BenchmarkRunner.Run<ManagedUnaryArithmeticBenchmarks<double>>(config);
-//
-// // Activation function benchmarks
-// BenchmarkRunner.Run<ManagedActivationFunctionBenchmarks<float>>(config);
-// BenchmarkRunner.Run<ManagedActivationFunctionBenchmarks<double>>(config);
-//
-// // Broadcasting benchmarks
-// BenchmarkRunner.Run<ManagedBroadcastingBenchmarks<float>>(config);
-// BenchmarkRunner.Run<ManagedBroadcastingBenchmarks<double>>(config);
-//
-// // Equality benchmarks
-// BenchmarkRunner.Run<ManagedEqualityBenchmarks<float>>(config);
-// BenchmarkRunner.Run<ManagedEqualityBenchmarks<double>>(config);
-//
-// // Reshape benchmarks
-// BenchmarkRunner.Run<ManagedPermutationBenchmarks<float>>(config);
-// BenchmarkRunner.Run<ManagedPermutationBenchmarks<double>>(config);
+// Linear algebra benchmarks
+BenchmarkRunner.Run<ManagedMatrixMultiplyBenchmarks<float>>();
+BenchmarkRunner.Run<ManagedMatrixMultiplyBenchmarks<double>>();
+BenchmarkRunner.Run<ManagedInnerProductBenchmarks<float>>();
+BenchmarkRunner.Run<ManagedInnerProductBenchmarks<double>>();
+BenchmarkRunner.Run<ManagedContractionBenchmarks<float>>();
+BenchmarkRunner.Run<ManagedContractionBenchmarks<double>>();
+BenchmarkRunner.Run<ManagedHypotBenchmarks<float>>();
+BenchmarkRunner.Run<ManagedHypotBenchmarks<double>>();
+
+// Reduction benchmarks
+BenchmarkRunner.Run<ManagedReductionBenchmarks<float>>();
+BenchmarkRunner.Run<ManagedReductionBenchmarks<double>>();
+
+// Arithmetic benchmarks
+BenchmarkRunner.Run<ManagedBinaryArithmeticBenchmarks<float>>();
+BenchmarkRunner.Run<ManagedBinaryArithmeticBenchmarks<double>>();
+BenchmarkRunner.Run<ManagedUnaryArithmeticBenchmarks<float>>();
+BenchmarkRunner.Run<ManagedUnaryArithmeticBenchmarks<double>>();
+
+// Activation function benchmarks
+BenchmarkRunner.Run<ManagedActivationFunctionBenchmarks<float>>();
+BenchmarkRunner.Run<ManagedActivationFunctionBenchmarks<double>>();
+
+// Broadcasting benchmarks
+BenchmarkRunner.Run<ManagedBroadcastingBenchmarks<float>>();
+BenchmarkRunner.Run<ManagedBroadcastingBenchmarks<double>>();
+
+// Equality benchmarks
+BenchmarkRunner.Run<ManagedEqualityBenchmarks<float>>();
+BenchmarkRunner.Run<ManagedEqualityBenchmarks<double>>();
+
+// Reshape benchmarks
+BenchmarkRunner.Run<ManagedPermutationBenchmarks<float>>();
+BenchmarkRunner.Run<ManagedPermutationBenchmarks<double>>();
 
 // Parallel
 BenchmarkRunner.Run<ParallelExecutorBenchmarks>();
