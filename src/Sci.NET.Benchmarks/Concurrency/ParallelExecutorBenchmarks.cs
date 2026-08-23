@@ -10,7 +10,6 @@ using Sci.NET.Mathematics.Random;
 
 namespace Sci.NET.Benchmarks.Concurrency;
 
-[Config(typeof(PipeProfilerConfig))]
 [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "Benchmark")]
 public class ParallelExecutorBenchmarks
 {
@@ -56,90 +55,6 @@ public class ParallelExecutorBenchmarks
     }
 
     [Benchmark]
-    public unsafe void ThreadPoolForDontPreferLocal()
-    {
-        var numWorkers = ManagedTensorBackend.GetNumThreadsByElementCount<float>(VectorSize);
-
-        var innerLoopState = new InnerLoopState
-        {
-            LeftPtr = _leftVector.ToPointer(),
-            RightPtr = _rightVector.ToPointer(),
-            ResultPtr = _resultVector.ToPointer()
-        };
-
-        ParallelUtils.ThreadPoolFor(
-            0,
-            VectorSize,
-            numWorkers,
-            false,
-            innerLoopState,
-            InnerLoop);
-    }
-
-    [Benchmark]
-    public unsafe void ThreadPoolForPreferLocal()
-    {
-        var numWorkers = ManagedTensorBackend.GetNumThreadsByElementCount<float>(VectorSize);
-
-        var innerLoopState = new InnerLoopState
-        {
-            LeftPtr = _leftVector.ToPointer(),
-            RightPtr = _rightVector.ToPointer(),
-            ResultPtr = _resultVector.ToPointer()
-        };
-
-        ParallelUtils.ThreadPoolFor(
-            0,
-            VectorSize,
-            numWorkers,
-            true,
-            innerLoopState,
-            InnerLoop);
-    }
-
-    [Benchmark]
-    public unsafe void ThreadPoolReferenceTypeForDontPreferLocal()
-    {
-        var numWorkers = ManagedTensorBackend.GetNumThreadsByElementCount<float>(VectorSize);
-
-        var innerLoopState = new InnerLoopStateReferenceType
-        {
-            LeftPtr = _leftVector.ToPointer(),
-            RightPtr = _rightVector.ToPointer(),
-            ResultPtr = _resultVector.ToPointer()
-        };
-
-        ParallelUtils.ThreadPoolForReferenceType(
-            0,
-            VectorSize,
-            numWorkers,
-            false,
-            innerLoopState,
-            InnerLoop);
-    }
-
-    [Benchmark]
-    public unsafe void ThreadPoolReferenceTypeForPreferLocal()
-    {
-        var numWorkers = ManagedTensorBackend.GetNumThreadsByElementCount<float>(VectorSize);
-
-        var innerLoopState = new InnerLoopStateReferenceType
-        {
-            LeftPtr = _leftVector.ToPointer(),
-            RightPtr = _rightVector.ToPointer(),
-            ResultPtr = _resultVector.ToPointer()
-        };
-
-        ParallelUtils.ThreadPoolForReferenceType(
-            0,
-            VectorSize,
-            numWorkers,
-            true,
-            innerLoopState,
-            InnerLoop);
-    }
-
-    [Benchmark]
     public unsafe void TplFor()
     {
         var numWorkers = ManagedTensorBackend.GetNumThreadsByElementCount<float>(VectorSize);
@@ -155,11 +70,6 @@ public class ParallelExecutorBenchmarks
     }
 
     private static unsafe void InnerLoop(long idx, InnerLoopState state)
-    {
-        state.ResultPtr[idx] = state.LeftPtr[idx] * state.RightPtr[idx];
-    }
-
-    private static unsafe void InnerLoop(long idx, InnerLoopStateReferenceType state)
     {
         state.ResultPtr[idx] = state.LeftPtr[idx] * state.RightPtr[idx];
     }

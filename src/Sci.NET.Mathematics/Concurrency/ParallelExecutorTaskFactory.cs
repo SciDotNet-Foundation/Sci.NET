@@ -13,9 +13,8 @@ namespace Sci.NET.Mathematics.Concurrency;
 public static class ParallelExecutorTaskFactory
 {
     /// <summary>
-    /// Creates a batch of <paramref name="replicas"/> tasks which each invoke <paramref name="action"/>
-    /// with their own virtual thread index (0, 1, ..., replicas - 1). All tasks in the batch share a
-    /// single <see cref="CountdownEvent"/> for completion signalling.
+    /// Creates a batch of <paramref name="replicas"/> tasks which each invoke <paramref name="action"/> with their own virtual thread
+    /// index. All tasks in the batch share a single <see cref="CountdownEvent"/> for completion signalling.
     /// </summary>
     /// <typeparam name="TIndex">The integer type used for the virtual thread index.</typeparam>
     /// <param name="replicas">The number of tasks to create.</param>
@@ -56,8 +55,8 @@ public static class ParallelExecutorTaskFactory
     }
 
     /// <summary>
-    /// Creates a batch of tasks, one per element produced by <paramref name="partitioner"/>, which
-    /// each invoke <paramref name="action"/> with their element. The partitioner is fully enumerated
+    /// Creates a batch of tasks, one per element produced by <paramref name="partitioner"/>, which each invoke
+    /// <paramref name="action"/> with their element. The partitioner is fully enumerated
     /// before this method returns.
     /// </summary>
     /// <typeparam name="TSource">The type of the elements produced by the partitioner.</typeparam>

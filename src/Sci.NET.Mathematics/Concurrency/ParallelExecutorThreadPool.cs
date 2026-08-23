@@ -8,9 +8,9 @@ namespace Sci.NET.Mathematics.Concurrency;
 
 /// <summary>
 /// A dedicated, fixed-size pool of worker threads that executes balanced fork-join parallel regions using an
-/// OpenMP/MKL-style barrier. rather than a work queue. On each region the calling thread  publishes a single
-/// shared descriptor, wakes the participating workers via a generation counter, runs one slice itself, and
-/// blocks until every worker has completed.
+/// OpenMP/MKL-style barrier. On each region the calling thread  publishes a single shared descriptor, wakes
+/// the participating workers via a generation counter, runs one slice itself, and blocks until every worker
+/// has completed.
 /// </summary>
 [PublicAPI]
 public sealed unsafe class ParallelExecutorThreadPool : IDisposable
