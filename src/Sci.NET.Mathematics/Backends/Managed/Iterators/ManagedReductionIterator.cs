@@ -9,6 +9,7 @@ using System.Runtime.Intrinsics.X86;
 using Sci.NET.Mathematics.Backends.Devices;
 using Sci.NET.Mathematics.Backends.Iterators;
 using Sci.NET.Mathematics.Backends.Managed.MicroKernels;
+using Sci.NET.Mathematics.Concurrency;
 using Sci.NET.Mathematics.Intrinsics;
 using Sci.NET.Mathematics.Memory;
 using Sci.NET.Mathematics.Tensors;
@@ -40,10 +41,10 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
                 break;
 
             case ReductionPattern.ContiguousOuter:
-                ApplyContiguousOuter(inputMemory.ToPointer(), outputMemory.ToPointer(), geometry, (ICpuComputeDevice)input.Device);
+                ApplyContiguousOuter(inputMemory.ToPointer(), outputMemory.ToPointer(), geometry);
                 break;
             case ReductionPattern.Strided:
-                ApplyStrided(inputMemory.ToPointer(), outputMemory.ToPointer(), geometry, (ICpuComputeDevice)input.Device);
+                ApplyStrided(inputMemory.ToPointer(), outputMemory.ToPointer(), geometry);
                 break;
             default:
                 throw new InvalidOperationException($"Unsupported reduction pattern: {geometry.Pattern}");
@@ -82,17 +83,11 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
         var numThreads = ManagedTensorBackend.GetNumThreadsByElementCount<float>(n);
         var partials = new float[numThreads];
 
-        if (numThreads == 1)
-        {
-            ApplyFullReductionAvx256Fp32InnerLoop(0, 1, n, input, partials);
-        }
-        else
-        {
-            _ = Parallel.For(
-                0,
-                numThreads,
-                tid => ApplyFullReductionAvx256Fp32InnerLoop(tid, numThreads, n, input, partials));
-        }
+        using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(
+            numThreads,
+            tid => ApplyFullReductionAvx256Fp32InnerLoop(tid, numThreads, n, input, partials));
+
+        ManagedTensorBackend.ParallelExecutor.Run(tasks);
 
         var result = TReduction.Identity;
         foreach (var partial in partials)
@@ -164,17 +159,11 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
         var numThreads = ManagedTensorBackend.GetNumThreadsByElementCount<double>(n);
         var partials = new double[numThreads];
 
-        if (numThreads == 1)
-        {
-            ApplyFullReductionAvx256Fp64InnerLoop(0, 1, n, input, partials);
-        }
-        else
-        {
-            _ = Parallel.For(
-                0,
-                numThreads,
-                tid => ApplyFullReductionAvx256Fp64InnerLoop(tid, numThreads, n, input, partials));
-        }
+        using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(
+            numThreads,
+            tid => ApplyFullReductionAvx256Fp64InnerLoop(tid, numThreads, n, input, partials));
+
+        ManagedTensorBackend.ParallelExecutor.Run(tasks);
 
         var result = TReduction.Identity;
         foreach (var partial in partials)
@@ -246,17 +235,11 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
         var numThreads = ManagedTensorBackend.GetNumThreadsByElementCount<double>(n);
         var partials = new TNumber[numThreads];
 
-        if (numThreads == 1)
-        {
-            ApplyFullReductionScalarInnerLoop(0, 1, n, input, partials);
-            output[0] = TReduction.Finalize(partials[0], n);
-            return;
-        }
-
-        _ = Parallel.For(
-            0,
+        using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(
             numThreads,
             tid => ApplyFullReductionScalarInnerLoop(tid, numThreads, n, input, partials));
+
+        ManagedTensorBackend.ParallelExecutor.Run(tasks);
 
         var result = TReduction.Identity;
         foreach (var partial in partials)
@@ -292,7 +275,8 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
         var outerCount = geometry.OuterCount;
         var innerCount = geometry.InnerCount;
 
-        if (device.IsAvx2Supported() && TReduction.HasAvx2Implementation() && innerCount >= Vector256<TNumber>.Count * 4)
+        if (device.IsAvx2Supported() && TReduction.HasAvx2Implementation() &&
+            innerCount >= Vector256<TNumber>.Count * 4)
         {
             switch (TNumber.Zero)
             {
@@ -314,17 +298,11 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
         long outerCount,
         long innerCount)
     {
-        if (outerCount == 1)
-        {
-            ApplyContiguousInnerAvx256Fp32InnerLoop(0, innerCount, input, output);
-        }
-        else
-        {
-            _ = Parallel.For(
-                0,
-                outerCount,
-                outer => ApplyContiguousInnerAvx256Fp32InnerLoop(outer, innerCount, input, output));
-        }
+        ManagedTensorBackend.ParallelExecutor.For(
+            0,
+            outerCount,
+            ManagedTensorBackend.MaxDegreeOfParallelism,
+            outer => ApplyContiguousInnerAvx256Fp32InnerLoop(outer, innerCount, input, output));
     }
 
     private static unsafe void ApplyContiguousInnerAvx256Fp32InnerLoop(long outer, long innerCount, float* input, float* output)
@@ -374,17 +352,11 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
         long outerCount,
         long innerCount)
     {
-        if (outerCount == 1)
-        {
-            ApplyContiguousInnerAvx256Fp64InnerLoop(0, innerCount, input, output);
-        }
-        else
-        {
-            _ = Parallel.For(
-                0,
-                outerCount,
-                outer => ApplyContiguousInnerAvx256Fp64InnerLoop(outer, innerCount, input, output));
-        }
+        ManagedTensorBackend.ParallelExecutor.For(
+            0,
+            outerCount,
+            ManagedTensorBackend.MaxDegreeOfParallelism,
+            outer => ApplyContiguousInnerAvx256Fp64InnerLoop(outer, innerCount, input, output));
     }
 
     private static unsafe void ApplyContiguousInnerAvx256Fp64InnerLoop(long outer, long innerCount, double* input, double* output)
@@ -434,17 +406,11 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
         long outerCount,
         long innerCount)
     {
-        if (outerCount == 1)
-        {
-            ApplyContiguousInnerScalarInnerLoop(0, innerCount, input, output);
-        }
-        else
-        {
-            _ = Parallel.For(
-                0,
-                outerCount,
-                outer => ApplyContiguousInnerScalarInnerLoop(outer, innerCount, input, output));
-        }
+        ManagedTensorBackend.ParallelExecutor.For(
+            0,
+            outerCount,
+            ManagedTensorBackend.MaxDegreeOfParallelism,
+            outer => ApplyContiguousInnerScalarInnerLoop(outer, innerCount, input, output));
     }
 
     private static unsafe void ApplyContiguousInnerScalarInnerLoop(long outer, long innerCount, TNumber* input, TNumber* output)
@@ -463,42 +429,39 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
     private static unsafe void ApplyContiguousOuter(
         TNumber* input,
         TNumber* output,
-        in ReductionGeometry geometry,
-        ICpuComputeDevice device)
+        in ReductionGeometry geometry)
     {
         var outerCount = geometry.OuterCount;
         var innerCount = geometry.InnerCount;
         var stride = geometry.OuterStride;
 
         // No AVX implementation for this pattern yet
-        _ = device;
-
-        _ = Parallel.For(
-            0,
-            outerCount,
-            outIdx =>
-            {
-                var acc = TReduction.Identity;
-
-                for (var reduceIdx = 0; reduceIdx < innerCount; reduceIdx++)
+        ManagedTensorBackend
+            .ParallelExecutor
+            .For(
+                0,
+                outerCount,
+                ManagedTensorBackend.MaxDegreeOfParallelism,
+                outIdx =>
                 {
-                    var inputIdx = (reduceIdx * stride) + outIdx;
-                    acc = TReduction.Accumulate(acc, input[inputIdx]);
-                }
+                    var acc = TReduction.Identity;
 
-                output[outIdx] = TReduction.Finalize(acc, innerCount);
-            });
+                    for (var reduceIdx = 0; reduceIdx < innerCount; reduceIdx++)
+                    {
+                        var inputIdx = (reduceIdx * stride) + outIdx;
+                        acc = TReduction.Accumulate(acc, input[inputIdx]);
+                    }
+
+                    output[outIdx] = TReduction.Finalize(acc, innerCount);
+                });
     }
 
     private static unsafe void ApplyStrided(
         TNumber* input,
         TNumber* output,
-        in ReductionGeometry geometry,
-        ICpuComputeDevice device)
+        in ReductionGeometry geometry)
     {
         // No AVX implementation for this pattern yet
-        _ = device;
-
         var outerCount = geometry.OuterCount;
         var innerCount = geometry.InnerCount;
         var tensorStrides = geometry.TensorStrides;
@@ -514,40 +477,43 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
             resultShape[d] = geometry.InputShape[resultToTensorDim[d]];
         }
 
-        _ = Parallel.For(
-            0,
-            outerCount,
-            resultIdx =>
-            {
-                var baseOffset = 0L;
-                var remaining = resultIdx;
-
-                for (var d = resultRank - 1; d >= 0; d--)
+        ManagedTensorBackend
+            .ParallelExecutor
+            .For(
+                0,
+                outerCount,
+                ManagedTensorBackend.MaxDegreeOfParallelism,
+                resultIdx =>
                 {
-                    var dimSize = resultShape[d];
-                    var coord = remaining % dimSize;
-                    remaining /= dimSize;
-                    baseOffset += coord * tensorStrides[resultToTensorDim[d]];
-                }
+                    var baseOffset = 0L;
+                    var remaining = resultIdx;
 
-                var acc = TReduction.Identity;
-
-                for (var reduceIdx = 0; reduceIdx < innerCount; reduceIdx++)
-                {
-                    var offset = baseOffset;
-                    var rem = reduceIdx;
-
-                    for (var a = reduceRank - 1; a >= 0; a--)
+                    for (var d = resultRank - 1; d >= 0; d--)
                     {
-                        var coord = rem % reduceAxisDims[a];
-                        rem /= reduceAxisDims[a];
-                        offset += coord * reduceAxisStrides[a];
+                        var dimSize = resultShape[d];
+                        var coord = remaining % dimSize;
+                        remaining /= dimSize;
+                        baseOffset += coord * tensorStrides[resultToTensorDim[d]];
                     }
 
-                    acc = TReduction.Accumulate(acc, input[offset]);
-                }
+                    var acc = TReduction.Identity;
 
-                output[resultIdx] = TReduction.Finalize(acc, innerCount);
-            });
+                    for (var reduceIdx = 0; reduceIdx < innerCount; reduceIdx++)
+                    {
+                        var offset = baseOffset;
+                        var rem = reduceIdx;
+
+                        for (var a = reduceRank - 1; a >= 0; a--)
+                        {
+                            var coord = rem % reduceAxisDims[a];
+                            rem /= reduceAxisDims[a];
+                            offset += coord * reduceAxisStrides[a];
+                        }
+
+                        acc = TReduction.Accumulate(acc, input[offset]);
+                    }
+
+                    output[resultIdx] = TReduction.Finalize(acc, innerCount);
+                });
     }
 }

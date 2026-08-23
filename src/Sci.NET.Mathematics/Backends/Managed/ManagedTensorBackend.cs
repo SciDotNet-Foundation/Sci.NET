@@ -4,6 +4,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Sci.NET.Mathematics.Backends.Devices;
+using Sci.NET.Mathematics.Concurrency;
 
 namespace Sci.NET.Mathematics.Backends.Managed;
 
@@ -13,6 +14,8 @@ namespace Sci.NET.Mathematics.Backends.Managed;
 [PublicAPI]
 public sealed class ManagedTensorBackend : ITensorBackend
 {
+    private static ParallelExecutorThreadPool _threadPool = null!;
+
     static ManagedTensorBackend()
     {
         ResetToDefaults();
@@ -40,19 +43,9 @@ public sealed class ManagedTensorBackend : ITensorBackend
     }
 
     /// <summary>
-    /// Gets or sets the maximum degree of parallelism for operations in the managed backend.
+    /// Gets the maximum degree of parallelism for operations in the managed backend.
     /// </summary>
-    public static int MaxDegreeOfParallelism
-    {
-        get;
-        set
-        {
-            ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(value, Environment.ProcessorCount);
-
-            field = value;
-        }
-    }
+    public static int MaxDegreeOfParallelism { get; private set; }
 
     /// <summary>
     /// Gets or sets the minimum number of bytes processed per thread in parallel operations.
@@ -64,19 +57,6 @@ public sealed class ManagedTensorBackend : ITensorBackend
         {
             ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
-            field = value;
-        }
-    }
-
-    /// <summary>
-    /// Gets or sets the threshold for parallelization in terms of number of elements.
-    /// </summary>
-    public static int ParallelizationThreshold
-    {
-        get;
-        set
-        {
-            ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
             field = value;
         }
     }
@@ -95,9 +75,14 @@ public sealed class ManagedTensorBackend : ITensorBackend
     }
 
     /// <summary>
+    /// Gets the parallel executor used to run the backend's kernels.
+    /// </summary>
+    public static ParallelExecutor ParallelExecutor { get; private set; } = null!;
+
+    /// <summary>
     /// Gets the singleton instance of the <see cref="ManagedTensorBackend"/>.
     /// </summary>
-    public static ITensorBackend Instance { get; } = new ManagedTensorBackend();
+    public static ManagedTensorBackend Instance { get; } = new();
 
     /// <inheritdoc />
     public ITensorStorageKernels Storage { get; }
@@ -148,8 +133,25 @@ public sealed class ManagedTensorBackend : ITensorBackend
     {
         MaxDegreeOfParallelism = Environment.ProcessorCount;
         MinBytesPerThread = 256 * 1024; // 256 KiB per thread
-        ParallelizationThreshold = 100_000;
         ParallelizationTileThreshold = 2;
+
+        _threadPool = new ParallelExecutorThreadPool(MaxDegreeOfParallelism, ThreadPriority.Normal);
+        ParallelExecutor = new ParallelExecutor(_threadPool);
+    }
+
+    /// <summary>
+    /// Sets the options for the <see cref="ParallelExecutor"/>, including the <paramref name="numThreads"/> and <paramref name="threadPriority"/>.
+    /// The <see cref="MaxDegreeOfParallelism"/> is set to the <paramref name="numThreads"/>.
+    /// </summary>
+    /// <param name="numThreads">The number of threads to create.</param>
+    /// <param name="threadPriority">The priority of the <see cref="ParallelExecutor"/> worker threads.</param>
+    public static void SetParallelExecutorOptions(int numThreads, ThreadPriority threadPriority = ThreadPriority.Normal)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(numThreads);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(numThreads, Environment.ProcessorCount);
+
+        MaxDegreeOfParallelism = numThreads;
+        _threadPool.ReplaceWorkerThreads(numThreads, priority: threadPriority);
     }
 
     internal static int GetMaxDegreeOfParallelism(long tileCount)
@@ -168,10 +170,30 @@ public sealed class ManagedTensorBackend : ITensorBackend
     }
 
     internal static int GetNumThreadsByElementCount<TNumber>(long elementCount)
-        where TNumber : unmanaged, INumber<TNumber>
+        where TNumber : unmanaged
     {
         var maxUsefulThreads = Math.Max(1, elementCount * Unsafe.SizeOf<TNumber>() / MinBytesPerThread);
 
         return (int)Math.Min(maxUsefulThreads, MaxDegreeOfParallelism);
+    }
+
+    internal static TIndex GetNumThreadsByElementCount<TIndex, TNumber>(TIndex elementCount)
+        where TIndex : IBinaryInteger<TIndex>
+        where TNumber : unmanaged
+    {
+        var maxUsefulThreads = Math.Max(1L, long.CreateChecked(elementCount) * Unsafe.SizeOf<TNumber>() / MinBytesPerThread);
+
+        return TIndex.CreateChecked(Math.Min(maxUsefulThreads, MaxDegreeOfParallelism));
+    }
+
+    internal static int GetNumThreadsByElementCount<T1, T2>(long elementCount)
+        where T1 : unmanaged
+        where T2 : unmanaged
+    {
+        var maxUsefulThreads = Math.Min(
+            GetNumThreadsByElementCount<T1>(elementCount),
+            GetNumThreadsByElementCount<T2>(elementCount));
+
+        return Math.Min(maxUsefulThreads, MaxDegreeOfParallelism);
     }
 }

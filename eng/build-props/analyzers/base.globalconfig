@@ -250,7 +250,7 @@ roslynator_enum_has_flag_style = operator
 roslynator_equals_token_new_line = after
 # Applicable to: rcs0052
 
-roslynator_infinite_loop_style = for
+roslynator_infinite_loop_style = while
 # Applicable to: rcs1252
 
 roslynator_max_line_length = 120

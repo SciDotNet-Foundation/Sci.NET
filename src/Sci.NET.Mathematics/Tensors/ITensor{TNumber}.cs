@@ -4,8 +4,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Sci.NET.Mathematics.Backends;
+using Sci.NET.Mathematics.Exceptions;
 using Sci.NET.Mathematics.Memory;
-using Sci.NET.Mathematics.Tensors.Exceptions;
 
 namespace Sci.NET.Mathematics.Tensors;
 

@@ -52,9 +52,10 @@ internal class ManagedPermutationKernels : IPermutationKernels
         var srcPtrBase = sourceBlock.Pointer;
         var dstPtrBase = resultBlock.Pointer;
 
-        _ = Parallel.For(
+        ManagedTensorBackend.ParallelExecutor.For(
             0,
             destDims[axisParallel],
+            ManagedTensorBackend.MaxDegreeOfParallelism,
             baseIdx =>
             {
                 var baseSrcOffset = baseIdx * permutedSrcStrides[axisParallel];

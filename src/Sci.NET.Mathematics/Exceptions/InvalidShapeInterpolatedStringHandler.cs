@@ -4,8 +4,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Sci.NET.Mathematics.Tensors;
 
-namespace Sci.NET.Mathematics.Tensors.Exceptions;
+namespace Sci.NET.Mathematics.Exceptions;
 
 /// <summary>
 /// The interpolated string handler for <see cref="InvalidShapeException"/>.

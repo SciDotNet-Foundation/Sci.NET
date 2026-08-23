@@ -3,6 +3,7 @@
 
 using System.Numerics;
 using System.Runtime.Intrinsics;
+using Sci.NET.Mathematics.Comparison;
 using Sci.NET.Mathematics.Numerics;
 
 namespace Sci.NET.Mathematics.Backends.Managed.MicroKernels;
@@ -11,11 +12,11 @@ namespace Sci.NET.Mathematics.Backends.Managed.MicroKernels;
 /// A parameter container for micro-kernel operations.
 /// </summary>
 /// <typeparam name="TNumber">The numeric type.</typeparam>
-public class MicroKernelParameter<TNumber>
+public readonly struct MicroKernelParameter<TNumber> : IValueEquatable<MicroKernelParameter<TNumber>>
     where TNumber : unmanaged, INumber<TNumber>
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="MicroKernelParameter{TNumber}"/> class with the specified scalar value.
+    /// Initializes a new instance of the <see cref="MicroKernelParameter{TNumber}"/> struct with the specified scalar value.
     /// </summary>
     /// <param name="value">The scalar value.</param>
     public MicroKernelParameter(TNumber value)
@@ -34,28 +35,6 @@ public class MicroKernelParameter<TNumber>
             ScalarFp32Value = 0;
             ScalarFp64Value = 0;
         }
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="MicroKernelParameter{TNumber}"/> class with the specified values.
-    /// </summary>
-    /// <param name="scalarValue">The scalar value.</param>
-    /// <param name="scalarFp32Value">The scalar float (FP32) value.</param>
-    /// <param name="scalarFp64Value">The scalar double (FP64) value.</param>
-    /// <param name="vector256ValueFp32">The <see cref="Vector256{T}"/> float (FP32) value.</param>
-    /// <param name="vector256ValueFp64">The <see cref="Vector256{T}"/> double (FP64) value.</param>
-    public MicroKernelParameter(
-        TNumber scalarValue,
-        float scalarFp32Value,
-        double scalarFp64Value,
-        Vector256<float> vector256ValueFp32,
-        Vector256<double> vector256ValueFp64)
-    {
-        ScalarValue = scalarValue;
-        ScalarFp32Value = scalarFp32Value;
-        ScalarFp64Value = scalarFp64Value;
-        Vector256ValueFp32 = vector256ValueFp32;
-        Vector256ValueFp64 = vector256ValueFp64;
     }
 
     /// <summary>
@@ -91,5 +70,31 @@ public class MicroKernelParameter<TNumber>
     public static implicit operator MicroKernelParameter<TNumber>(TNumber value)
     {
         return new(value);
+    }
+
+    /// <inheritdoc />
+    public static bool operator ==(MicroKernelParameter<TNumber> left, MicroKernelParameter<TNumber> right) =>
+        left.Equals(right);
+
+    /// <inheritdoc />
+    public static bool operator !=(MicroKernelParameter<TNumber> left, MicroKernelParameter<TNumber> right) =>
+        !left.Equals(right);
+
+    /// <inheritdoc />
+    public bool Equals(MicroKernelParameter<TNumber> other)
+    {
+        return other.ScalarValue.Equals(ScalarValue);
+    }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        return obj is MicroKernelParameter<TNumber> other && Equals(other);
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(ScalarValue);
     }
 }

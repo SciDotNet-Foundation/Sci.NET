@@ -2,7 +2,8 @@
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
 using System.Numerics;
-using Sci.NET.Mathematics.Concurrency;
+using Sci.NET.Mathematics.Backends.Managed.Iterators;
+using Sci.NET.Mathematics.Backends.Managed.MicroKernels.Casting;
 using Sci.NET.Mathematics.Memory;
 using Sci.NET.Mathematics.Tensors;
 
@@ -10,58 +11,16 @@ namespace Sci.NET.Mathematics.Backends.Managed;
 
 internal class ManagedCastingKernels : ICastingKernels
 {
-    public void Cast<TIn, TOut>(Scalar<TIn> input, Scalar<TOut> output)
+    public unsafe void Cast<TIn, TOut>(ITensor<TIn> input, ITensor<TOut> output)
         where TIn : unmanaged, INumber<TIn>
         where TOut : unmanaged, INumber<TOut>
     {
         var inputMemoryBlock = (SystemMemoryBlock<TIn>)input.Memory;
         var resultMemoryBlock = (SystemMemoryBlock<TOut>)output.Memory;
 
-        resultMemoryBlock[0] = TOut.CreateChecked(inputMemoryBlock[0]);
-    }
-
-    public void Cast<TIn, TOut>(Tensors.Vector<TIn> input, Tensors.Vector<TOut> output)
-        where TIn : unmanaged, INumber<TIn>
-        where TOut : unmanaged, INumber<TOut>
-    {
-        var inputMemoryBlock = (SystemMemoryBlock<TIn>)input.Memory;
-        var resultMemoryBlock = (SystemMemoryBlock<TOut>)output.Memory;
-
-        _ = LazyParallelExecutor.For(
-            0,
-            resultMemoryBlock.Length,
-            ManagedTensorBackend.ParallelizationThreshold / 2,
-            i => resultMemoryBlock[i] = TOut.CreateChecked(inputMemoryBlock[i]));
-    }
-
-    public void Cast<TIn, TOut>(Matrix<TIn> input, Matrix<TOut> output)
-        where TIn : unmanaged, INumber<TIn>
-        where TOut : unmanaged, INumber<TOut>
-    {
-        var inputMemoryBlock = (SystemMemoryBlock<TIn>)input.Memory;
-        var resultMemoryBlock = (SystemMemoryBlock<TOut>)output.Memory;
-
-        _ = LazyParallelExecutor.For(
-            0,
-            output.Rows,
-            0,
-            output.Columns,
-            ManagedTensorBackend.ParallelizationThreshold,
-            (i, j) => resultMemoryBlock[(i * output.Columns) + j] =
-                TOut.CreateChecked(inputMemoryBlock[(i * input.Columns) + j]));
-    }
-
-    public void Cast<TIn, TOut>(Tensor<TIn> input, Tensor<TOut> output)
-        where TIn : unmanaged, INumber<TIn>
-        where TOut : unmanaged, INumber<TOut>
-    {
-        var inputMemoryBlock = (SystemMemoryBlock<TIn>)input.Memory;
-        var resultMemoryBlock = (SystemMemoryBlock<TOut>)output.Memory;
-
-        _ = LazyParallelExecutor.For(
-            0,
-            inputMemoryBlock.Length,
-            ManagedTensorBackend.ParallelizationThreshold / 2,
-            i => resultMemoryBlock[i] = TOut.CreateChecked(inputMemoryBlock[i]));
+        ManagedUnaryOperationIterator.ApplyMixedPrecision<CastTruncatingMicroKernel<TIn, TOut>, TIn, TOut>(
+            inputMemoryBlock.ToPointer(),
+            resultMemoryBlock.ToPointer(),
+            inputMemoryBlock.Length);
     }
 }

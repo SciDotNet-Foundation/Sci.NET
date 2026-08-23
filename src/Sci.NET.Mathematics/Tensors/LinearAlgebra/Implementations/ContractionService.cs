@@ -3,8 +3,8 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using Sci.NET.Mathematics.Exceptions;
 using Sci.NET.Mathematics.Tensors.Common;
-using Sci.NET.Mathematics.Tensors.Exceptions;
 using Sci.NET.Mathematics.Tensors.Manipulation;
 using Sci.NET.Mathematics.Tensors.Pointwise;
 using Sci.NET.Mathematics.Tensors.Reduction;

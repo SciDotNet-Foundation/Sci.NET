@@ -5,8 +5,9 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Sci.NET.Mathematics.Tensors;
 
-namespace Sci.NET.Mathematics.Tensors.Exceptions;
+namespace Sci.NET.Mathematics.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when a <see cref="ITensor{TNumber}"/> has an invalid shape.
