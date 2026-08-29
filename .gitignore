@@ -839,7 +839,9 @@ Research/
 
 eng/CUDA/
 
-docs/
+# Documentation: track sources, ignore the generated site.
+# Generated API metadata under docs/api is handled by docs/api/.gitignore.
+docs/_site/
 
 signing/
 

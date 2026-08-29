@@ -1,0 +1,69 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../src/Sci.NET.Mathematics",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "dest": "api",
+      "outputFormat": "mref",
+      "namespaceLayout": "nested",
+      "memberLayout": "separatePages",
+      "disableGitFeatures": false,
+      "properties": {
+        "LangVersion": "preview",
+        "TargetFramework": "net10.0"
+      }
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.{md,yml}"
+        ],
+        "exclude": [
+          "_site/**"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "media/**",
+          "logo.svg",
+          "favicon.ico",
+          "CNAME"
+        ]
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appName": "Sci.NET",
+      "_appTitle": "Sci.NET Documentation",
+      "_appLogoPath": "logo.svg",
+      "_appFaviconPath": "favicon.ico",
+      "_enableSearch": true,
+      "_gitContribute": {
+        "repo": "https://github.com/SciDotNet-Foundation/Sci.NET",
+        "branch": "main"
+      },
+      "pdf": false
+    },
+    "sitemap": {
+      "baseUrl": "https://docs.scidotnet.org"
+    },
+    "postProcessors": [
+      "ExtractSearchIndex"
+    ]
+  }
+}

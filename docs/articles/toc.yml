@@ -1,0 +1,12 @@
+- name: Getting Started
+  href: getting-started.md
+- name: Core Concepts
+  href: core-concepts.md
+- name: Arithmetic
+  href: arithmetic.md
+- name: Linear Algebra
+  href: linear-algebra.md
+- name: Backends
+  href: backends.md
+- name: Automatic Differentiation
+  href: autograd.md
