@@ -16,23 +16,6 @@ namespace Sci.NET.Mathematics.Tensors;
 public static class CastingExtensions
 {
     /// <summary>
-    /// Casts an <see cref="ITensor{TNumber}"/> to a new type.
-    /// </summary>
-    /// <param name="tensor">The tensor to cast.</param>
-    /// <typeparam name="TIn">The input number type.</typeparam>
-    /// <typeparam name="TOut">The output number type.</typeparam>
-    /// <returns>The input cast to <typeparamref name="TOut"/>.</returns>
-    public static ITensor<TOut> Cast<TIn, TOut>(this ITensor<TIn> tensor)
-        where TIn : unmanaged, System.Numerics.INumber<TIn>
-        where TOut : unmanaged, System.Numerics.INumber<TOut>
-    {
-        return TensorServiceProvider
-            .GetTensorOperationServiceProvider()
-            .GetCastingService()
-            .Cast<TIn, TOut>(tensor.ToTensor());
-    }
-
-    /// <summary>
     /// Casts a <see cref="Scalar{TNumber}"/> to a new type.
     /// </summary>
     /// <param name="input">The <see cref="Scalar{TNumber}"/> to cast.</param>
@@ -47,7 +30,8 @@ public static class CastingExtensions
         return TensorServiceProvider
             .GetTensorOperationServiceProvider()
             .GetCastingService()
-            .Cast<TIn, TOut>(input);
+            .Cast<TIn, TOut>(input)
+            .ToScalar();
     }
 
     /// <summary>
@@ -65,7 +49,8 @@ public static class CastingExtensions
         return TensorServiceProvider
             .GetTensorOperationServiceProvider()
             .GetCastingService()
-            .Cast<TIn, TOut>(input);
+            .Cast<TIn, TOut>(input)
+            .ToVector();
     }
 
     /// <summary>
@@ -83,7 +68,8 @@ public static class CastingExtensions
         return TensorServiceProvider
             .GetTensorOperationServiceProvider()
             .GetCastingService()
-            .Cast<TIn, TOut>(input);
+            .Cast<TIn, TOut>(input)
+            .ToMatrix();
     }
 
     /// <summary>
@@ -95,6 +81,25 @@ public static class CastingExtensions
     /// <returns>The input cast to <typeparamref name="TOut"/>.</returns>
     [DebuggerStepThrough]
     public static Tensor<TOut> Cast<TIn, TOut>(this Tensor<TIn> input)
+        where TIn : unmanaged, System.Numerics.INumber<TIn>
+        where TOut : unmanaged, System.Numerics.INumber<TOut>
+    {
+        return TensorServiceProvider
+            .GetTensorOperationServiceProvider()
+            .GetCastingService()
+            .Cast<TIn, TOut>(input)
+            .ToTensor();
+    }
+
+    /// <summary>
+    /// Casts a <see cref="Tensor{TNumber}"/> to a new type.
+    /// </summary>
+    /// <param name="input">The <see cref="Tensor{TNumber}"/> to cast.</param>
+    /// <typeparam name="TIn">The input number type.</typeparam>
+    /// <typeparam name="TOut">The output number type.</typeparam>
+    /// <returns>The input cast to <typeparamref name="TOut"/>.</returns>
+    [DebuggerStepThrough]
+    public static ITensor<TOut> Cast<TIn, TOut>(this ITensor<TIn> input)
         where TIn : unmanaged, System.Numerics.INumber<TIn>
         where TOut : unmanaged, System.Numerics.INumber<TOut>
     {

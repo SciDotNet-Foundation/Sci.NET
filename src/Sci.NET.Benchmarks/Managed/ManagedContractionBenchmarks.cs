@@ -3,13 +3,12 @@
 
 using System.Numerics;
 using BenchmarkDotNet.Attributes;
-using Sci.NET.Mathematics.Backends.Managed;
 using Sci.NET.Mathematics.Numerics;
 using Sci.NET.Mathematics.Tensors;
 
 namespace Sci.NET.Benchmarks.Managed;
 
-public class ManagedContractionBenchmarks<TNumber>
+public class ManagedContractionBenchmarks<TNumber> : BaseManagedBenchmark
     where TNumber : unmanaged, INumber<TNumber>
 {
     [ParamsSource(nameof(ShapeOptions))]
@@ -27,13 +26,10 @@ public class ManagedContractionBenchmarks<TNumber>
     private Tensor<TNumber> _rightTensor = default!;
     private ITensor<TNumber> _result = default!;
 
-    [GlobalSetup]
-    public void GlobalSetup()
+    protected override void SetupBenchmark()
     {
         TNumber min;
         TNumber max;
-
-        Tensor.SetDefaultBackend<ManagedTensorBackend>();
 
         if (GenericMath.IsFloatingPoint<TNumber>())
         {

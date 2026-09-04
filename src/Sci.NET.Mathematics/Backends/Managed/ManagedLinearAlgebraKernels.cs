@@ -32,7 +32,7 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
     private const int MatrixMultiplyNcFp64 = 128;
 
     public unsafe void Hypot<TNumber>(ITensor<TNumber> left, ITensor<TNumber> right, ITensor<TNumber> result)
-        where TNumber : unmanaged, IFloatingPointIeee754<TNumber>, IRootFunctions<TNumber>
+        where TNumber : unmanaged, INumber<TNumber>, IRootFunctions<TNumber>
     {
         ManagedStreamingBinaryOperationIterator.Apply<HypotMicroKernel<TNumber>, TNumber>(
             left.Memory.ToPointer(),

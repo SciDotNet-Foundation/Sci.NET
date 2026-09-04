@@ -3,15 +3,12 @@
 
 using System.Numerics;
 using BenchmarkDotNet.Attributes;
-using Sci.NET.Mathematics.Backends;
-using Sci.NET.Mathematics.Backends.Managed;
-using Sci.NET.Mathematics.Numerics;
 using Sci.NET.Mathematics.Tensors;
 
-namespace Sci.NET.Benchmarks.Managed;
+namespace Sci.NET.Benchmarks.Managed.Kernels;
 
-public class ManagedHypotBenchmarks<TNumber>
-    where TNumber : unmanaged, IFloatingPointIeee754<TNumber>, IRootFunctions<TNumber>
+public class ManagedHypotKernelBenchmarks<TNumber> : BaseManagedBenchmark
+    where TNumber : unmanaged, INumber<TNumber>, IRootFunctions<TNumber>
 {
     [ParamsSource(nameof(ShapeOptions))]
     public Shape Shape { get; set; } = default!;
@@ -23,36 +20,15 @@ public class ManagedHypotBenchmarks<TNumber>
         new Shape(400, 200, 100, 50)
     ];
 
-    private ILinearAlgebraKernels _linearAlgebraKernels = default!;
     private Tensor<TNumber> _leftTensor = default!;
     private Tensor<TNumber> _rightTensor = default!;
     private Tensor<TNumber> _result = default!;
 
-    [GlobalSetup]
-    public void GlobalSetup()
+    protected override void SetupBenchmark()
     {
-        TNumber min;
-        TNumber max;
+        var min = TNumber.CreateChecked(-1f);
+        var max = TNumber.CreateChecked(1f);
 
-        Tensor.SetDefaultBackend<ManagedTensorBackend>();
-
-        if (GenericMath.IsFloatingPoint<TNumber>())
-        {
-            min = TNumber.CreateChecked(-1f);
-            max = TNumber.CreateChecked(1f);
-        }
-        else if (GenericMath.IsSigned<TNumber>())
-        {
-            min = TNumber.CreateChecked(-10);
-            max = TNumber.CreateChecked(10);
-        }
-        else
-        {
-            min = TNumber.CreateChecked(1);
-            max = TNumber.CreateChecked(10);
-        }
-
-        _linearAlgebraKernels = ManagedTensorBackend.Instance.LinearAlgebra;
         _leftTensor = Tensor.Random.Uniform(Shape, min, max, seed: 123456).ToTensor();
         _rightTensor = Tensor.Random.Uniform(Shape, min, max, seed: 654321).ToTensor();
         _result = Tensor.Zeros<TNumber>(_leftTensor.Shape).ToTensor();
@@ -61,7 +37,7 @@ public class ManagedHypotBenchmarks<TNumber>
     [Benchmark]
     public void Hypot()
     {
-        _linearAlgebraKernels.Hypot(_leftTensor, _rightTensor, _result);
+        TensorBackend.LinearAlgebra.Hypot(_leftTensor, _rightTensor, _result);
     }
 
     [GlobalCleanup]

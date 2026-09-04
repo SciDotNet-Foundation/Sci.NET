@@ -3,14 +3,12 @@
 
 using System.Numerics;
 using BenchmarkDotNet.Attributes;
-using Sci.NET.Mathematics.Backends;
-using Sci.NET.Mathematics.Backends.Managed;
 using Sci.NET.Mathematics.Numerics;
 using Sci.NET.Mathematics.Tensors;
 
-namespace Sci.NET.Benchmarks.Managed;
+namespace Sci.NET.Benchmarks.Managed.Kernels;
 
-public class ManagedMatrixMultiplyBenchmarks<TNumber> : IDisposable
+public class ManagedMatrixMultiplyKernelBenchmarks<TNumber> : BaseManagedBenchmark
     where TNumber : unmanaged, INumber<TNumber>
 {
     [ParamsSource(nameof(RowsCols))]
@@ -25,18 +23,14 @@ public class ManagedMatrixMultiplyBenchmarks<TNumber> : IDisposable
         ((8192, 8192), (8192, 8192)),
     ];
 
-    private ILinearAlgebraKernels _linearAlgebraKernels = default!;
     private Matrix<TNumber> _leftMatrix = default!;
     private Matrix<TNumber> _rightMatrix = default!;
     private Matrix<TNumber> _result = default!;
 
-    [GlobalSetup]
-    public void GlobalSetup()
+    protected override void SetupBenchmark()
     {
         TNumber min;
         TNumber max;
-
-        Tensor.SetDefaultBackend<ManagedTensorBackend>();
 
         if (GenericMath.IsFloatingPoint<TNumber>())
         {
@@ -54,7 +48,6 @@ public class ManagedMatrixMultiplyBenchmarks<TNumber> : IDisposable
             max = TNumber.CreateChecked(10);
         }
 
-        _linearAlgebraKernels = ManagedTensorBackend.Instance.LinearAlgebra;
         _leftMatrix = Tensor.Random.Uniform(new Shape(SizeParam.Left.Rows, SizeParam.Left.Columns), min, max, seed: 123456).ToMatrix();
         _rightMatrix = Tensor.Random.Uniform(new Shape(SizeParam.Right.Columns, SizeParam.Right.Rows), min, max, seed: 654321).ToMatrix();
         _result = Tensor.Zeros<TNumber>(new Shape(SizeParam.Left.Rows, SizeParam.Right.Columns)).ToMatrix();
@@ -63,7 +56,7 @@ public class ManagedMatrixMultiplyBenchmarks<TNumber> : IDisposable
     [Benchmark]
     public void MatrixMultiply()
     {
-        _linearAlgebraKernels.MatrixMultiply(_leftMatrix, _rightMatrix, _result);
+        TensorBackend.LinearAlgebra.MatrixMultiply(_leftMatrix, _rightMatrix, _result);
     }
 
     [GlobalCleanup]
@@ -72,21 +65,5 @@ public class ManagedMatrixMultiplyBenchmarks<TNumber> : IDisposable
         _leftMatrix.Dispose();
         _rightMatrix.Dispose();
         _result.Dispose();
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _leftMatrix?.Dispose();
-            _rightMatrix?.Dispose();
-            _result?.Dispose();
-        }
     }
 }

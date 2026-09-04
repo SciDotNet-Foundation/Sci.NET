@@ -3,14 +3,12 @@
 
 using System.Numerics;
 using BenchmarkDotNet.Attributes;
-using Sci.NET.Mathematics.Backends;
-using Sci.NET.Mathematics.Backends.Managed;
 using Sci.NET.Mathematics.Numerics;
 using Sci.NET.Mathematics.Tensors;
 
-namespace Sci.NET.Benchmarks.Managed;
+namespace Sci.NET.Benchmarks.Managed.Kernels;
 
-public class ManagedUnaryArithmeticBenchmarks<TNumber>
+public class ManagedUnaryArithmeticKernelBenchmarks<TNumber> : BaseManagedBenchmark
     where TNumber : unmanaged, INumber<TNumber>
 {
     [ParamsSource(nameof(ShapeOptions))]
@@ -23,18 +21,13 @@ public class ManagedUnaryArithmeticBenchmarks<TNumber>
         new Shape(400, 200, 100, 50),
     ];
 
-    private IArithmeticKernels _arithmeticKernels = default!;
     private Tensor<TNumber> _tensor = default!;
     private Tensor<TNumber> _result = default!;
-    private Tensor<TNumber> _gradient = default!;
 
-    [GlobalSetup]
-    public void GlobalSetup()
+    protected override void SetupBenchmark()
     {
         TNumber min;
         TNumber max;
-
-        Tensor.SetDefaultBackend<ManagedTensorBackend>();
 
         if (GenericMath.IsFloatingPoint<TNumber>())
         {
@@ -52,34 +45,26 @@ public class ManagedUnaryArithmeticBenchmarks<TNumber>
             max = TNumber.CreateChecked(10);
         }
 
-        _arithmeticKernels = ManagedTensorBackend.Instance.Arithmetic;
         _tensor = Tensor.Random.Uniform(Shape, min, max, seed: 123456).ToTensor();
-        _result = Tensor.Zeros<TNumber>(_tensor.Shape).ToTensor();
-        _gradient = Tensor.Random.Uniform(Shape, min, max, seed: 654321).ToTensor();
+        _result = Tensor.Zeros<TNumber>(Shape).ToTensor();
     }
 
     [Benchmark]
     public void Abs()
     {
-        _arithmeticKernels.Abs(_tensor, _result);
-    }
-
-    [Benchmark]
-    public void AbsBackwards()
-    {
-        _arithmeticKernels.AbsGradient(_tensor, _gradient, _result);
+        TensorBackend.Arithmetic.Abs(_tensor, _result);
     }
 
     [Benchmark]
     public void Sqrt()
     {
-        _arithmeticKernels.Sqrt(_tensor, _result);
+        TensorBackend.Arithmetic.Sqrt(_tensor, _result);
     }
 
     [Benchmark]
     public void Negate()
     {
-        _arithmeticKernels.Negate(_tensor, _result);
+        TensorBackend.Arithmetic.Negate(_tensor, _result);
     }
 
     [GlobalCleanup]
@@ -87,6 +72,5 @@ public class ManagedUnaryArithmeticBenchmarks<TNumber>
     {
         _tensor.Dispose();
         _result.Dispose();
-        _gradient.Dispose();
     }
 }

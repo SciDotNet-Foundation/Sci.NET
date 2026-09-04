@@ -255,7 +255,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         if (sL == 1 && sR == 1 && sO == 1)
         {
             var rangePartitioner =
-                Partitioner.Create(0L, extent, Math.Max(IntrinsicsHelper.AvxVectorSizeFp32 * 16, 4096));
+                Partitioner.Create(0L, extent, Math.Max(IntrinsicsHelper.AvxVectorCountFp32 * 16, 4096));
 
             ManagedTensorBackend
                 .ParallelExecutor
@@ -266,7 +266,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
                         var (start, end) = range;
                         var i = start;
 
-                        for (; i <= end - IntrinsicsHelper.AvxVectorSizeFp32; i += IntrinsicsHelper.AvxVectorSizeFp32)
+                        for (; i <= end - IntrinsicsHelper.AvxVectorCountFp32; i += IntrinsicsHelper.AvxVectorCountFp32)
                         {
                             var leftVector = Avx.LoadVector256(leftPtr + i);
                             var rightVector = Avx.LoadVector256(rightPtr + i);
@@ -310,7 +310,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
         if (sL == 1 && sR == 1 && sO == 1)
         {
             var rangePartitioner =
-                Partitioner.Create(0L, extent, Math.Max(IntrinsicsHelper.AvxVectorSizeFp64 * 16, 4096));
+                Partitioner.Create(0L, extent, Math.Max(IntrinsicsHelper.AvxVectorCountFp64 * 16, 4096));
 
             ManagedTensorBackend
                 .ParallelExecutor
@@ -321,7 +321,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
                         var (start, end) = range;
                         var i = start;
 
-                        for (; i <= end - IntrinsicsHelper.AvxVectorSizeFp64; i += IntrinsicsHelper.AvxVectorSizeFp64)
+                        for (; i <= end - IntrinsicsHelper.AvxVectorCountFp64; i += IntrinsicsHelper.AvxVectorCountFp64)
                         {
                             var leftVector = Avx.LoadVector256(leftPtr + i);
                             var rightVector = Avx.LoadVector256(rightPtr + i);
@@ -415,7 +415,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
                     var baseResult = i * dim0.StrideResult;
 
                     var j = 0L;
-                    for (; j < extent1 - IntrinsicsHelper.AvxVectorSizeFp32; j += IntrinsicsHelper.AvxVectorSizeFp32)
+                    for (; j < extent1 - IntrinsicsHelper.AvxVectorCountFp32; j += IntrinsicsHelper.AvxVectorCountFp32)
                     {
                         var offsetLeft = baseLeft + (j * dim1.StrideLeft);
                         var offsetRight = baseRight + (j * dim1.StrideRight);
@@ -473,7 +473,7 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
                     var baseResult = i * dim0.StrideResult;
 
                     var j = 0L;
-                    for (; j < extent1 - IntrinsicsHelper.AvxVectorSizeFp64; j += IntrinsicsHelper.AvxVectorSizeFp64)
+                    for (; j < extent1 - IntrinsicsHelper.AvxVectorCountFp64; j += IntrinsicsHelper.AvxVectorCountFp64)
                     {
                         var offsetLeft = baseLeft + (j * dim1.StrideLeft);
                         var offsetRight = baseRight + (j * dim1.StrideRight);
@@ -595,8 +595,8 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
 
                     var j = 0L;
                     for (;
-                         j < innerExtent - IntrinsicsHelper.AvxVectorSizeFp32;
-                         j += IntrinsicsHelper.AvxVectorSizeFp32)
+                         j < innerExtent - IntrinsicsHelper.AvxVectorCountFp32;
+                         j += IntrinsicsHelper.AvxVectorCountFp32)
                     {
                         var offsetLeft = baseLeft + (j * innerDim.StrideLeft);
                         var offsetRight = baseRight + (j * innerDim.StrideRight);
@@ -671,8 +671,8 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
 
                     var j = 0L;
                     for (;
-                         j < innerExtent - IntrinsicsHelper.AvxVectorSizeFp64;
-                         j += IntrinsicsHelper.AvxVectorSizeFp64)
+                         j < innerExtent - IntrinsicsHelper.AvxVectorCountFp64;
+                         j += IntrinsicsHelper.AvxVectorCountFp64)
                     {
                         var offsetLeft = baseLeft + (j * innerDim.StrideLeft);
                         var offsetRight = baseRight + (j * innerDim.StrideRight);

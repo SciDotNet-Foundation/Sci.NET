@@ -39,7 +39,12 @@ public class InvalidShapeException : Exception
     [StackTraceHidden]
     public static void ThrowIfDifferentShape(params Shape[] shapes)
     {
-        if (shapes.Distinct().Count() != 1)
+        if (shapes.Length < 2)
+        {
+            return;
+        }
+
+        if (!shapes.Skip(1).All(x => x.Dimensions.SequenceEqual(shapes[0].Dimensions)))
         {
             throw new InvalidShapeException($"The shapes of the tensors are different but should be the same. {string.Join(", ", shapes.Select(x => x.ToString()).ToArray())}");
         }

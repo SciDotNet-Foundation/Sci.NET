@@ -29,7 +29,7 @@ public interface IReductionKernels
     /// <param name="axes">The axes to find the mean over.</param>
     /// <param name="result">The <see cref="ITensor{TNumber}"/> to store the result.</param>
     /// <typeparam name="TNumber">The number type of the <see cref="ITensor{TNumber}"/>s.</typeparam>
-    public void ReduceMean<TNumber>(ITensor<TNumber> tensor, int[] axes, Tensor<TNumber> result)
+    public void ReduceMean<TNumber>(ITensor<TNumber> tensor, int[] axes, ITensor<TNumber> result)
         where TNumber : unmanaged, INumber<TNumber>;
 
     /// <summary>
@@ -39,7 +39,7 @@ public interface IReductionKernels
     /// <param name="axes">The axes to find the maximum value over.</param>
     /// <param name="result">The <see cref="ITensor{TNumber}"/> to store the result.</param>
     /// <typeparam name="TNumber">The number type of the <see cref="ITensor{TNumber}"/>s.</typeparam>
-    public void ReduceMax<TNumber>(ITensor<TNumber> tensor, int[] axes, Tensor<TNumber> result)
+    public void ReduceMax<TNumber>(ITensor<TNumber> tensor, int[] axes, ITensor<TNumber> result)
         where TNumber : unmanaged, INumber<TNumber>;
 
     /// <summary>
@@ -49,6 +49,6 @@ public interface IReductionKernels
     /// <param name="axes">The axes to find the minimum value over.</param>
     /// <param name="result">The <see cref="ITensor{TNumber}"/> to store the result.</param>
     /// <typeparam name="TNumber">The number type of the <see cref="ITensor{TNumber}"/>s.</typeparam>
-    public void ReduceMin<TNumber>(ITensor<TNumber> tensor, int[] axes, Tensor<TNumber> result)
+    public void ReduceMin<TNumber>(ITensor<TNumber> tensor, int[] axes, ITensor<TNumber> result)
         where TNumber : unmanaged, INumber<TNumber>;
 }

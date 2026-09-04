@@ -12,14 +12,14 @@ namespace Sci.NET.Mathematics.Intrinsics;
 public static class IntrinsicsHelper
 {
     /// <summary>
-    /// The size of an AVX vector for single-precision floating-point numbers (FP32).
+    /// The element count of an AVX vector for single-precision floating-point numbers (FP32).
     /// </summary>
-    public const int AvxVectorSizeFp32 = 8;
+    public const int AvxVectorCountFp32 = 8;
 
     /// <summary>
-    /// The size of an AVX vector for double-precision floating-point numbers (FP64).
+    /// The element count of an AVX vector for double-precision floating-point numbers (FP64).
     /// </summary>
-    public const int AvxVectorSizeFp64 = 4;
+    public const int AvxVectorCountFp64 = 4;
 
 #pragma warning disable CA1810
     static IntrinsicsHelper()

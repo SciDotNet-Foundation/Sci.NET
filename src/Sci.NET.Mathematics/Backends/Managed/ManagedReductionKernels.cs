@@ -16,19 +16,19 @@ internal class ManagedReductionKernels : IReductionKernels
         ManagedReductionIterator<TNumber, ReduceSumMicroKernel<TNumber>>.Apply(tensor, result, axes);
     }
 
-    public void ReduceMean<TNumber>(ITensor<TNumber> tensor, int[] axes, Tensor<TNumber> result)
+    public void ReduceMean<TNumber>(ITensor<TNumber> tensor, int[] axes, ITensor<TNumber> result)
         where TNumber : unmanaged, INumber<TNumber>
     {
         ManagedReductionIterator<TNumber, ReduceMeanMicroKernel<TNumber>>.Apply(tensor, result, axes);
     }
 
-    public void ReduceMax<TNumber>(ITensor<TNumber> tensor, int[] axes, Tensor<TNumber> result)
+    public void ReduceMax<TNumber>(ITensor<TNumber> tensor, int[] axes, ITensor<TNumber> result)
         where TNumber : unmanaged, INumber<TNumber>
     {
         ManagedReductionIterator<TNumber, ReduceMaxMicroKernel<TNumber>>.Apply(tensor, result, axes);
     }
 
-    public void ReduceMin<TNumber>(ITensor<TNumber> tensor, int[] axes, Tensor<TNumber> result)
+    public void ReduceMin<TNumber>(ITensor<TNumber> tensor, int[] axes, ITensor<TNumber> result)
         where TNumber : unmanaged, INumber<TNumber>
     {
         ManagedReductionIterator<TNumber, ReduceMinMicroKernel<TNumber>>.Apply(tensor, result, axes);

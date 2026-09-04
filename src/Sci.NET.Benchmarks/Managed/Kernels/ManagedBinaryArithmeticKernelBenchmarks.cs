@@ -3,14 +3,12 @@
 
 using System.Numerics;
 using BenchmarkDotNet.Attributes;
-using Sci.NET.Mathematics.Backends;
-using Sci.NET.Mathematics.Backends.Managed;
 using Sci.NET.Mathematics.Numerics;
 using Sci.NET.Mathematics.Tensors;
 
-namespace Sci.NET.Benchmarks.Managed;
+namespace Sci.NET.Benchmarks.Managed.Kernels;
 
-public class ManagedBinaryArithmeticBenchmarks<TNumber>
+public class ManagedBinaryArithmeticKernelBenchmarks<TNumber> : BaseManagedBenchmark
     where TNumber : unmanaged, INumber<TNumber>
 {
     [ParamsSource(nameof(ShapeOptions))]
@@ -23,18 +21,14 @@ public class ManagedBinaryArithmeticBenchmarks<TNumber>
         (new Shape(400, 200, 100, 50), new Shape(200, 100, 50)),
     ];
 
-    private IArithmeticKernels _arithmeticKernels = default!;
     private Tensor<TNumber> _leftTensor = default!;
     private Tensor<TNumber> _rightTensor = default!;
     private Tensor<TNumber> _result = default!;
 
-    [GlobalSetup]
-    public void GlobalSetup()
+    protected override void SetupBenchmark()
     {
         TNumber min;
         TNumber max;
-
-        Tensor.SetDefaultBackend<ManagedTensorBackend>();
 
         if (GenericMath.IsFloatingPoint<TNumber>())
         {
@@ -52,7 +46,6 @@ public class ManagedBinaryArithmeticBenchmarks<TNumber>
             max = TNumber.CreateChecked(10);
         }
 
-        _arithmeticKernels = ManagedTensorBackend.Instance.Arithmetic;
         _leftTensor = Tensor.Random.Uniform(Shapes.LeftShape, min, max, seed: 123456).ToTensor();
         _rightTensor = Tensor.Random.Uniform(Shapes.RightShape, min, max, seed: 654321).ToTensor();
         _result = Tensor.Zeros<TNumber>(_leftTensor.Shape).ToTensor();
@@ -61,25 +54,25 @@ public class ManagedBinaryArithmeticBenchmarks<TNumber>
     [Benchmark]
     public void Add()
     {
-        _arithmeticKernels.Add(_leftTensor, _rightTensor, _result);
+        TensorBackend.Arithmetic.Add(_leftTensor, _rightTensor, _result);
     }
 
     [Benchmark]
     public void Subtract()
     {
-        _arithmeticKernels.Subtract(_leftTensor, _rightTensor, _result);
+        TensorBackend.Arithmetic.Subtract(_leftTensor, _rightTensor, _result);
     }
 
     [Benchmark]
     public void Multiply()
     {
-        _arithmeticKernels.Multiply(_leftTensor, _rightTensor, _result);
+        TensorBackend.Arithmetic.Multiply(_leftTensor, _rightTensor, _result);
     }
 
     [Benchmark]
     public void Divide()
     {
-        _arithmeticKernels.Divide(_leftTensor, _rightTensor, _result);
+        TensorBackend.Arithmetic.Divide(_leftTensor, _rightTensor, _result);
     }
 
     [GlobalCleanup]

@@ -8,55 +8,7 @@ namespace Sci.NET.Mathematics.Tensors.Manipulation.Implementations;
 
 internal class CastingService : ICastingService
 {
-    public Scalar<TOut> Cast<TIn, TOut>(Scalar<TIn> input)
-        where TIn : unmanaged, INumber<TIn>
-        where TOut : unmanaged, INumber<TOut>
-    {
-        var result = new Scalar<TOut>(input.Backend);
-
-        input.Backend.Casting.Cast(input, result);
-
-        if (input.RequiresGradient)
-        {
-            throw new AutoDiffNotSupportedException(nameof(Cast));
-        }
-
-        return result;
-    }
-
-    public Vector<TOut> Cast<TIn, TOut>(Vector<TIn> input)
-        where TIn : unmanaged, INumber<TIn>
-        where TOut : unmanaged, INumber<TOut>
-    {
-        var result = new Vector<TOut>(input.Length, input.Backend);
-
-        input.Backend.Casting.Cast(input, result);
-
-        if (input.RequiresGradient)
-        {
-            throw new AutoDiffNotSupportedException(nameof(Cast));
-        }
-
-        return result;
-    }
-
-    public Matrix<TOut> Cast<TIn, TOut>(Matrix<TIn> input)
-        where TIn : unmanaged, INumber<TIn>
-        where TOut : unmanaged, INumber<TOut>
-    {
-        var result = new Matrix<TOut>(input.Rows, input.Columns, input.Backend);
-
-        input.Backend.Casting.Cast(input, result);
-
-        if (input.RequiresGradient)
-        {
-            throw new AutoDiffNotSupportedException(nameof(Cast));
-        }
-
-        return result;
-    }
-
-    public Tensor<TOut> Cast<TIn, TOut>(Tensor<TIn> input)
+    public ITensor<TOut> Cast<TIn, TOut>(ITensor<TIn> input)
         where TIn : unmanaged, INumber<TIn>
         where TOut : unmanaged, INumber<TOut>
     {

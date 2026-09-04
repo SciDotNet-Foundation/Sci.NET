@@ -3,13 +3,12 @@
 
 using System.Numerics;
 using BenchmarkDotNet.Attributes;
-using Sci.NET.Mathematics.Backends.Managed;
 using Sci.NET.Mathematics.Numerics;
 using Sci.NET.Mathematics.Tensors;
 
-namespace Sci.NET.Benchmarks.Managed;
+namespace Sci.NET.Benchmarks.Managed.Kernels;
 
-public class ManagedPermutationBenchmarks<TNumber>
+public class ManagedPermutationKernelBenchmarks<TNumber> : BaseManagedBenchmark
     where TNumber : unmanaged, INumber<TNumber>
 {
     [ParamsSource(nameof(ShapeOptions))]
@@ -23,15 +22,12 @@ public class ManagedPermutationBenchmarks<TNumber>
     ];
 
     private Tensor<TNumber> _tensor = default!;
-    private ITensor<TNumber> _result = default!;
+    private Tensor<TNumber> _result = default!;
 
-    [GlobalSetup]
-    public void GlobalSetup()
+    protected override void SetupBenchmark()
     {
         TNumber min;
         TNumber max;
-
-        Tensor.SetDefaultBackend<ManagedTensorBackend>();
 
         if (GenericMath.IsFloatingPoint<TNumber>())
         {
@@ -49,13 +45,20 @@ public class ManagedPermutationBenchmarks<TNumber>
             max = TNumber.CreateChecked(10);
         }
 
+        var resultDims = new int[OpShapes.From.Rank];
+        for (var i = 0; i < OpShapes.From.Rank; i++)
+        {
+            resultDims[i] = OpShapes.From.Dimensions[OpShapes.Permutation[i]];
+        }
+
         _tensor = Tensor.Random.Uniform(OpShapes.From, min, max, seed: 123456).ToTensor();
+        _result = Tensor.Zeros<TNumber>(new Shape(resultDims)).ToTensor();
     }
 
     [Benchmark]
     public void Permute()
     {
-        _result = _tensor.Permute(OpShapes.Permutation);
+        TensorBackend.Permutation.Permute(_tensor, _result, OpShapes.Permutation);
     }
 
     [GlobalCleanup]

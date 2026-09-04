@@ -83,7 +83,7 @@ internal static class ManagedStreamingUnaryOperationIterator
         const int prefetchVectorCount = prefetchDistance / sizeof(float);
 
         var i = 0;
-        for (; i <= count - IntrinsicsHelper.AvxVectorSizeFp32; i += IntrinsicsHelper.AvxVectorSizeFp32)
+        for (; i <= count - IntrinsicsHelper.AvxVectorCountFp32; i += IntrinsicsHelper.AvxVectorCountFp32)
         {
             Sse.Prefetch0(inputPtr + start + i + prefetchVectorCount);
             Sse.PrefetchNonTemporal(resultPtr + start + i + prefetchVectorCount);
@@ -117,7 +117,7 @@ internal static class ManagedStreamingUnaryOperationIterator
         const int prefetchVectorCount = prefetchDistance / sizeof(double);
 
         var i = 0;
-        for (; i <= count - IntrinsicsHelper.AvxVectorSizeFp64; i += IntrinsicsHelper.AvxVectorSizeFp64)
+        for (; i <= count - IntrinsicsHelper.AvxVectorCountFp64; i += IntrinsicsHelper.AvxVectorCountFp64)
         {
             Sse.Prefetch0(inputPtr + start + i + prefetchVectorCount);
             Sse.PrefetchNonTemporal(resultPtr + start + i + prefetchVectorCount);

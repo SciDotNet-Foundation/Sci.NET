@@ -50,5 +50,5 @@ public interface ILinearAlgebraKernels
     /// <param name="result">The result tensor.</param>
     /// <typeparam name="TNumber">The number type of the <see cref="ITensor{TNumber}"/>s.</typeparam>
     public void Hypot<TNumber>(ITensor<TNumber> left, ITensor<TNumber> right, ITensor<TNumber> result)
-        where TNumber : unmanaged, IFloatingPointIeee754<TNumber>, IRootFunctions<TNumber>;
+        where TNumber : unmanaged, INumber<TNumber>, IRootFunctions<TNumber>;
 }

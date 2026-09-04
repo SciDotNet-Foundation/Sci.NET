@@ -3,35 +3,31 @@
 
 using System.Numerics;
 using BenchmarkDotNet.Attributes;
-using Sci.NET.Mathematics.Backends.Managed;
 using Sci.NET.Mathematics.Numerics;
 using Sci.NET.Mathematics.Tensors;
 
-namespace Sci.NET.Benchmarks.Managed;
+namespace Sci.NET.Benchmarks.Managed.Kernels;
 
-public class ManagedBroadcastingBenchmarks<TNumber>
+public class ManagedBroadcastingKernelBenchmarks<TNumber> : BaseManagedBenchmark
     where TNumber : unmanaged, INumber<TNumber>
 {
     [ParamsSource(nameof(ShapeOptions))]
-    public (Shape From, Shape To) Shapes { get; set; } = default!;
+    public (Shape From, Shape To, long[] Strides) Shapes { get; set; } = default!;
 
-    public ICollection<(Shape From, Shape To)> ShapeOptions =>
+    public ICollection<(Shape From, Shape To, long[] Strides)> ShapeOptions =>
     [
-        (new Shape(100, 200), new Shape(100, 100, 200)),
-        (new Shape(100, 100, 200), new Shape(50, 100, 100, 200)),
-        (new Shape(5000), new Shape(10, 5000)),
+        (new Shape(100, 200), new Shape(100, 100, 200), [0, 200, 1]),
+        (new Shape(100, 100, 200), new Shape(50, 100, 100, 200), [0, 20000, 200, 1]),
+        (new Shape(5000), new Shape(10, 5000), [0, 1]),
     ];
 
     private Tensor<TNumber> _tensor = default!;
-    private ITensor<TNumber> _result = default!;
+    private Tensor<TNumber> _result = default!;
 
-    [GlobalSetup]
-    public void GlobalSetup()
+    protected override void SetupBenchmark()
     {
         TNumber min;
         TNumber max;
-
-        Tensor.SetDefaultBackend<ManagedTensorBackend>();
 
         if (GenericMath.IsFloatingPoint<TNumber>())
         {
@@ -56,7 +52,7 @@ public class ManagedBroadcastingBenchmarks<TNumber>
     [Benchmark]
     public void Broadcast()
     {
-        _result = _tensor.Broadcast(Shapes.To);
+        TensorBackend.Broadcasting.Broadcast(_tensor, _result, Shapes.Strides);
     }
 
     [GlobalCleanup]

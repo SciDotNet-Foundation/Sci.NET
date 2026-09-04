@@ -76,7 +76,7 @@ internal class BroadcastService : IBroadcastService
             ref result,
             tensor,
             null,
-            grad => grad.Sum(Enumerable.Range(tensor.Shape.Rank, targetShape.Rank - tensor.Shape.Rank).ToArray()));
+            grad => grad.Sum([.. Enumerable.Range(tensor.Shape.Rank, targetShape.Rank - tensor.Shape.Rank)]));
 
         return result.Reshape(targetShape);
     }

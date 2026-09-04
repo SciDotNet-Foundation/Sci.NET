@@ -57,7 +57,7 @@ internal static class ManagedUnaryOperationIterator
     }
 
     public static unsafe void ApplyMixedPrecision<TOp, TIn, TOut>(TIn* inputPtr, TOut* resultPtr, long n)
-        where TOp : IMixedPrecisionUnaryOperation<TIn, TOut>
+        where TOp : IMixedPrecisionUnaryOperation<TIn, TOut>, IMixedPrecisionUnaryOperationAvx2
         where TIn : unmanaged, INumber<TIn>
         where TOut : unmanaged, INumber<TOut>
     {

@@ -29,7 +29,8 @@ public static class ConcatenationExtensions
         return TensorServiceProvider
             .GetTensorOperationServiceProvider()
             .GetConcatenationService()
-            .Concatenate(scalars);
+            .Concatenate<Scalar<TNumber>, TNumber>(scalars)
+            .ToVector();
     }
 
     /// <summary>
@@ -45,7 +46,8 @@ public static class ConcatenationExtensions
         return TensorServiceProvider
             .GetTensorOperationServiceProvider()
             .GetConcatenationService()
-            .Concatenate(vectors);
+            .Concatenate<Vector<TNumber>, TNumber>(vectors)
+            .ToMatrix();
     }
 
     /// <summary>
@@ -61,7 +63,8 @@ public static class ConcatenationExtensions
         return TensorServiceProvider
             .GetTensorOperationServiceProvider()
             .GetConcatenationService()
-            .Concatenate(matrices);
+            .Concatenate<Matrix<TNumber>, TNumber>(matrices)
+            .ToTensor();
     }
 
     /// <summary>
@@ -77,6 +80,7 @@ public static class ConcatenationExtensions
         return TensorServiceProvider
             .GetTensorOperationServiceProvider()
             .GetConcatenationService()
-            .Concatenate(tensors);
+            .Concatenate<Tensor<TNumber>, TNumber>(tensors)
+            .ToTensor();
     }
 }
