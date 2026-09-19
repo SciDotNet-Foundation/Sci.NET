@@ -1,0 +1,101 @@
+########################################################################################################################
+# Test project overlay.
+#
+# Applied on top of the severity.*.globalconfig family for projects whose name ends in "Tests", plus
+# Sci.NET.Tests.Framework. A higher global_level wins, so everything here overrides the base severities.
+#
+# Only relaxations that are genuinely specific to test code belong here. Entries that merely repeated a base
+# value (CA1515, SA1601) were removed during the clean-up - they had no effect.
+########################################################################################################################
+
+is_global = true
+global_level = 200
+
+#----------------------------------------------------------------------------------------------------------------------
+# Naming and shape
+#
+# Test names use Method_Scenario_Expectation, and xUnit theory data lives in public nested types.
+#----------------------------------------------------------------------------------------------------------------------
+
+# CA1707: Identifiers should not contain underscores
+dotnet_diagnostic.CA1707.severity = none
+
+# CA1034: Nested types should not be visible
+dotnet_diagnostic.CA1034.severity = none
+
+# SA1649: File name should match first type name
+dotnet_diagnostic.SA1649.severity = none
+
+#----------------------------------------------------------------------------------------------------------------------
+# Ordering
+#
+# Arrange/Act/Assert reads better than strict member ordering.
+#----------------------------------------------------------------------------------------------------------------------
+
+# SA1201: Elements should appear in the correct order
+dotnet_diagnostic.SA1201.severity = silent
+
+# SA1202: Elements should be ordered by access
+dotnet_diagnostic.SA1202.severity = silent
+
+# SA1204: Static elements should appear before instance elements
+dotnet_diagnostic.SA1204.severity = silent
+
+# SA1500: Braces for multi-line statements should not share line
+dotnet_diagnostic.SA1500.severity = none
+
+# SA1515: Single-line comment should be preceded by blank line
+dotnet_diagnostic.SA1515.severity = suggestion
+
+#----------------------------------------------------------------------------------------------------------------------
+# Documentation
+#
+# Tests are not public API.
+#----------------------------------------------------------------------------------------------------------------------
+
+# SA0001: XML comment analysis is disabled due to project configuration
+dotnet_diagnostic.SA0001.severity = none
+
+# SA1600: Elements should be documented
+dotnet_diagnostic.SA1600.severity = none
+
+# CS1591: Missing XML comment for publicly visible type or member
+dotnet_diagnostic.CS1591.severity = none
+
+#----------------------------------------------------------------------------------------------------------------------
+# Assertions and test mechanics
+#----------------------------------------------------------------------------------------------------------------------
+
+# CA2201: Do not raise reserved exception types - tests throw to prove behaviour.
+dotnet_diagnostic.CA2201.severity = none
+
+# CA2000: Dispose objects before losing scope - fixtures own the lifetime.
+dotnet_diagnostic.CA2000.severity = none
+
+# CA1508: Avoid dead conditional code - equality tests deliberately compare a value with itself.
+# Was suppressed with #pragma/[SuppressMessage] in 3 test files.
+dotnet_diagnostic.CA1508.severity = none
+
+# CA1814: Prefer jagged arrays over multidimensional - test fixtures use rectangular data.
+dotnet_diagnostic.CA1814.severity = none
+
+# CA1305: Specify IFormatProvider - culture-specific formatting is itself under test.
+dotnet_diagnostic.CA1305.severity = none
+
+# IDE0058: Expression value is never used - fluent assertions return values nobody needs.
+dotnet_diagnostic.IDE0058.severity = none
+
+# RCS1056: Avoid usage of using alias directive - used to disambiguate SUT and fixture types.
+dotnet_diagnostic.RCS1056.severity = none
+
+#----------------------------------------------------------------------------------------------------------------------
+# Async naming
+#
+# xUnit discovers async test methods without an Async suffix.
+#----------------------------------------------------------------------------------------------------------------------
+
+# RCS1046: Asynchronous method name should end with 'Async'
+dotnet_diagnostic.RCS1046.severity = none
+
+# VSTHRD200: Use "Async" suffix for async methods
+dotnet_diagnostic.VSTHRD200.severity = none

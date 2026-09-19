@@ -14,9 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		eng\build-props\AddAnalyzers.props = eng\build-props\AddAnalyzers.props
 		eng\build-props\AddCommonTestNugetPackages.props = eng\build-props\AddCommonTestNugetPackages.props
 		eng\build-props\MakeInternalsVisibleToTestProjects.props = eng\build-props\MakeInternalsVisibleToTestProjects.props
-		eng\build-props\analyzers\base.globalconfig = eng\build-props\analyzers\base.globalconfig
-		eng\build-props\analyzers\stylecop.json = eng\build-props\analyzers\stylecop.json
-		eng\build-props\analyzers\test.globalconfig = eng\build-props\analyzers\test.globalconfig
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sci.NET.Mathematics.IntegrationTests", "src\Sci.NET.Mathematics.IntegrationTests\Sci.NET.Mathematics.IntegrationTests.csproj", "{8966BABB-63D9-450C-852D-ECDA0ADDD96A}"

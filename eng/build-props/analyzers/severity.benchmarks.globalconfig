@@ -1,0 +1,102 @@
+########################################################################################################################
+# Benchmark project overlay.
+#
+# Applied on top of the severity.*.globalconfig family for projects whose name ends in "Benchmarks".
+# Sits at level 300 rather than 200 so that it resolves deterministically against the test overlay even
+# though Directory.Build.props never marks a project as both.
+#
+# Previously the benchmark projects were handed severity.tests.globalconfig, which relaxed xUnit-shaped rules
+# that benchmarks never hit while leaving the BenchmarkDotNet-shaped ones (CA1001, CA1822, CA1024) in force.
+# That mismatch is what the [SuppressMessage] attributes in Sci.NET.Benchmarks were working around.
+########################################################################################################################
+
+is_global = true
+global_level = 300
+
+#----------------------------------------------------------------------------------------------------------------------
+# BenchmarkDotNet mechanics
+#
+# BenchmarkDotNet instantiates the class itself and drives setup/cleanup through [GlobalSetup] and
+# [GlobalCleanup], so the usual ownership and staticness rules do not apply.
+#----------------------------------------------------------------------------------------------------------------------
+
+# CA1001: Types that own disposable fields should be disposable - [GlobalCleanup] releases them.
+dotnet_diagnostic.CA1001.severity = none
+
+# CA1822: Mark members as static - [Benchmark] methods must be instance methods.
+dotnet_diagnostic.CA1822.severity = none
+
+# CA1052: Static holder types should be static
+dotnet_diagnostic.CA1052.severity = none
+
+# CA1062: Validate arguments of public methods
+dotnet_diagnostic.CA1062.severity = none
+
+# CA2000: Dispose objects before losing scope - lifetimes span setup and cleanup.
+dotnet_diagnostic.CA2000.severity = none
+
+# CA1814: Prefer jagged arrays over multidimensional
+dotnet_diagnostic.CA1814.severity = none
+
+# IDE0058: Expression value is never used - benchmark bodies exist for their side effects.
+dotnet_diagnostic.IDE0058.severity = none
+
+# RCS1213 / IDE0051: Unused member - [Params] fields are assigned by the harness through reflection.
+dotnet_diagnostic.RCS1213.severity = none
+dotnet_diagnostic.IDE0051.severity = none
+
+#----------------------------------------------------------------------------------------------------------------------
+# Naming and documentation
+#
+# Benchmarks are not public API and their names encode the scenario.
+#----------------------------------------------------------------------------------------------------------------------
+
+# CA1707: Identifiers should not contain underscores
+dotnet_diagnostic.CA1707.severity = none
+
+# CA1034: Nested types should not be visible
+dotnet_diagnostic.CA1034.severity = none
+
+# SA0001: XML comment analysis is disabled due to project configuration
+dotnet_diagnostic.SA0001.severity = none
+
+# SA1600: Elements should be documented
+dotnet_diagnostic.SA1600.severity = none
+
+# SA1649: File name should match first type name
+dotnet_diagnostic.SA1649.severity = none
+
+#----------------------------------------------------------------------------------------------------------------------
+# Member ordering
+#
+# BenchmarkDotNet's idiom puts [Params] properties first and the fields they drive underneath, which SA12xx
+# reads as out of order.
+#----------------------------------------------------------------------------------------------------------------------
+
+# SA1201: Elements should appear in the correct order
+dotnet_diagnostic.SA1201.severity = silent
+
+# SA1202: Elements should be ordered by access
+dotnet_diagnostic.SA1202.severity = silent
+
+# SA1204: Static elements should appear before instance elements
+dotnet_diagnostic.SA1204.severity = silent
+
+# CS1591: Missing XML comment for publicly visible type or member
+dotnet_diagnostic.CS1591.severity = none
+
+#----------------------------------------------------------------------------------------------------------------------
+# Measurement fidelity
+#
+# Benchmarks intentionally keep the shape of the code under measurement, even when it is not idiomatic.
+#----------------------------------------------------------------------------------------------------------------------
+
+# RCS1163: Unused parameter
+dotnet_diagnostic.RCS1163.severity = none
+
+# MA0084: Local variables should not hide other symbols
+dotnet_diagnostic.MA0084.severity = none
+
+# MA0105/MA0106: Closure allocation warnings - a benchmark may be measuring exactly that.
+dotnet_diagnostic.MA0105.severity = none
+dotnet_diagnostic.MA0106.severity = none
