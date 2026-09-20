@@ -32,7 +32,9 @@ internal class ManagedPermutationKernels : IPermutationKernels
         }
 
         var lastAxisIsFullyContiguous = permutation[rank - 1] == rank - 1;
-        const int axisParallel = 0; // TODO - Figure out which axis should be parallelized
+
+        // Later: // Figure out which axis should be parallelized
+        const int axisParallel = 0;
         var orderedAxes = new int[rank];
         orderedAxes[0] = axisParallel;
 

@@ -75,7 +75,6 @@ namespace Sci.NET.Mathematics.Tensors;
 /// <summary>
 /// A class containing extension methods for trigonometric functions.
 /// </summary>
-[PublicAPI]
 public static class TrigonometryExtensions
 {
 <#
@@ -84,7 +83,7 @@ public static class TrigonometryExtensions
         var functionName = function.FunctionName;
         var description = function.Description;
         var constraints = function.TypeConstraints;
-        
+
         foreach (var type in tensorTypes)
         {
             var tensorType = type.Name;

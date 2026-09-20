@@ -23,7 +23,7 @@ public class ParallelExecutorEventSourceTests
         {
             var executor = new ParallelExecutor(pool);
 
-            executor.For(0, 8, 2, _ => { });
+            executor.For(0, 8, 2, static _ => { });
         }
 
         listener.EventNames.Should().Contain("ThreadPoolStarted");
@@ -38,7 +38,7 @@ public class ParallelExecutorEventSourceTests
         using var pool = new ParallelExecutorThreadPool(2);
         var executor = new ParallelExecutor(pool);
 
-        var act = () => executor.For(0, 2, 2, _ => throw new InvalidOperationException("boom"));
+        var act = () => executor.For(0, 2, 2, static _ => throw new InvalidOperationException("boom"));
 
         act.Should().Throw<AggregateException>();
         listener.EventNames.Should().Contain("TaskFaulted");
@@ -46,7 +46,7 @@ public class ParallelExecutorEventSourceTests
 
     private sealed class CollectingEventListener : EventListener
     {
-        private readonly List<string> _eventNames = new();
+        private readonly List<string> _eventNames = [];
 
         public IReadOnlyList<string> EventNames
         {
@@ -54,7 +54,7 @@ public class ParallelExecutorEventSourceTests
             {
                 lock (_eventNames)
                 {
-                    return _eventNames.ToList();
+                    return [.. _eventNames];
                 }
             }
         }

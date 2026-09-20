@@ -12,15 +12,15 @@ public class FillBytesShould
     {
         // Arrange
         var block = new SystemMemoryBlock<int>(10);
-        var buffer = BitConverter.IsLittleEndian
-            ? new byte[] { 1, 0, 0, 0 }
-            : new byte[] { 0, 0, 0, 1 };
+        byte[] buffer = BitConverter.IsLittleEndian
+            ? [1, 0, 0, 0]
+            : [0, 0, 0, 1];
 
         // Act
         block.FillBytes(4, buffer, 4);
         var result = block.ToArray(); // Potential scope leakage
 
         // Assert
-        result.Should().BeEquivalentTo(new int[] { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 });
+        result.Should().BeEquivalentTo([0, 0, 0, 0, 1, 0, 0, 0, 0, 0]);
     }
 }

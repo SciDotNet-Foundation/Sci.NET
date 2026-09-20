@@ -5,14 +5,13 @@ using System.Diagnostics;
 using System.Numerics;
 
 // ReSharper disable once CheckNamespace
-#pragma warning disable IDE0130
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Sci.NET.Mathematics.Tensors;
 #pragma warning restore IDE0130
 
 /// <summary>
 /// A set of extension methods for equality operations.
 /// </summary>
-[PublicAPI]
 public static class EqualityExtensions
 {
     /// <summary>

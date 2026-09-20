@@ -248,4 +248,4 @@ resharper_csharp_keep_blank_lines_in_code = 1
 resharper_csharp_keep_blank_lines_in_declarations = 1
 
 resharper_redundant_base_qualifier_highlighting = none
-resharper_check_namespace_highlighting = none
+resharper_check_namespace_highlighting = warning

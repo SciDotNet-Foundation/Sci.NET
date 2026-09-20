@@ -1,21 +1,13 @@
 ﻿// Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using Sci.NET.Mathematics.Memory;
 
 namespace Sci.NET.Mathematics.UnitTests.Memory.SystemMemoryBlock;
 
-#pragma warning disable CS1718
-
-[SuppressMessage(
-    "Microsoft.CodeAnalysis.CSharp",
-    "CS1718:Comparison made to same variable; did you mean to compare something else?",
-    Justification = "Test")]
 public class EqualityMembersShould
 {
     [Fact]
-    [SuppressMessage("ReSharper", "EqualExpressionComparison", Justification = "Test")]
     public void ReturnTrue_GivenSameReference()
     {
         // Arrange
@@ -23,8 +15,11 @@ public class EqualityMembersShould
 
         // Act
         var methodResult = block.Equals(block);
+
+#pragma warning disable MA0172, CS1718 // Purpose of the test
         var operatorResult = block == block;
         var negatedOperatorResult = block != block;
+#pragma warning restore MA0172, CS1718
 
         // Assert
         methodResult.Should().BeTrue();

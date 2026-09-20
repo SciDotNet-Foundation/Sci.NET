@@ -19,7 +19,7 @@ internal class NormalisationService : INormalisationService
     public Matrix<TNumber> BatchNorm1dForward<TNumber>(Matrix<TNumber> input, Vector<TNumber> scale, Vector<TNumber> bias)
         where TNumber : unmanaged, INumber<TNumber>, IRootFunctions<TNumber>
     {
-        var mean = input.Mean(new int[] { 0 }).ToVector();
+        var mean = input.Mean([0]).ToVector();
 
         using var m = new Scalar<TNumber>(TNumber.CreateChecked(mean.Shape[0]));
         m.To(input.Device);

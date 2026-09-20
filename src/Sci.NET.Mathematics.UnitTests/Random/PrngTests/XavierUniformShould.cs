@@ -4,7 +4,7 @@
 using Sci.NET.Mathematics.Memory;
 using Sci.NET.Mathematics.Numerics;
 using Sci.NET.Mathematics.Random;
-using Sci.NET.Tests.Framework.Assertions;
+using Sci.NET.Mathematics.UnitTests.TestFramework.Assertions;
 
 namespace Sci.NET.Mathematics.UnitTests.Random.PrngTests;
 

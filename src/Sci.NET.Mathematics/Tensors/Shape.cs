@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Tensors;
 /// <summary>
 /// Represents the shape of an N-dimensional array.
 /// </summary>
-[PublicAPI]
 public sealed class Shape : IEnumerable<int>, IEquatable<Shape>, IFormattable
 {
     /// <summary>
@@ -20,8 +19,8 @@ public sealed class Shape : IEnumerable<int>, IEquatable<Shape>, IFormattable
     {
         if (dimensions.LongLength == 0)
         {
-            Dimensions = Array.Empty<int>();
-            Strides = Array.Empty<long>();
+            Dimensions = [];
+            Strides = [];
             ElementCount = 1;
             return;
         }
@@ -188,13 +187,13 @@ public sealed class Shape : IEnumerable<int>, IEquatable<Shape>, IFormattable
 
         foreach (var axis in sortedAxes)
         {
-            ArgumentOutOfRangeException.ThrowIfLessThan(axis, 0);
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(axis, newShape.Count);
+            ArgumentOutOfRangeException.ThrowIfLessThan(axis, 0, nameof(axes));
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(axis, newShape.Count, nameof(axes));
 
             newShape.Insert(axis, 1);
         }
 
-        return new Shape(newShape.ToArray(), DataOffset);
+        return new Shape([.. newShape], DataOffset);
     }
 
     /// <summary>
@@ -211,7 +210,7 @@ public sealed class Shape : IEnumerable<int>, IEquatable<Shape>, IFormattable
             newShape.Insert(0, 1);
         }
 
-        return new Shape(newShape.ToArray(), DataOffset);
+        return new Shape([.. newShape], DataOffset);
     }
 
     /// <summary>
@@ -253,7 +252,7 @@ public sealed class Shape : IEnumerable<int>, IEquatable<Shape>, IFormattable
     {
         if (indices.LongLength != Rank)
         {
-            throw new ArgumentException("The number of indices must match the rank of the tensor.");
+            throw new ArgumentException("The number of indices must match the rank of the tensor.", nameof(indices));
         }
 
         var linearIndex = 0L;
@@ -285,12 +284,14 @@ public sealed class Shape : IEnumerable<int>, IEquatable<Shape>, IFormattable
     {
         if (axes.Length > Rank)
         {
-            throw new ArgumentException("The number of slice indices must be less than or equal to the rank of the shape.");
+            throw new ArgumentException(
+                "The number of slice indices must be less than or equal to the rank of the shape.",
+                nameof(axes));
         }
 
         if (axes.Length == Rank)
         {
-            return new Shape(Array.Empty<int>(), GetLinearIndex(axes));
+            return new Shape([], GetLinearIndex(axes));
         }
 
         for (var i = 0; i < axes.Length; i++)
@@ -325,16 +326,14 @@ public sealed class Shape : IEnumerable<int>, IEquatable<Shape>, IFormattable
     /// </summary>
     /// <param name="other">The instance to compare this instance to.</param>
     /// <returns>A value indicating whether the current instance is equal to the <paramref name="other"/> instance.</returns>
-    public bool Equals(Shape? other)
+    public bool Equals([NotNullWhen(true)] Shape? other)
     {
         if (other is null)
         {
             return false;
         }
 
-        if (other.Rank != Rank ||
-            other.ElementCount != ElementCount ||
-            other.DataOffset != DataOffset)
+        if (other.Rank != Rank || other.ElementCount != ElementCount || other.DataOffset != DataOffset)
         {
             return false;
         }
@@ -353,14 +352,11 @@ public sealed class Shape : IEnumerable<int>, IEquatable<Shape>, IFormattable
     /// <inheritdoc />
     public IEnumerator<int> GetEnumerator()
     {
-        for (var i = 0; i < Dimensions.Length; i++)
-        {
-            yield return Dimensions[i];
-        }
+        return ((IEnumerable<int>)Dimensions).GetEnumerator();
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override bool Equals([NotNullWhen(true)] object? obj)
     {
         return obj is Shape shape && Equals(shape);
     }

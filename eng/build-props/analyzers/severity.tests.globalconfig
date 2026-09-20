@@ -73,7 +73,6 @@ dotnet_diagnostic.CA2201.severity = none
 dotnet_diagnostic.CA2000.severity = none
 
 # CA1508: Avoid dead conditional code - equality tests deliberately compare a value with itself.
-# Was suppressed with #pragma/[SuppressMessage] in 3 test files.
 dotnet_diagnostic.CA1508.severity = none
 
 # CA1814: Prefer jagged arrays over multidimensional - test fixtures use rectangular data.

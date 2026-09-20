@@ -11,7 +11,6 @@ namespace Sci.NET.Mathematics.Random;
 /// Random number generation.
 /// </summary>
 /// <remarks>Derived from mostly SplitMix64-based RNGs.</remarks>
-[PublicAPI]
 public class Prng
 {
     private ulong _seed;

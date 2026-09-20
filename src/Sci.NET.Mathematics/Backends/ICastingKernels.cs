@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// An interface for casting kernels.
 /// </summary>
-[PublicAPI]
 public interface ICastingKernels
 {
     /// <summary>

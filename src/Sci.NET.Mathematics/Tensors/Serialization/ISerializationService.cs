@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Tensors.Serialization;
 /// <summary>
 /// A service for serializing and deserializing <see cref="ITensor{TNumber}"/> implementations.
 /// </summary>
-[PublicAPI]
 public interface ISerializationService
 {
     /// <summary>

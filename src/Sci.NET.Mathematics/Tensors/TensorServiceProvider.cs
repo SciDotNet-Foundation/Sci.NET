@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Tensors;
 /// <summary>
 /// A service provider for tensor operations.
 /// </summary>
-[PublicAPI]
 public static class TensorServiceProvider
 {
     private static ITensorOperationServiceProvider _tensorOperationServiceProvider = new TensorOperationServiceProvider();

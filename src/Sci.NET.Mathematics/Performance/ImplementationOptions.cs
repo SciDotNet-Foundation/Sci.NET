@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Performance;
 /// <summary>
 /// Provides constants for <see cref="MethodImplOptions"/> defaults.
 /// </summary>
-[PublicAPI]
 public static class ImplementationOptions
 {
     /// <summary>

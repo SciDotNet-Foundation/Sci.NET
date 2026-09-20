@@ -1,6 +1,7 @@
 // Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
+using System.Diagnostics.CodeAnalysis;
 using Sci.NET.Mathematics.Comparison;
 
 namespace Sci.NET.Benchmarks.Concurrency;
@@ -31,7 +32,7 @@ public readonly struct TplLoopState<TState> : IValueEquatable<TplLoopState<TStat
                State.Equals(other.State);
     }
 
-    public override bool Equals(object? obj)
+    public override bool Equals([NotNullWhen(true)] object? obj)
     {
         return obj is TplLoopState<TState> other && Equals(other);
     }

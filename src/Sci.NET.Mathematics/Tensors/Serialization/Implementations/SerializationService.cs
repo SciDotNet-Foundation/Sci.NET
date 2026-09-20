@@ -227,7 +227,7 @@ internal class SerializationService : ISerializationService
             throw new NotSupportedException($"The data type ({header.First().Value.Dtype}) of the tensor does not match the data type of the serializer.");
         }
 
-        var tensors = header.ToDictionary(x => x.Key, x => (ITensor<TNumber>)new Tensor<TNumber>(new Shape(x.Value.Shape.ToArray())));
+        var tensors = header.ToDictionary(static x => x.Key, static x => (ITensor<TNumber>)new Tensor<TNumber>(new Shape(x.Value.Shape.ToArray())));
 
         try
         {
@@ -276,7 +276,7 @@ internal class SerializationService : ISerializationService
         var offset = 0L;
 
         var tensorMetadata = tensors.ToDictionary(
-            x => x.Key,
+            static x => x.Key,
             x =>
             {
                 var initialOffset = offset;
@@ -287,11 +287,11 @@ internal class SerializationService : ISerializationService
                 {
                     Shape = x.Value.Shape.ToList(),
                     Dtype = GetSafetensorsDtypeString<TNumber>(),
-                    DataOffsets = new List<long>
-                    {
+                    DataOffsets =
+                    [
                         initialOffset,
                         initialOffset + dataLength
-                    }
+                    ]
                 };
             });
 
@@ -324,8 +324,8 @@ internal class SerializationService : ISerializationService
         var storedElementSize = storedDataLength / tensor.Shape.ElementCount;
         var handle = tensor.Memory.ToSystemMemory();
 
-        InvalidOperationExceptionHelper.ThrowIfNotEqual(storedElementSize, Unsafe.SizeOf<TNumber>(), "The stored element size does not match the element size of the tensor.");
-        InvalidOperationExceptionHelper.ThrowIfNotEqual(storedDataLength, handle.Length * Unsafe.SizeOf<TNumber>(), "The stored data length is not equal to the tensor data length.");
+        InvalidOperationException.ThrowIfNotEqual(storedElementSize, Unsafe.SizeOf<TNumber>(), "The stored element size does not match the element size of the tensor.");
+        InvalidOperationException.ThrowIfNotEqual(storedDataLength, handle.Length * Unsafe.SizeOf<TNumber>(), "The stored data length is not equal to the tensor data length.");
 
         handle.ReadElementsFrom(stream, tensorDescriptor.DataOffsets[0] + headerLength, storedDataLength);
     }

@@ -1,7 +1,6 @@
 // Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
@@ -10,7 +9,6 @@ using Sci.NET.Mathematics.Performance;
 
 namespace Sci.NET.Mathematics.Backends.Managed.MicroKernels.Exponential;
 
-[SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter", Justification = "By design")]
 internal class PowBackwardMicroKernel<TNumber> : IUnaryParameterizedOperation<PowBackwardMicroKernel<TNumber>, TNumber>,
     IUnaryParameterizedOperationAvx2<PowBackwardMicroKernel<TNumber>>
     where TNumber : unmanaged, INumber<TNumber>, IPowerFunctions<TNumber>

@@ -66,7 +66,7 @@ internal class ConcatenationService : IConcatenationService
 
         if (!tensors.All(t => t.Shape.Dimensions.SequenceEqual(shape.Dimensions)))
         {
-            throw new InvalidShapeException($"All tensors must have the same shape, but were {string.Join(',', tensors.Select(x => x.Shape.ToString()))}.");
+            throw new InvalidShapeException($"All tensors must have the same shape, but were {string.Join(',', tensors.Select(static x => x.Shape.ToString()))}.");
         }
     }
 
@@ -77,7 +77,7 @@ internal class ConcatenationService : IConcatenationService
         where TNumber : unmanaged, INumber<TNumber>
     {
         EnsureSameShape<TTensor, TNumber>(tensors);
-        var backend = _deviceGuardService.GuardMultiParameterOperation(tensors.Select(x => x.Device).ToArray());
+        var backend = _deviceGuardService.GuardMultiParameterOperation(tensors.Select(static x => x.Device).ToArray());
 
         var shape = tensors.First().Shape;
         var newShapeDims = new int[shape.Rank + 1];
@@ -102,7 +102,7 @@ internal class ConcatenationService : IConcatenationService
                 ref result,
                 tensor,
                 null,
-                _ => throw new AutoDiffNotSupportedException(nameof(Concatenate)));
+                static _ => throw new AutoDiffNotSupportedException(nameof(Concatenate)));
         }
 
         return result;

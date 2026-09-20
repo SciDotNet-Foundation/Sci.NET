@@ -12,7 +12,6 @@ namespace Sci.NET.Mathematics.Concurrency;
 /// the participating workers via a generation counter, runs one slice itself, and blocks until every worker
 /// has completed.
 /// </summary>
-[PublicAPI]
 public sealed unsafe class ParallelExecutorThreadPool : IDisposable
 {
     private const int DefaultBlockTimeSpins = 10_000;
@@ -199,7 +198,7 @@ public sealed unsafe class ParallelExecutorThreadPool : IDisposable
             {
                 if (_exceptions[i] is { } fault)
                 {
-                    (faults ??= new List<Exception>()).Add(fault);
+                    (faults ??= []).Add(fault);
                     _exceptions[i] = null;
                 }
             }

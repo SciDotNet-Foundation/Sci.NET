@@ -12,7 +12,6 @@ namespace Sci.NET.Mathematics.Exceptions;
 /// <summary>
 /// The exception that is thrown when a <see cref="ITensor{TNumber}"/> has an invalid shape.
 /// </summary>
-[PublicAPI]
 [ExcludeFromCodeCoverage]
 public class InvalidShapeException : Exception
 {
@@ -41,7 +40,8 @@ public class InvalidShapeException : Exception
     {
         if (shapes.Distinct().Count() != 1)
         {
-            throw new InvalidShapeException($"The shapes of the tensors are different but should be the same. {string.Join(", ", shapes.Select(x => x.ToString()).ToArray())}");
+            throw new InvalidShapeException(
+                $"The shapes of the tensors are different but should be the same. {string.Join(", ", shapes.Select(static x => x.ToString()).ToArray())}");
         }
     }
 
@@ -55,7 +55,8 @@ public class InvalidShapeException : Exception
     {
         if (shapes.Distinct().Count() != 1)
         {
-            throw new InvalidShapeException($"The shapes of the tensors have different element counts but should be the same. {string.Join(", ", shapes.Select(x => x.ToString()).ToArray())}");
+            throw new InvalidShapeException(
+                $"The shapes of the tensors have different element counts but should be the same. {string.Join(", ", shapes.Select(static x => x.ToString()).ToArray())}");
         }
     }
 
@@ -68,12 +69,52 @@ public class InvalidShapeException : Exception
     /// <param name="argument">The argument name.</param>
     /// <exception cref="InvalidShapeException">Throws when the shape is not of the specified rank.</exception>
     [StackTraceHidden]
-    public static void ThrowIfNotOfRank<TNumber>(ITensor<TNumber> tensor, int rank, [CallerArgumentExpression(nameof(tensor))] string argument = "")
+    public static void ThrowIfNotOfRank<TNumber>(
+        ITensor<TNumber> tensor,
+        int rank,
+        [CallerArgumentExpression(nameof(tensor))] string argument = "")
         where TNumber : unmanaged, INumber<TNumber>
     {
         if (tensor.Shape.Rank != rank)
         {
             throw new InvalidShapeException($"The shape of the tensor {argument} is not of rank {rank}.");
+        }
+    }
+
+    /// <summary>
+    /// Throws an exception if any dimension at the given index of the provided <paramref name="shapes"/>.
+    /// </summary>
+    /// <param name="index">The index of the dimension to test.</param>
+    /// <param name="shapes">The shapes to test.</param>
+    /// <exception cref="InvalidShapeException">Thrown when the dimension at the given index is different.</exception>
+    [StackTraceHidden]
+    public static void ThrowIfDimensionAtIndexNotEqual(Index index, params Shape[] shapes)
+    {
+        if (shapes.Length < 2)
+        {
+            return;
+        }
+
+        if (shapes[0].Rank <= index.GetOffset(shapes[0].Rank))
+        {
+            throw new InvalidShapeException($"The dimension {index} of shapes {shapes} must be equal, but was not.");
+        }
+
+        var firstShapeDim = shapes[0][index];
+
+        for (var i = 1; i < shapes.Length; i++)
+        {
+            if (shapes[i].Rank <= index.GetOffset(shapes[i].Rank))
+            {
+                throw new InvalidShapeException(
+                    $"The dimension {index} of shapes {shapes} must be equal, but was not.");
+            }
+
+            if (shapes[i][index] != firstShapeDim)
+            {
+                throw new InvalidShapeException(
+                    $"The dimension {index} of shapes {shapes} must be equal, but was not.");
+            }
         }
     }
 }

@@ -24,7 +24,7 @@ internal class DeviceGuardService : IDeviceGuardService
 
     public ITensorBackend GuardMultiParameterOperation(params IDevice[] devices)
     {
-        var allEqual = devices.DistinctBy(x => x.Category).Count() == 1;
+        var allEqual = devices.DistinctBy(static x => x.Category).Count() == 1;
 
         if (!allEqual)
         {

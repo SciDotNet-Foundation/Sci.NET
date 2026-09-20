@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using BenchmarkDotNet.Attributes;
 using Sci.NET.Mathematics.Backends;
@@ -11,7 +10,6 @@ using Sci.NET.Mathematics.Tensors;
 
 namespace Sci.NET.Benchmarks.Managed;
 
-[SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "Handled by GlobalCleanup")]
 public class ManagedInnerProductBenchmarks<TNumber>
     where TNumber : unmanaged, INumber<TNumber>
 {

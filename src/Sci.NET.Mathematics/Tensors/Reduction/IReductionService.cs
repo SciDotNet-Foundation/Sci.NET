@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Tensors.Reduction;
 /// <summary>
 /// Provides reduction operations for <see cref="ITensor{TNumber}"/>s.
 /// </summary>
-[PublicAPI]
 public interface IReductionService
 {
     /// <summary>

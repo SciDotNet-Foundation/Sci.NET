@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Intrinsics;
 /// <summary>
 /// A helper class for SIMD intrinsics.
 /// </summary>
-[PublicAPI]
 public static class IntrinsicsHelper
 {
     /// <summary>

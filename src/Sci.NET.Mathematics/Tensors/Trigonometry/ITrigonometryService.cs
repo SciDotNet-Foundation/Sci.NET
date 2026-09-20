@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Tensors.Trigonometry;
 /// <summary>
 /// A service for performing trigonometric operations on <see cref="ITensor{TNumber}"/> instances.
 /// </summary>
-[PublicAPI]
 public interface ITrigonometryService
 {
     /// <summary>

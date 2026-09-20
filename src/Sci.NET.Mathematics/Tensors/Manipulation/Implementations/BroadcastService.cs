@@ -69,7 +69,7 @@ internal class BroadcastService : IBroadcastService
             }
         }
 
-        // TODO: We shouldn't create a new tensor here, but the old kernels dont support iterating by strides.
+        // Later: We shouldn't create a new tensor here, but the old kernels dont support iterating by strides.
         tensor.Backend.Broadcasting.Broadcast(tensor, result, broadcastStrides);
 
         _gradientAppenderService.AddGradientIfRequired(

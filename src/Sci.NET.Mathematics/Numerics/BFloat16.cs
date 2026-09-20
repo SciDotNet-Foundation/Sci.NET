@@ -12,15 +12,16 @@ using Sci.NET.Mathematics.Performance;
 
 namespace Sci.NET.Mathematics.Numerics;
 
+// Method overrides should not change default values.
+#pragma warning disable MA0061
+
 /// <summary>
 /// A 16-bit floating point number in the bfloat16 format derived from the Open Neural Network Exchange (ONNX) specification.
 /// </summary>
 /// <seealso href="https://onnxruntime.ai/docs/api/csharp/api/Microsoft.ML.OnnxRuntime.BFloat16.html"/>
-[PublicAPI]
 [DebuggerDisplay("{DebuggerDisplay}")]
 [StructLayout(LayoutKind.Sequential)]
-public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
-    IMinMaxValue<BFloat16>
+public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>, IMinMaxValue<BFloat16>
 {
     private const ushort SignMask = 0x8000;
     private const ushort BiasedExponentMask = 0x7F80;
@@ -38,7 +39,7 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
     private const ushort NaNBits = 0x7FC1;
     private const ushort MinValueBits = 0xFF7F;
     private const ushort MaxValueBits = 0x7F7F;
-    private const ushort EpsilonBits = 0x0080;
+    private const ushort EpsilonBits = 0x0001;
     private const ushort PiBits = 0x4049;
     private const ushort EBits = 0x402E;
     private const ushort TauBits = 0x40C9;
@@ -222,6 +223,7 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
             return leftIsNegative && !AreZero(left, right);
         }
 
+        // ReSharper disable once ArrangeRedundantParentheses
         return left._value != right._value && ((left._value < right._value) ^ leftIsNegative);
     }
 
@@ -240,6 +242,7 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
             return leftIsNegative || AreZero(left, right);
         }
 
+        // ReSharper disable once ArrangeRedundantParentheses
         return left._value == right._value || ((left._value < right._value) ^ leftIsNegative);
     }
 
@@ -378,13 +381,13 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
     }
 
     /// <inheritdoc />
-    public static bool TryParse(ReadOnlySpan<char> s, NumberStyles style, IFormatProvider? provider, out BFloat16 result)
+    public static bool TryParse(
+        ReadOnlySpan<char> s,
+        NumberStyles style,
+        IFormatProvider? provider,
+        out BFloat16 result)
     {
-        var success = float.TryParse(
-            s,
-            style,
-            provider,
-            out var resultFloat);
+        var success = float.TryParse(s, style, provider, out var resultFloat);
 
         if (success)
         {
@@ -399,11 +402,7 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
     /// <inheritdoc />
     public static bool TryParse(string? s, NumberStyles style, IFormatProvider? provider, out BFloat16 result)
     {
-        var success = float.TryParse(
-            s,
-            style,
-            provider,
-            out var resultFloat);
+        var success = float.TryParse(s, style, provider, out var resultFloat);
 
         if (success)
         {
@@ -485,9 +484,7 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
     public static bool IsNormal(BFloat16 value)
     {
         uint absValue = StripSign(value);
-        return absValue < PositiveInfinityBits &&
-               absValue != 0 &&
-               (absValue & BiasedExponentMask) != 0;
+        return absValue < PositiveInfinityBits && absValue != 0 && (absValue & BiasedExponentMask) != 0;
     }
 
     /// <inheritdoc />
@@ -511,19 +508,17 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
     /// <inheritdoc />
     public static bool IsRealNumber(BFloat16 value)
     {
-#pragma warning disable CS1718 // Comparison made to same variable
+#pragma warning disable CS1718, MA0172 // Comparison made to same variable
         // ReSharper disable once EqualExpressionComparison
         return value == value;
-#pragma warning restore CS1718 // Comparison made to same variable
+#pragma warning restore CS1718, MA0172 // Comparison made to same variable
     }
 
     /// <inheritdoc />
     public static bool IsSubnormal(BFloat16 value)
     {
         uint absValue = StripSign(value);
-        return absValue < PositiveInfinityBits &&
-               absValue != 0 &&
-               (absValue & BiasedExponentMask) == 0;
+        return absValue < PositiveInfinityBits && absValue != 0 && (absValue & BiasedExponentMask) == 0;
     }
 
     /// <inheritdoc />
@@ -874,7 +869,7 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
 
         if ((bits & PositiveInfinityBits) >= PositiveInfinityBits)
         {
-            return (bits == NegativeInfinityBits) ? MinValue : x;
+            return bits == NegativeInfinityBits ? MinValue : x;
         }
 
         if (bits == NegativeZeroBits)
@@ -929,13 +924,13 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
     }
 
     /// <inheritdoc />
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    public bool TryFormat(
+        Span<char> destination,
+        out int charsWritten,
+        ReadOnlySpan<char> format,
+        IFormatProvider? provider)
     {
-        return ((float)this).TryFormat(
-            destination,
-            out charsWritten,
-            format,
-            provider);
+        return ((float)this).TryFormat(destination, out charsWritten, format, provider);
     }
 
     /// <inheritdoc />
@@ -1006,7 +1001,8 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
     {
         if (destination.Length >= sizeof(ushort))
         {
-            var significand = (ushort)(GetTrailingSignificand() | (GetBiasedExponent() != 0 ? 1U << BiasedExponentShift : 0U));
+            var significand =
+                (ushort)(GetTrailingSignificand() | (GetBiasedExponent() != 0 ? 1U << BiasedExponentShift : 0U));
 
             if (BitConverter.IsLittleEndian)
             {
@@ -1028,7 +1024,8 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
     {
         if (destination.Length >= sizeof(ushort))
         {
-            var significand = (ushort)(GetTrailingSignificand() | (GetBiasedExponent() != 0 ? 1U << BiasedExponentShift : 0U));
+            var significand =
+                (ushort)(GetTrailingSignificand() | (GetBiasedExponent() != 0 ? 1U << BiasedExponentShift : 0U));
 
             if (!BitConverter.IsLittleEndian)
             {
@@ -1089,7 +1086,7 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override bool Equals([NotNullWhen(true)] object? obj)
     {
         return obj is BFloat16 other && Equals(other);
     }
@@ -1117,11 +1114,7 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
 
         unsafe
         {
-            Buffer.MemoryCopy(
-                &single,
-                &result,
-                sizeof(uint),
-                sizeof(uint));
+            Buffer.MemoryCopy(&single, &result, sizeof(uint), sizeof(uint));
         }
 
         return result;
@@ -1133,11 +1126,7 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
 
         unsafe
         {
-            Buffer.MemoryCopy(
-                &singleBits,
-                &result,
-                sizeof(uint),
-                sizeof(uint));
+            Buffer.MemoryCopy(&singleBits, &result, sizeof(uint), sizeof(uint));
         }
 
         return result;
@@ -1197,3 +1186,5 @@ public readonly struct BFloat16 : IBinaryFloatingPointIeee754<BFloat16>,
         return ExtractTrailingSignificandFromBits(bits);
     }
 }
+
+#pragma warning restore MA0061

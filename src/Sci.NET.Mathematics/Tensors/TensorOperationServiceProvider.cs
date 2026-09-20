@@ -52,27 +52,27 @@ internal class TensorOperationServiceProvider : ITensorOperationServiceProvider
 
     public TensorOperationServiceProvider()
     {
-        _broadcastService = new Lazy<BroadcastService>(() => new BroadcastService());
-        _reshapeService = new Lazy<ReshapeService>(() => new ReshapeService());
-        _deviceGuardService = new Lazy<DeviceGuardService>(() => new DeviceGuardService());
-        _randomService = new Lazy<RandomService>(() => new RandomService());
-        _normalisationService = new Lazy<NormalisationService>(() => new NormalisationService());
-        _varianceService = new Lazy<VarianceService>(() => new VarianceService());
-        _gradientAppenderService = new Lazy<GradientAppenderService>(() => new GradientAppenderService());
-        _trigonometryService = new Lazy<TrigonometryService>(() => new TrigonometryService());
-        _serializationService = new Lazy<SerializationService>(() => new SerializationService());
-        _castingService = new Lazy<CastingService>(() => new CastingService());
-        _activationFunctionService = new Lazy<ActivationFunctionService>(() => new ActivationFunctionService());
-        _permutationService = new Lazy<PermutationService>(() => new PermutationService());
-        _arithmeticService = new Lazy<ArithmeticService>(() => new ArithmeticService());
-        _contractionService = new Lazy<ContractionService>(() => new ContractionService());
-        _concatenationService = new Lazy<ConcatenationService>(() => new ConcatenationService());
-        _tensorEqualityOperationService = new Lazy<TensorEqualityOperationService>(() => new TensorEqualityOperationService());
-        _matrixMultiplicationService = new Lazy<MatrixMultiplicationService>(() => new MatrixMultiplicationService());
-        _powerService = new Lazy<PowerService>(() => new PowerService());
-        _reductionService = new Lazy<ReductionService>(() => new ReductionService());
-        _hypotService = new Lazy<HypotService>(() => new HypotService());
-        _normService = new Lazy<NormService>(() => new NormService());
+        _broadcastService = new Lazy<BroadcastService>(static () => new BroadcastService());
+        _reshapeService = new Lazy<ReshapeService>(static () => new ReshapeService());
+        _deviceGuardService = new Lazy<DeviceGuardService>(static () => new DeviceGuardService());
+        _randomService = new Lazy<RandomService>(static () => new RandomService());
+        _normalisationService = new Lazy<NormalisationService>(static () => new NormalisationService());
+        _varianceService = new Lazy<VarianceService>(static () => new VarianceService());
+        _gradientAppenderService = new Lazy<GradientAppenderService>(static () => new GradientAppenderService());
+        _trigonometryService = new Lazy<TrigonometryService>(static () => new TrigonometryService());
+        _serializationService = new Lazy<SerializationService>(static () => new SerializationService());
+        _castingService = new Lazy<CastingService>(static () => new CastingService());
+        _activationFunctionService = new Lazy<ActivationFunctionService>(static () => new ActivationFunctionService());
+        _permutationService = new Lazy<PermutationService>(static () => new PermutationService());
+        _arithmeticService = new Lazy<ArithmeticService>(static () => new ArithmeticService());
+        _contractionService = new Lazy<ContractionService>(static () => new ContractionService());
+        _concatenationService = new Lazy<ConcatenationService>(static () => new ConcatenationService());
+        _tensorEqualityOperationService = new Lazy<TensorEqualityOperationService>(static () => new TensorEqualityOperationService());
+        _matrixMultiplicationService = new Lazy<MatrixMultiplicationService>(static () => new MatrixMultiplicationService());
+        _powerService = new Lazy<PowerService>(static () => new PowerService());
+        _reductionService = new Lazy<ReductionService>(static () => new ReductionService());
+        _hypotService = new Lazy<HypotService>(static () => new HypotService());
+        _normService = new Lazy<NormService>(static () => new NormService());
     }
 
     public IMatrixMultiplicationService GetMatrixMultiplicationService()

@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// An interface for tensor backends.
 /// </summary>
-[PublicAPI]
 public interface ITensorBackend
 {
     /// <summary>

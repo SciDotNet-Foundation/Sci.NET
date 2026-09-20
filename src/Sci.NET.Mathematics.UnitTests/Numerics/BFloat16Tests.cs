@@ -1,7 +1,6 @@
 // Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Sci.NET.Mathematics.Numerics;
 
@@ -54,7 +53,7 @@ public class BFloat16Tests
     {
         var epsilon = BFloat16.Epsilon;
 
-        Unsafe.As<BFloat16, ushort>(ref epsilon).Should().Be(0x0080);
+        Unsafe.As<BFloat16, ushort>(ref epsilon).Should().Be(0x0001);
     }
 
     [Fact]
@@ -210,7 +209,6 @@ public class BFloat16Tests
     [InlineData("10", 10.0f)]
     [InlineData("-1", -1.0f)]
     [InlineData("3.14159265358979323846264338327950288419716", 3.140625f)]
-    [SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "Testing for invariant culture.")]
     public void Parse_ReturnsCorrectValue(string value, BFloat16 expected)
     {
         var result = BFloat16.Parse(value);

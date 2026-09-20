@@ -10,7 +10,7 @@ using Sci.NET.Mathematics.Performance;
 
 namespace Sci.NET.Mathematics.Backends.Managed.MicroKernels.ActivationFunctions;
 
-[SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter", Justification = "By design")]
+// ReSharper disable once InconsistentNaming
 internal class GELUMicroKernel<TNumber> : IUnaryOperation<TNumber>, IUnaryOperationAvx2
     where TNumber : unmanaged, INumber<TNumber>, IHyperbolicFunctions<TNumber>, IRootFunctions<TNumber>
 {

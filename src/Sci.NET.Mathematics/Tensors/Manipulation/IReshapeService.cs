@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Tensors.Manipulation;
 /// <summary>
 /// An interface providing methods to reshape <see cref="ITensor{TNumber}"/> instances.
 /// </summary>
-[PublicAPI]
 public interface IReshapeService
 {
     /// <summary>

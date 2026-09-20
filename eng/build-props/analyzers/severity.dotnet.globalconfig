@@ -44,7 +44,7 @@ dotnet_diagnostic.CA1062.severity = none
 dotnet_diagnostic.CA1515.severity = suggestion
 
 # CA1716: Identifiers should not match keywords
-dotnet_diagnostic.CA1716.severity = warning
+dotnet_diagnostic.CA1716.severity = suggestion
 
 # CA1819: Properties should not return arrays
 dotnet_diagnostic.CA1819.severity = none
@@ -140,8 +140,11 @@ dotnet_diagnostic.IDE0200.severity = none
 dotnet_diagnostic.IDE0010.severity = suggestion
 
 # IDE0130: Namespace does not match folder structure.
-dotnet_diagnostic.IDE0130.severity = suggestion
+dotnet_diagnostic.IDE0130.severity = warning
 dotnet_style_namespace_match_folder = true
+
+# IDE0045: Use conditional expression
+dotnet_diagnostic.IDE0045.severity = suggestion
 
 #----------------------------------------------------------------------------------------------------------------------
 # Compiler diagnostics

@@ -82,7 +82,7 @@ dotnet_diagnostic.RCS0053.severity = suggestion
 dotnet_diagnostic.RCS0056.severity = none
 
 # RCS0058: Normalize whitespace at the end of a file
-dotnet_diagnostic.RCS0058.severity = warning
+dotnet_diagnostic.RCS0058.severity = none
 
 # RCS0059: Place new line after/before null-conditional operator
 dotnet_diagnostic.RCS0059.severity = warning

@@ -3,16 +3,14 @@
 
 using System.Diagnostics;
 
-#pragma warning disable IDE0130
-
 // ReSharper disable once CheckNamespace
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Sci.NET.Mathematics.Tensors;
 #pragma warning restore IDE0130
 
 /// <summary>
 /// Provides casting extensions for <see cref="ITensor{TNumber}"/>.
 /// </summary>
-[PublicAPI]
 public static class CastingExtensions
 {
     /// <summary>

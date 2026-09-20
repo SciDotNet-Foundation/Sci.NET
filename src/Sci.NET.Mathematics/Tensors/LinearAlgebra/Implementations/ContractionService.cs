@@ -1,7 +1,6 @@
 // Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Sci.NET.Mathematics.Exceptions;
 using Sci.NET.Mathematics.Tensors.Common;
@@ -24,15 +23,16 @@ internal class ContractionService : IContractionService
     public ContractionService()
     {
         _guardService = TensorServiceProvider.GetTensorOperationServiceProvider().GetDeviceGuardService();
-        _matrixMultiplicationService = TensorServiceProvider.GetTensorOperationServiceProvider().GetMatrixMultiplicationService();
+        _matrixMultiplicationService =
+            TensorServiceProvider.GetTensorOperationServiceProvider().GetMatrixMultiplicationService();
         _permutationService = TensorServiceProvider.GetTensorOperationServiceProvider().GetPermutationService();
         _reshapeService = TensorServiceProvider.GetTensorOperationServiceProvider().GetReshapeService();
         _arithmeticService = TensorServiceProvider.GetTensorOperationServiceProvider().GetArithmeticService();
         _reductionService = TensorServiceProvider.GetTensorOperationServiceProvider().GetReductionService();
-        _gradientAppenderService = TensorServiceProvider.GetTensorOperationServiceProvider().GetGradientAppenderService();
+        _gradientAppenderService =
+            TensorServiceProvider.GetTensorOperationServiceProvider().GetGradientAppenderService();
     }
 
-    [SuppressMessage("Style", "IDE0045:Convert to conditional expression", Justification = "Readability")]
     public ITensor<TNumber> Contract<TNumber>(
         ITensor<TNumber> left,
         ITensor<TNumber> right,
@@ -45,7 +45,12 @@ internal class ContractionService : IContractionService
 
         var contractedSize = 1;
 
-        ArgumentOutOfRangeException.ThrowIfNotEqual(leftIndices.Length, rightIndices.Length);
+        if (leftIndices.Length != rightIndices.Length)
+        {
+            throw new ArgumentException(
+                $"The length of the {nameof(leftIndices)} must be the same as the {nameof(rightIndices)}",
+                nameof(rightIndices));
+        }
 
         for (var i = 0; i < leftIndices.Length; i++)
         {
@@ -56,15 +61,16 @@ internal class ContractionService : IContractionService
             {
                 if (leftDimSize == 1)
                 {
-                    left = _reductionService.Sum(left, new[] { leftIndices[i] }, true);
+                    left = _reductionService.Sum(left, [leftIndices[i]], true);
                 }
                 else if (rightDimSize == 1)
                 {
-                    right = _reductionService.Sum(right, new[] { rightIndices[i] }, true);
+                    right = _reductionService.Sum(right, [rightIndices[i]], true);
                 }
                 else
                 {
-                    throw new InvalidIndicesException($"The contracted dimensions need to match, but the the first has size {leftDimSize} at dimension {leftIndices[i]} and the second has {rightDimSize} at dimension {rightIndices[i]}.");
+                    throw new InvalidIndicesException(
+                        $"The contracted dimensions need to match, but the the first has size {leftDimSize} at dimension {leftIndices[i]} and the second has {rightDimSize} at dimension {rightIndices[i]}.");
                 }
             }
             else
@@ -104,12 +110,25 @@ internal class ContractionService : IContractionService
             }
         }
 
-        using var leftPermuted = _permutationService.Permute(left, leftPermutation.ToArray(), overrideRequiresGradient: false);
-        using var rightPermuted = _permutationService.Permute(right, rightPermutation.ToArray(), overrideRequiresGradient: false);
-        using var leftReshaped = _reshapeService.Reshape(leftPermuted, new Shape(nonContractedLeft, contractedSize)).ToMatrix(false);
-        using var rightReshaped = _reshapeService.Reshape(rightPermuted, new Shape(contractedSize, nonContractedRight)).ToMatrix(false);
-        using var mmResult = _matrixMultiplicationService.MatrixMultiply(leftReshaped, rightReshaped, overrideRequiresGradient: false);
-        var result = _reshapeService.Reshape(mmResult, new Shape(resultShape.ToArray()), overrideRequiresGradient: false);
+        using var leftPermuted = _permutationService.Permute(
+            left,
+            [.. leftPermutation],
+            overrideRequiresGradient: false);
+        using var rightPermuted = _permutationService.Permute(
+            right,
+            [.. rightPermutation],
+            overrideRequiresGradient: false);
+        using var leftReshaped = _reshapeService
+            .Reshape(leftPermuted, new Shape(nonContractedLeft, contractedSize))
+            .ToMatrix(false);
+        using var rightReshaped = _reshapeService
+            .Reshape(rightPermuted, new Shape(contractedSize, nonContractedRight))
+            .ToMatrix(false);
+        using var mmResult = _matrixMultiplicationService.MatrixMultiply(
+            leftReshaped,
+            rightReshaped,
+            overrideRequiresGradient: false);
+        var result = _reshapeService.Reshape(mmResult, new Shape([.. resultShape]), overrideRequiresGradient: false);
 
         _gradientAppenderService.AddGradientIfRequired(
             ref result,
@@ -128,12 +147,12 @@ internal class ContractionService : IContractionService
                     .Where(i => !rightIndices.Contains(i))
                     .ToArray();
 
-                var contractionService = TensorServiceProvider.GetTensorOperationServiceProvider().GetContractionService();
-                var permutationService = TensorServiceProvider.GetTensorOperationServiceProvider().GetPermutationService();
+                var contractionService =
+                    TensorServiceProvider.GetTensorOperationServiceProvider().GetContractionService();
+                var permutationService =
+                    TensorServiceProvider.GetTensorOperationServiceProvider().GetPermutationService();
 
-                var leftInd = Enumerable
-                    .Range(nonContractedAAxes.Length, nonContractedBAxes.Length)
-                    .ToArray();
+                var leftInd = Enumerable.Range(nonContractedAAxes.Length, nonContractedBAxes.Length).ToArray();
 
                 var permuteAxes = nonContractedAAxes.Concat(leftIndices).ToArray();
 
@@ -177,9 +196,7 @@ internal class ContractionService : IContractionService
                     permuteAxes[axis] = currentIndex++;
                 }
 
-                var rightInd = Enumerable
-                    .Range(0, nonContractedAAxes.Length)
-                    .ToArray();
+                var rightInd = Enumerable.Range(0, nonContractedAAxes.Length).ToArray();
 
                 var rightGrad = contractionService.Contract(
                     grad,
@@ -188,21 +205,21 @@ internal class ContractionService : IContractionService
                     nonContractedAAxes,
                     overrideRequiresGradient: false);
 
-                return permutationService.Permute(
-                    rightGrad,
-                    permuteAxes,
-                    overrideRequiresGradient: false);
+                return permutationService.Permute(rightGrad, permuteAxes, overrideRequiresGradient: false);
             });
 
         return result;
     }
 
-    public Scalar<TNumber> Inner<TNumber>(Vector<TNumber> left, Vector<TNumber> right, bool? overrideRequiresGradient = null)
+    public Scalar<TNumber> Inner<TNumber>(
+        Vector<TNumber> left,
+        Vector<TNumber> right,
+        bool? overrideRequiresGradient = null)
         where TNumber : unmanaged, INumber<TNumber>
     {
         var backend = _guardService.GuardBinaryOperation(left.Device, right.Device);
 
-        ArgumentOutOfRangeException.ThrowIfNotEqual(left.Shape[^1], right.Shape[^1]);
+        InvalidShapeException.ThrowIfDimensionAtIndexNotEqual(^1, left.Shape, right.Shape);
         InvalidShapeException.ThrowIfNotOfRank(left, 1);
         InvalidShapeException.ThrowIfNotOfRank(right, 1);
 

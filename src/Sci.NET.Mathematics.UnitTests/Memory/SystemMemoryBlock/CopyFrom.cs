@@ -13,7 +13,7 @@ public class CopyFrom
     public void CopyBytesCorrectly_GivenLength(int count)
     {
         var memoryBlock = new SystemMemoryBlock<byte>(count);
-        var source = Enumerable.Range(0, count).Select(x => (byte)x).ToArray();
+        var source = Enumerable.Range(0, count).Select(static x => (byte)x).ToArray();
 
         memoryBlock.CopyFrom(source);
 

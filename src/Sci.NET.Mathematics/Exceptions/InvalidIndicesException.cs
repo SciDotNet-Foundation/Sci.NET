@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Exceptions;
 /// <summary>
 /// An exception thrown when the indices are invalid.
 /// </summary>
-[PublicAPI]
 [ExcludeFromCodeCoverage]
 public class InvalidIndicesException : Exception
 {

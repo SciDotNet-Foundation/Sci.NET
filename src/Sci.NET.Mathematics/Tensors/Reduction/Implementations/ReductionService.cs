@@ -244,6 +244,6 @@ internal class ReductionService : IReductionService
             }
         }
 
-        return new Shape(resultShapeDimensions.Where(dim => dim != 0).ToArray());
+        return new Shape(resultShapeDimensions.Where(static dim => dim != 0).ToArray());
     }
 }

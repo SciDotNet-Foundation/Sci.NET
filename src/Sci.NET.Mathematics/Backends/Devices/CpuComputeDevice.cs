@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
+using System.Diagnostics.CodeAnalysis;
 using Sci.NET.Mathematics.Backends.Managed;
 using Sci.NET.Mathematics.Intrinsics;
 using Sci.NET.Mathematics.Runtime;
@@ -10,7 +11,6 @@ namespace Sci.NET.Mathematics.Backends.Devices;
 /// <summary>
 /// A CPU compute device.
 /// </summary>
-[PublicAPI]
 public class CpuComputeDevice : ICpuComputeDevice
 {
     private static readonly CpuComputeDevice Instance = new(Guid.NewGuid(), CpuInfo.GetInfoString());
@@ -56,7 +56,7 @@ public class CpuComputeDevice : ICpuComputeDevice
     }
 
     /// <inheritdoc />
-    public bool Equals(IDevice? other)
+    public bool Equals([NotNullWhen(true)] IDevice? other)
     {
         return other is not null && Id == other.Id;
     }

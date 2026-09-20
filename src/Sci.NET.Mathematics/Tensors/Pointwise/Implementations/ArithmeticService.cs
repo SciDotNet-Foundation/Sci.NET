@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Sci.NET.Mathematics.Exceptions;
 using Sci.NET.Mathematics.Numerics;
@@ -10,7 +9,6 @@ using Sci.NET.Mathematics.Tensors.Manipulation;
 
 namespace Sci.NET.Mathematics.Tensors.Pointwise.Implementations;
 
-[SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "The concrete type is not known at compile time.")]
 internal class ArithmeticService : IArithmeticService
 {
     private readonly IDeviceGuardService _deviceGuardService;
@@ -38,8 +36,8 @@ internal class ArithmeticService : IArithmeticService
             left,
             right,
             null,
-            grad => grad,
-            grad => grad);
+            static grad => grad,
+            static grad => grad);
 
         return result;
     }
@@ -58,8 +56,8 @@ internal class ArithmeticService : IArithmeticService
             left,
             right,
             null,
-            grad => grad,
-            grad => grad.Negate());
+            static grad => grad,
+            static grad => grad.Negate());
 
         return result;
     }
@@ -136,7 +134,7 @@ internal class ArithmeticService : IArithmeticService
                 ref resultShortcut,
                 value,
                 null,
-                grad => grad.Negate());
+                static grad => grad.Negate());
 
             return resultShortcut;
         }
@@ -149,7 +147,7 @@ internal class ArithmeticService : IArithmeticService
             ref result,
             value,
             null,
-            grad => grad.Negate());
+            static grad => grad.Negate());
 
         return result;
     }
@@ -169,7 +167,7 @@ internal class ArithmeticService : IArithmeticService
                 ref resultShortcut,
                 value,
                 null,
-                grad => grad);
+                static grad => grad);
 
             return resultShortcut;
         }

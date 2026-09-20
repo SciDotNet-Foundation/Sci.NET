@@ -11,7 +11,6 @@ namespace Sci.NET.Mathematics.Backends.Managed;
 /// <summary>
 /// An implementation of <see cref="ITensorBackend"/> for the managed backend.
 /// </summary>
-[PublicAPI]
 public sealed class ManagedTensorBackend : ITensorBackend
 {
     private static ParallelExecutorThreadPool _threadPool = null!;
@@ -97,7 +96,7 @@ public sealed class ManagedTensorBackend : ITensorBackend
     public IExponentialKernels Exponential { get; }
 
     /// <inheritdoc />
-    public IDevice Device { get; private set; }
+    public IDevice Device { get; }
 
     /// <inheritdoc />
     public IReductionKernels Reduction { get; }

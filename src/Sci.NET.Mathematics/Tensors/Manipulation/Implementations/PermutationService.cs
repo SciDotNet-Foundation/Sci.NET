@@ -26,7 +26,7 @@ internal class PermutationService : IPermutationService
 
         if (permutation.Distinct().Count() != tensor.Shape.Rank)
         {
-            throw new ArgumentException("Permutation length must be equal to tensor rank.");
+            throw new ArgumentException("Permutation length must be equal to tensor rank.", nameof(permutation));
         }
 
         var permutedShape = new int[tensor.Shape.Rank];

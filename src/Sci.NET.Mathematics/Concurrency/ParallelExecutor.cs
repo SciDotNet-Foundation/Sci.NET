@@ -12,7 +12,6 @@ namespace Sci.NET.Mathematics.Concurrency;
 /// region statically partitions its range across the participating threads; the calling thread runs
 /// one slice itself and blocks until the workers have finished.
 /// </summary>
-[PublicAPI]
 public sealed unsafe class ParallelExecutor : IDisposable
 {
     private readonly ParallelExecutorThreadPool _threadPool;
@@ -21,7 +20,7 @@ public sealed unsafe class ParallelExecutor : IDisposable
     /// Initializes a new instance of the <see cref="ParallelExecutor"/> class.
     /// </summary>
     /// <param name="threadPool">The thread pool to execute work items on.</param>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="threadPool"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="threadPool"/> is <see langword="null"/>.</exception>
     public ParallelExecutor(ParallelExecutorThreadPool threadPool)
     {
         ArgumentNullException.ThrowIfNull(threadPool);
@@ -64,7 +63,7 @@ public sealed unsafe class ParallelExecutor : IDisposable
     /// </summary>
     /// <typeparam name="TIndex">The integer type used for the virtual thread index.</typeparam>
     /// <param name="taskCollection">The batch of tasks to execute.</param>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="taskCollection"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="taskCollection"/> is <see langword="null"/>.</exception>
     /// <exception cref="AggregateException">Thrown when one or more task bodies threw.</exception>
     public void Run<TIndex>(ParallelExecutorTaskCollection<TIndex> taskCollection)
         where TIndex : IBinaryInteger<TIndex>
@@ -103,7 +102,7 @@ public sealed unsafe class ParallelExecutor : IDisposable
     /// <param name="toExclusive">The index to iterate to (exclusive).</param>
     /// <param name="numWorkers">The number of workers to partition the range across.</param>
     /// <param name="body">The body of the loop.</param>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="body"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="body"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="numWorkers"/> is not positive.</exception>
     /// <exception cref="AggregateException">Thrown when one or more invocations of <paramref name="body"/> threw.</exception>
     public void For<TIndex>(
@@ -154,7 +153,7 @@ public sealed unsafe class ParallelExecutor : IDisposable
     /// <param name="numWorkers">The number of workers to partition the range across.</param>
     /// <param name="state">The state passed to the loop action.</param>
     /// <param name="body">The body of the loop.</param>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="body"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="body"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="numWorkers"/> is not positive.</exception>
     /// <exception cref="AggregateException">Thrown when one or more invocations of <paramref name="body"/> threw.</exception>
     public void For<TIndex, TState>(
@@ -210,7 +209,7 @@ public sealed unsafe class ParallelExecutor : IDisposable
     /// <param name="threadLocalSetup">The setup function for the thread local state.</param>
     /// <param name="body">The body of the loop.</param>
     /// <param name="threadLocalCleanup">The cleanup action for the thread local state.</param>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="body"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="body"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="numWorkers"/> is not positive.</exception>
     /// <exception cref="AggregateException">Thrown when one or more invocations of <paramref name="body"/> threw.</exception>
     public void For<TIndex, TState>(
@@ -268,7 +267,7 @@ public sealed unsafe class ParallelExecutor : IDisposable
     /// <typeparam name="TSource">The type of the elements produced by the partitioner.</typeparam>
     /// <param name="partitioner">The partitioner producing the elements to process.</param>
     /// <param name="action">The action to invoke for each element.</param>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="partitioner"/> or <paramref name="action"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="partitioner"/> or <paramref name="action"/> is <see langword="null"/>.</exception>
     /// <exception cref="AggregateException">Thrown when one or more invocations of <paramref name="action"/> threw.</exception>
     public void ForEach<TSource>(Partitioner<TSource> partitioner, Action<TSource> action)
     {

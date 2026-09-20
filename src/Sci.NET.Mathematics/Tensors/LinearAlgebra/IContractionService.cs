@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Tensors.LinearAlgebra;
 /// <summary>
 /// An interface containing methods for contracting instances of <see cref="ITensor{TNumber}"/>.
 /// </summary>
-[PublicAPI]
 public interface IContractionService
 {
     /// <summary>

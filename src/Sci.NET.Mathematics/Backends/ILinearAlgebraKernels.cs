@@ -10,7 +10,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// An interface for linear algebra backends.
 /// </summary>
-[PublicAPI]
 public interface ILinearAlgebraKernels
 {
     /// <summary>

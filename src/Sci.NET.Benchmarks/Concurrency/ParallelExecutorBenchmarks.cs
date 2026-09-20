@@ -1,7 +1,6 @@
 // Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using BenchmarkDotNet.Attributes;
 using Sci.NET.Mathematics.Backends.Managed;
 using Sci.NET.Mathematics.Concurrency;
@@ -10,7 +9,6 @@ using Sci.NET.Mathematics.Random;
 
 namespace Sci.NET.Benchmarks.Concurrency;
 
-[SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "Benchmark")]
 public class ParallelExecutorBenchmarks
 {
     [Params(32768, 131072, 524288)]

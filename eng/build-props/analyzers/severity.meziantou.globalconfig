@@ -170,7 +170,7 @@ dotnet_diagnostic.MA0035.severity = warning
 dotnet_diagnostic.MA0042.severity = warning
 
 # MA0045: Do not use blocking calls, even when the calling method must become async
-dotnet_diagnostic.MA0045.severity = warning
+dotnet_diagnostic.MA0045.severity = suggestion
 
 # MA0100: Await task before disposing of resources
 dotnet_diagnostic.MA0100.severity = warning

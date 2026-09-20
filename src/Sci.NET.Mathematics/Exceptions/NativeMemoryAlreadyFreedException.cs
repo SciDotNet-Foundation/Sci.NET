@@ -10,7 +10,6 @@ namespace Sci.NET.Mathematics.Exceptions;
 /// An exception thrown when attempting to access native memory which has
 /// already been freed.
 /// </summary>
-[PublicAPI]
 [ExcludeFromCodeCoverage]
 public class NativeMemoryAlreadyFreedException : Exception
 {
@@ -56,10 +55,10 @@ public class NativeMemoryAlreadyFreedException : Exception
     }
 
     /// <summary>
-    /// Throws a <see cref="NativeMemoryAlreadyFreedException"/> when <paramref name="memoryPointer"/> is <c>null</c>.
+    /// Throws a <see cref="NativeMemoryAlreadyFreedException"/> when <paramref name="memoryPointer"/> is <see langword="null"/>.
     /// </summary>
     /// <param name="memoryPointer">The pointer to validate.</param>
-    /// <exception cref="NativeMemoryAlreadyFreedException">Thrown when <paramref name="memoryPointer"/> is <c>null</c>.</exception>
+    /// <exception cref="NativeMemoryAlreadyFreedException">Thrown when <paramref name="memoryPointer"/> is <see langword="null"/>.</exception>
     [StackTraceHidden]
     [ExcludeFromCodeCoverage]
     public static unsafe void ThrowIfNullPointer(void* memoryPointer)
@@ -71,11 +70,11 @@ public class NativeMemoryAlreadyFreedException : Exception
     }
 
     /// <summary>
-    /// Throws a <see cref="NativeMemoryAlreadyFreedException"/> when <paramref name="memoryPointer"/> is <c>null</c>.
+    /// Throws a <see cref="NativeMemoryAlreadyFreedException"/> when <paramref name="memoryPointer"/> is <see langword="null"/>.
     /// </summary>
     /// <typeparam name="T">The element type of the pointer.</typeparam>
     /// <param name="memoryPointer">The pointer to validate.</param>
-    /// <exception cref="NativeMemoryAlreadyFreedException">Thrown when <paramref name="memoryPointer"/> is <c>null</c>.</exception>
+    /// <exception cref="NativeMemoryAlreadyFreedException">Thrown when <paramref name="memoryPointer"/> is <see langword="null"/>.</exception>
     [StackTraceHidden]
     [ExcludeFromCodeCoverage]
     public static unsafe void ThrowIfNullPointer<T>(T* memoryPointer)

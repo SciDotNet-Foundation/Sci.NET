@@ -12,7 +12,6 @@ namespace Sci.NET.Mathematics.Runtime;
 /// <summary>
 /// A helper class for resolving native library paths.
 /// </summary>
-[PublicAPI]
 [ExcludeFromCodeCoverage]
 public static class RuntimeDllImportResolver
 {
@@ -33,7 +32,7 @@ public static class RuntimeDllImportResolver
 
         var searchDirectory = subdirectory is null ? assemblyDirectory : Path.Combine(assemblyDirectory, subdirectory);
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (OperatingSystem.IsWindows())
         {
             if (TryLoadWindowsLibrary(
                     libraryName,
@@ -47,7 +46,7 @@ public static class RuntimeDllImportResolver
             throw new InvalidOperationException("The native library could not be loaded.");
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        if (OperatingSystem.IsLinux())
         {
             if (TryLoadLinuxLibrary(
                     libraryName,

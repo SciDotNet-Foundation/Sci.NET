@@ -10,7 +10,6 @@ namespace Sci.NET.Mathematics.Attributes;
 /// An attribute describing the resultant shape of an <see cref="ITensor{TNumber}"/>
 /// for a parameter of a function.
 /// </summary>
-[PublicAPI]
 [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
 [ExcludeFromCodeCoverage]
 public sealed class ProducesShapeAttribute : Attribute

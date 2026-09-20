@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Tensors.Statistics;
 /// <summary>
 /// Service for tensor variance.
 /// </summary>
-[PublicAPI]
 public interface IVarianceService
 {
     /// <summary>

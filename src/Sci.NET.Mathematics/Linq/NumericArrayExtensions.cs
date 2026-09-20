@@ -21,7 +21,7 @@ public static class NumericArrayExtensions
     {
         var enumerable = source.ToList();
 
-        return enumerable.Count == 0 ? TNumber.One : enumerable.Aggregate((a, b) => a * b);
+        return enumerable.Count == 0 ? TNumber.One : enumerable.Aggregate(static (a, b) => a * b);
     }
 
     /// <summary>
@@ -41,7 +41,7 @@ public static class NumericArrayExtensions
             throw new InvalidOperationException("Sequence contains no elements");
         }
 
-        var sum = enumerable.Aggregate((a, b) => a + b);
+        var sum = enumerable.Aggregate(static (a, b) => a + b);
         return sum / TNumber.CreateChecked(enumerable.Count);
     }
 
@@ -54,6 +54,6 @@ public static class NumericArrayExtensions
     public static TNumber Sum<TNumber>(this IEnumerable<TNumber> array)
         where TNumber : INumber<TNumber>
     {
-        return array.Aggregate(TNumber.Zero, (current, half) => current + half);
+        return array.Aggregate(TNumber.Zero, static (current, half) => current + half);
     }
 }

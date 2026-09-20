@@ -10,7 +10,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// An interface for random kernels.
 /// </summary>
-[PublicAPI]
 public interface IRandomKernels
 {
     /// <summary>

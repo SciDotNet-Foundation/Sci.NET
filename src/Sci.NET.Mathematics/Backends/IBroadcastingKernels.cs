@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// An interface for broadcasting kernels.
 /// </summary>
-[PublicAPI]
 public interface IBroadcastingKernels
 {
     /// <summary>

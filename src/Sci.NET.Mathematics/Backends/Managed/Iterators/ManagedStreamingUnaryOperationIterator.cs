@@ -1,7 +1,6 @@
 // Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.Intrinsics.X86;
 using Sci.NET.Mathematics.Backends.Devices;
@@ -13,7 +12,6 @@ namespace Sci.NET.Mathematics.Backends.Managed.Iterators;
 
 internal static class ManagedStreamingUnaryOperationIterator
 {
-    [SuppressMessage("Style", "IDE0010:Add missing cases", Justification = "Reviewed")]
     public static unsafe void Apply<TOp, TNumber>(TNumber* inputPtr, TNumber* resultPtr, long n, ICpuComputeDevice device)
         where TOp : IUnaryOperation<TNumber>, IUnaryOperationAvx2
         where TNumber : unmanaged, INumber<TNumber>

@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Tensors.LinearAlgebra;
 /// <summary>
 /// An interface for linear algebra operations.
 /// </summary>
-[PublicAPI]
 public interface IHypotService
 {
     /// <summary>

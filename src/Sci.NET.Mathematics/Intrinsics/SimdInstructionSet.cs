@@ -7,7 +7,6 @@ namespace Sci.NET.Mathematics.Intrinsics;
 /// Represents the SIMD instruction set available on the current platform.
 /// </summary>
 [Flags]
-[PublicAPI]
 public enum SimdInstructionSet
 {
     /// <summary>

@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// An interface for <see cref="ITensor{TNumber}"/> locality operations.
 /// </summary>
-[PublicAPI]
 public interface ITensorLocalityOperations : IDisposable
 {
     /// <summary>

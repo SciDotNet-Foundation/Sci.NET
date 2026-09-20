@@ -226,21 +226,21 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
                 0,
                 numTiles,
                 ManagedTensorBackend.MaxDegreeOfParallelism,
-                () =>
+                static () =>
                 {
                     var aBuffer = (float*)NativeMemory.AlignedAlloc(MatrixMultiplyMcFp32 * MatrixMultiplyKcFp32 * sizeof(float), 32);
                     var bBuffer = (float*)NativeMemory.AlignedAlloc(MatrixMultiplyKcFp32 * MatrixMultiplyNcFp32 * sizeof(float), 32);
 
-                    return new Panel2dFp32(aBuffer, bBuffer);
+                    return new Panel2DFp32(aBuffer, bBuffer);
                 },
                 InnerLoop,
-                panel =>
+                static panel =>
                 {
                     NativeMemory.AlignedFree(panel.A);
                     NativeMemory.AlignedFree(panel.B);
                 });
 
-        void InnerLoop(int tileIdx, Panel2dFp32 panels)
+        void InnerLoop(int tileIdx, Panel2DFp32 panels)
         {
             var mBase = tileIdx * MatrixMultiplyMcFp32;
             var mTile = Math.Min(MatrixMultiplyMcFp32, m - mBase);
@@ -310,22 +310,22 @@ internal class ManagedLinearAlgebraKernels : ILinearAlgebraKernels
             0,
             numTiles,
             ManagedTensorBackend.MaxDegreeOfParallelism,
-            () =>
+            static () =>
             {
                 var aBuffer = (double*)NativeMemory.AlignedAlloc(MatrixMultiplyMcFp64 * MatrixMultiplyKcFp64 * sizeof(double), 32);
                 var bBuffer = (double*)NativeMemory.AlignedAlloc(MatrixMultiplyKcFp64 * MatrixMultiplyNcFp64 * sizeof(double), 32);
 
-                return new Panel2dFp64(aBuffer, bBuffer);
+                return new Panel2DFp64(aBuffer, bBuffer);
             },
             InnerLoop,
-            panel =>
+            static panel =>
             {
                 NativeMemory.AlignedFree(panel.A);
                 NativeMemory.AlignedFree(panel.B);
             });
 
         [MethodImpl(ImplementationOptions.HotPath)]
-        void InnerLoop(int tileIdx, Panel2dFp64 panels)
+        void InnerLoop(int tileIdx, Panel2DFp64 panels)
         {
             var mBase = tileIdx * MatrixMultiplyMcFp64;
             var mTile = Math.Min(MatrixMultiplyMcFp64, m - mBase);

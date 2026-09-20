@@ -2,6 +2,7 @@
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -17,7 +18,6 @@ namespace Sci.NET.Mathematics.Memory;
 /// <typeparam name="T">The type of elements stored in the <see cref="IMemoryBlock{T}"/>.</typeparam>
 [DebuggerDisplay("{ToString(),raw}")]
 [DebuggerTypeProxy(typeof(SystemMemoryBlockDebugView<>))]
-[PublicAPI]
 public sealed class SystemMemoryBlock<T> : IMemoryBlock<T>, IEquatable<SystemMemoryBlock<T>>
     where T : unmanaged
 {
@@ -144,11 +144,7 @@ public sealed class SystemMemoryBlock<T> : IMemoryBlock<T>, IEquatable<SystemMem
         var bufferPtr = Unsafe.AsPointer(ref MemoryMarshal.GetArrayDataReference(buffer));
         var dataPtr = Unsafe.AsPointer(ref Unsafe.Add(ref Unsafe.AsRef<T>(Pointer), (nuint)start));
 
-        Buffer.MemoryCopy(
-            bufferPtr,
-            dataPtr,
-            Length * Unsafe.SizeOf<T>(),
-            bytesToCopy);
+        Buffer.MemoryCopy(bufferPtr, dataPtr, Length * Unsafe.SizeOf<T>(), bytesToCopy);
     }
 
     /// <inheritdoc />
@@ -158,7 +154,7 @@ public sealed class SystemMemoryBlock<T> : IMemoryBlock<T>, IEquatable<SystemMem
 
         if (Length == 0)
         {
-            return Array.Empty<T>();
+            return [];
         }
 
         var result = new T[Length];
@@ -193,22 +189,22 @@ public sealed class SystemMemoryBlock<T> : IMemoryBlock<T>, IEquatable<SystemMem
             throw new ArgumentException("Source must have the same length as the destination.", nameof(source));
         }
 
-        Buffer.MemoryCopy(
-            source.Pointer,
-            Pointer,
-            Length * Unsafe.SizeOf<T>(),
-            Length * Unsafe.SizeOf<T>());
+        Buffer.MemoryCopy(source.Pointer, Pointer, Length * Unsafe.SizeOf<T>(), Length * Unsafe.SizeOf<T>());
     }
 
     /// <inheritdoc />
     public unsafe void CopyFrom(T[] array)
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        ArgumentException.ThrowIfNullOrEmpty(nameof(array));
 
         if (array.Length != Length)
         {
             throw new ArgumentException("Array must have the same length as the source.", nameof(array));
+        }
+
+        if (Length == 0)
+        {
+            return;
         }
 
         Buffer.MemoryCopy(
@@ -263,7 +259,9 @@ public sealed class SystemMemoryBlock<T> : IMemoryBlock<T>, IEquatable<SystemMem
 
         if (byteLength != storedDataLength)
         {
-            throw new ArgumentException("The stored data length must be the same as the length of the memory block.", nameof(storedDataLength));
+            throw new ArgumentException(
+                "The stored data length must be the same as the length of the memory block.",
+                nameof(storedDataLength));
         }
 
         _ = stream.Seek(startOffset, SeekOrigin.Begin);
@@ -301,7 +299,8 @@ public sealed class SystemMemoryBlock<T> : IMemoryBlock<T>, IEquatable<SystemMem
 
         if (handle is not SystemMemoryBlock<T> memoryBlock)
         {
-            throw new InvalidOperationException($"Cannot copy from {handle.GetType().Name} to {GetType().Name}.");
+            throw new InvalidOperationException(
+                $"Cannot copy from {handle.GetType().Name} to {typeof(SystemMemoryBlock<T>).Name}.");
         }
 
         Buffer.MemoryCopy(
@@ -327,11 +326,7 @@ public sealed class SystemMemoryBlock<T> : IMemoryBlock<T>, IEquatable<SystemMem
 
         fixed (byte* byteSource = buffer)
         {
-            Buffer.MemoryCopy(
-                byteSource + srcIdx,
-                byteDestination,
-                count,
-                count);
+            Buffer.MemoryCopy(byteSource + srcIdx, byteDestination, count, count);
         }
     }
 
@@ -375,15 +370,11 @@ public sealed class SystemMemoryBlock<T> : IMemoryBlock<T>, IEquatable<SystemMem
             throw new ArgumentException("Destination must have the same length as the source.", nameof(destination));
         }
 
-        Buffer.MemoryCopy(
-            Pointer,
-            systemMemoryBlock.Pointer,
-            Length * Unsafe.SizeOf<T>(),
-            Length * Unsafe.SizeOf<T>());
+        Buffer.MemoryCopy(Pointer, systemMemoryBlock.Pointer, Length * Unsafe.SizeOf<T>(), Length * Unsafe.SizeOf<T>());
     }
 
-    /// <inheritdoc cref="IValueEquatable{T}.Equals(object?)" />
-    public override bool Equals(object? obj)
+    /// <inheritdoc />
+    public override bool Equals([NotNullWhen(true)] object? obj)
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
 
@@ -391,7 +382,7 @@ public sealed class SystemMemoryBlock<T> : IMemoryBlock<T>, IEquatable<SystemMem
     }
 
     /// <inheritdoc cref="IValueEquatable{T}.Equals(T)" />
-    public unsafe bool Equals(SystemMemoryBlock<T>? other)
+    public unsafe bool Equals([NotNullWhen(true)] SystemMemoryBlock<T>? other)
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         ObjectDisposedException.ThrowIf(other?.IsDisposed ?? false, other ?? this);
@@ -477,7 +468,8 @@ public sealed class SystemMemoryBlock<T> : IMemoryBlock<T>, IEquatable<SystemMem
 
         if (Length > int.MaxValue)
         {
-            throw new InvalidOperationException($"Cannot create a span larger than int.MaxValue ({int.MaxValue}) elements.");
+            throw new InvalidOperationException(
+                $"Cannot create a span larger than int.MaxValue ({int.MaxValue}) elements.");
         }
 
         return new Span<T>(Pointer, (int)Length);
@@ -510,7 +502,7 @@ public sealed class SystemMemoryBlock<T> : IMemoryBlock<T>, IEquatable<SystemMem
     public unsafe Vector<T> LoadVector(long i)
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(i + Vector<T>.Count, Length);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(i, Length - Vector<T>.Count);
         ArgumentOutOfRangeException.ThrowIfLessThan(i, 0);
 
         return Vector.Load(Pointer + i);
@@ -536,7 +528,7 @@ public sealed class SystemMemoryBlock<T> : IMemoryBlock<T>, IEquatable<SystemMem
     public unsafe void StoreVector(long i, Vector<T> vector)
     {
         ObjectDisposedException.ThrowIf(IsDisposed, this);
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(i + Vector<T>.Count, Length);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(i, Length - Vector<T>.Count);
         ArgumentOutOfRangeException.ThrowIfLessThan(i, 0);
 
         vector.Store(Pointer + i);

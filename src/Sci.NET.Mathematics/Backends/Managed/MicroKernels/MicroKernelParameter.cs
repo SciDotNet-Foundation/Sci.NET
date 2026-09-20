@@ -1,6 +1,7 @@
 // Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.Intrinsics;
 using Sci.NET.Mathematics.Comparison;
@@ -87,7 +88,7 @@ public readonly struct MicroKernelParameter<TNumber> : IValueEquatable<MicroKern
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override bool Equals([NotNullWhen(true)] object? obj)
     {
         return obj is MicroKernelParameter<TNumber> other && Equals(other);
     }

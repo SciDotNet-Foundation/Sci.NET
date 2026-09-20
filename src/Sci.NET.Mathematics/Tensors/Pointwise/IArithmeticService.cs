@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Tensors.Pointwise;
 /// <summary>
 /// An interface providing methods for <see cref="ITensor{TNumber}"/> arithmetic operations.
 /// </summary>
-[PublicAPI]
 public interface IArithmeticService
 {
     /// <summary>

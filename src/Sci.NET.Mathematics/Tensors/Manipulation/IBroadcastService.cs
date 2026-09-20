@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Tensors.Manipulation;
 /// <summary>
 /// An interface providing methods to broadcast <see cref="ITensor{TNumber}"/> instances.
 /// </summary>
-[PublicAPI]
 public interface IBroadcastService
 {
     /// <summary>

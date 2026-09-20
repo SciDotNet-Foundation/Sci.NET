@@ -18,24 +18,21 @@ internal class ReshapeService : IReshapeService
     public ITensor<TNumber> Reshape<TNumber>(ITensor<TNumber> tensor, Shape shape, bool? overrideRequiresGradient = null)
         where TNumber : unmanaged, INumber<TNumber>
     {
-        switch (shape.Count(x => x == -1))
+        switch (shape.Count(static x => x == -1))
         {
             case > 1:
-                throw new ArgumentException("Only one dimension can be inferred from the shape.");
+                throw new ArgumentException("Only one dimension can be inferred from the shape.",  nameof(shape));
             case 1:
-                var totalKnownElements = shape.Where(x => x != -1).Aggregate(1, (x, y) => x * y);
+                var totalKnownElements = shape.Where(static x => x != -1).Aggregate(1, static (x, y) => x * y);
                 var inferredDimension = (int)(tensor.Shape.ElementCount / totalKnownElements);
-                shape = new Shape(shape.Dimensions.Select(x => x == -1 ? inferredDimension : x).ToArray());
-                break;
-            default:
-                // Nothing to do.
+                shape = new Shape([.. shape.Dimensions.Select(x => x == -1 ? inferredDimension : x)]);
                 break;
         }
 
         tensor.DetachMemory();
 
         var returnValue = shape.ElementCount != tensor.Shape.ElementCount
-            ? throw new ArgumentException("The number of elements in a reshape operation must not change.")
+            ? throw new ArgumentException("The number of elements in a reshape operation must not change.", nameof(shape))
             : new Tensor<TNumber>(tensor, shape, overrideRequiresGradient);
 
         _gradientAppenderService.AddGradientIfRequired(

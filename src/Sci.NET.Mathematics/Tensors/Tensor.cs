@@ -16,7 +16,6 @@ namespace Sci.NET.Mathematics.Tensors;
 /// <summary>
 /// Provides static methods for manipulating tensors.
 /// </summary>
-[PublicAPI]
 public static class Tensor
 {
     /// <summary>
@@ -388,7 +387,7 @@ public static class Tensor
         where TNumber : unmanaged, INumber<TNumber>
     {
         return tensor.Shape.IsScalar ||
-               tensor.Shape.Dimensions.All(x => x == 1);
+               tensor.Shape.Dimensions.All(static x => x == 1);
     }
 
     /// <summary>
@@ -401,7 +400,7 @@ public static class Tensor
         where TNumber : unmanaged, INumber<TNumber>
     {
         return tensor.Shape.IsVector ||
-               tensor.Shape.Dimensions.Count(x => x != 1) == 1;
+               tensor.Shape.Dimensions.Count(static x => x != 1) == 1;
     }
 
     /// <summary>
@@ -414,7 +413,7 @@ public static class Tensor
         where TNumber : unmanaged, INumber<TNumber>
     {
         return tensor.Shape.IsMatrix ||
-               tensor.Shape.Dimensions.Count(x => x != 0) == 2;
+               tensor.Shape.Dimensions.Count(static x => x != 0) == 2;
     }
 
     /// <summary>
@@ -473,7 +472,7 @@ public static class Tensor
                 elements.Add($"{tensor.Memory[index + (i * tensor.Shape.Strides[dimension])]}");
             }
 
-            return $"[{string.Join(",", elements)}]";
+            return $"[{string.Join(',', elements)}]";
         }
         else
         {
@@ -483,7 +482,7 @@ public static class Tensor
                 elements.Add(ConvertToString(tensor, dimension + 1, index + (i * tensor.Shape.Strides[dimension])));
             }
 
-            return $"[{string.Join(",", elements)}]";
+            return $"[{string.Join(',', elements)}]";
         }
     }
 }

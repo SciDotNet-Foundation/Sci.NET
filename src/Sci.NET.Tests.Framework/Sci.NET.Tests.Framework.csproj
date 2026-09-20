@@ -7,6 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentAssertions"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\Sci.NET.Mathematics\Sci.NET.Mathematics.csproj"/>
     </ItemGroup>
 
