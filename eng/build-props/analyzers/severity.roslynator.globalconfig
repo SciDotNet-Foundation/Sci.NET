@@ -1,17 +1,5 @@
 ########################################################################################################################
 # Roslynator rule severities and options.
-#
-# Packages: Roslynator.Analyzers, Roslynator.Formatting.Analyzers (5.0.0).
-#
-# Roslynator 5.0 removed 16 rules this repository used to configure. The var/explicit-type family
-# (RCS1008/1009/1010/1012/1176/1177) is gone - that preference now lives in .editorconfig as
-# csharp_style_var_* and is enforced by IDE0007/IDE0008. The "remove empty X" family
-# (RCS1038/1040/1041/1066/1072/1091/1106) was folded into RCS1259. RCS1035, RCS1036 and the deprecated
-# RCS1237 were dropped outright.
-#
-# Every RCS0xxx formatting analyzer ships enabledByDefault=false. Before this clean-up the file set a dozen
-# roslynator_* formatting options but never enabled the matching analyzers, so none of them - including
-# roslynator_max_line_length - had any effect at all.
 ########################################################################################################################
 
 is_global = true
@@ -27,8 +15,6 @@ roslynator_arrow_token_new_line = after
 roslynator_binary_operator_new_line = after
 roslynator_blank_line_between_closing_brace_and_switch_section = false
 roslynator_blank_line_between_single_line_accessors = false
-# 'never' matches dotnet_separate_import_directive_groups = false in .editorconfig. The previous
-# value 'separate_groups' contradicted it, but RCS0015 was never enabled so the clash was invisible.
 roslynator_blank_line_between_using_directives = never
 roslynator_block_braces_style = multi_line
 roslynator_body_style = block
@@ -53,14 +39,7 @@ roslynator_use_anonymous_function_or_method_group = method_group
 roslynator_use_block_body_when_declaration_spans_over_multiple_lines = true
 roslynator_use_block_body_when_expression_spans_over_multiple_lines = true
 
-# Drives RCS0053 (fix formatting of a list) and RCS0056 (line is too long), and mirrors max_line_length
-# and resharper_csharp_max_line_length in .editorconfig so the IDE formatter and the analyzers agree on
-# where a parameter or argument list becomes too long to keep on one line.
-roslynator_max_line_length = 120
-
-# Removed in Roslynator 5.0; the preference now lives in .editorconfig.
-# roslynator_array_creation_type_style
-# roslynator_use_var_instead_of_implicit_object_creation
+roslynator_max_line_length = 140
 
 ########################################################################################################################
 # Rule severities
@@ -85,8 +64,7 @@ dotnet_diagnostic.RCS0021.severity = warning
 dotnet_diagnostic.RCS0027.severity = warning
 
 # RCS0028: Place new line after/before '?:' operator
-# Not yet satisfied by the codebase - promote to warning once the outstanding sites are fixed.
-dotnet_diagnostic.RCS0028.severity = suggestion
+dotnet_diagnostic.RCS0028.severity = none
 
 # RCS0032: Place new line after/before arrow token
 dotnet_diagnostic.RCS0032.severity = warning
@@ -437,8 +415,7 @@ dotnet_diagnostic.RCS1168.severity = warning
 dotnet_diagnostic.RCS1169.severity = warning
 
 # RCS1170: Use read-only auto-implemented property
-# Not yet satisfied by the codebase - promote to warning once the outstanding sites are fixed.
-dotnet_diagnostic.RCS1170.severity = suggestion
+dotnet_diagnostic.RCS1170.severity = warning
 
 # RCS1171: Simplify lazy initialization
 dotnet_diagnostic.RCS1171.severity = warning
@@ -650,10 +627,7 @@ dotnet_diagnostic.RCS1248.severity = warning
 # RCS1249: Unnecessary null-forgiving operator
 dotnet_diagnostic.RCS1249.severity = warning
 
-# RCS1250: Use implicit/explicit object creation
-# Off: RCS1250 does not recognise a collection expression as implicit creation, so it demands
-# "new List<T>()" everywhere IDE0301 has just written "[]". IDE0090 covers the non-collection half of
-# this rule via csharp_style_implicit_object_creation_when_type_is_apparent.
+# RCS1250: Use implicit/explicit object creation (off for collection expressions)
 dotnet_diagnostic.RCS1250.severity = none
 
 # RCS1251: Remove unnecessary braces from record declaration

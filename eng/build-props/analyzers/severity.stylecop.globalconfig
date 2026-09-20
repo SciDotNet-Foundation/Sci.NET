@@ -1,20 +1,5 @@
 ########################################################################################################################
 # StyleCop rule severities.
-#
-# Package: StyleCop.Analyzers 1.2.0-beta.556 (meta-package over StyleCop.Analyzers.Unstable 1.2.0.556).
-# Additional settings live in stylecop.json, which AddAnalyzers.props passes in as an AdditionalFile.
-#
-# Four IDs configured here previously did not exist in StyleCop at all, so those lines were no-ops:
-#   SA1215  - merged into SA1214 long ago.
-#   SA1315  - the tuple-element-casing rule is SA1316, which is configured below.
-#   SX1102  - the "field names should begin with underscore" rule is SX1309.
-#   SX1103  - the static equivalent is SX1309S.
-# SX1309/SX1309S are now configured properly, so the _camelCase field convention is actually enforced
-# rather than merely intended.
-#
-# NOTE ON STALENESS: 1.2.0-beta.556 is the newest published StyleCop.Analyzers and has been since 2022.
-# It predates collection expressions, primary constructors and file-scoped types, so a handful of SA15xx
-# layout rules can misfire on newer syntax. Nothing to do today, but it is the weakest link in this set.
 ########################################################################################################################
 
 is_global = true

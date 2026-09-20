@@ -1,11 +1,5 @@
 ########################################################################################################################
 # .NET analyzer (CAxxxx), code-style (IDExxxx) and compiler rule severities.
-#
-# Packages: Microsoft.CodeAnalysis.NetAnalyzers, Microsoft.VisualStudio.Threading.Analyzers, plus the
-# IDExxxx rules built into the SDK (enabled by EnforceCodeStyleInBuild in AddAnalyzers.props).
-#
-# Style *preferences* (csharp_style_*, dotnet_style_*) live in the repository-root .editorconfig. Only severities
-# belong here. This file is the single owner of the dotnet_analyzer_diagnostic.category-* blanket settings.
 ########################################################################################################################
 
 is_global = true
@@ -13,10 +7,6 @@ global_level = 100
 
 ########################################################################################################################
 # Category defaults
-#
-# AddAnalyzers.props sets AnalysisMode=AllEnabledByDefault, so every CA rule is already on at its shipped
-# severity and TreatWarningsAsErrors promotes it to an error. These four lines additionally pin the IDExxxx
-# code-style rules, which the analysis mode does not cover, to error.
 ########################################################################################################################
 
 dotnet_analyzer_diagnostic.category-Style.severity = error
@@ -28,11 +18,10 @@ dotnet_analyzer_diagnostic.category-Security.severity = error
 # Design
 #----------------------------------------------------------------------------------------------------------------------
 
-# CA1021: Avoid out parameters - Try* patterns and in-place kernel outputs use them deliberately.
+# CA1021: Avoid out parameters
 dotnet_diagnostic.CA1021.severity = none
 
-# CA1024: Use properties where appropriate - service-provider accessors are intentionally methods.
-# Was suppressed with #pragma in 3 files.
+# CA1024: Use properties where appropriate
 dotnet_diagnostic.CA1024.severity = none
 
 # CA1031: Do not catch general exception types
@@ -41,28 +30,27 @@ dotnet_diagnostic.CA1031.severity = none
 # CA1032: Implement standard exception constructors
 dotnet_diagnostic.CA1032.severity = none
 
-# CA1043: Use integral or string argument for indexers - tensors index by int[], Range and ranges of indices.
-# Was suppressed with #pragma in 5 files.
+# CA1043: Use integral or string argument for indexers
 dotnet_diagnostic.CA1043.severity = none
 
 # CA1054/CA1055: URI parameters and return types
 dotnet_diagnostic.CA1054.severity = none
 dotnet_diagnostic.CA1055.severity = none
 
-# CA1062: Validate arguments of public methods - nullable reference types cover this.
+# CA1062: Validate arguments of public methods
 dotnet_diagnostic.CA1062.severity = none
 
-# CA1515: Consider making public types internal - this is a published library, so public is the point.
-dotnet_diagnostic.CA1515.severity = none
+# CA1515: Consider making public types internal
+dotnet_diagnostic.CA1515.severity = suggestion
 
 # CA1716: Identifiers should not match keywords
-dotnet_diagnostic.CA1716.severity = none
+dotnet_diagnostic.CA1716.severity = warning
 
-# CA1819: Properties should not return arrays - shapes and strides are returned as arrays by design.
+# CA1819: Properties should not return arrays
 dotnet_diagnostic.CA1819.severity = none
 
 # CA2225: Operator overloads have named alternates
-dotnet_diagnostic.CA2225.severity = none
+dotnet_diagnostic.CA2225.severity = suggestion
 
 #----------------------------------------------------------------------------------------------------------------------
 # Performance
@@ -75,15 +63,13 @@ dotnet_diagnostic.CA1861.severity = none
 # Reliability and maintainability
 #----------------------------------------------------------------------------------------------------------------------
 
-# CA2000: Dispose objects before losing scope. Kept visible in the IDE but not build-breaking: the analyzer cannot
-# see through the factory methods that return freshly allocated tensors, which produced 5 #pragma suppressions.
-dotnet_diagnostic.CA2000.severity = suggestion
+# CA2000: Dispose objects before losing scope
+dotnet_diagnostic.CA2000.severity = warning
 
-# CA1508: Avoid dead conditional code. Same reason - heavy false positives on generic math comparisons.
+# CA1508: Avoid dead conditional code
 dotnet_diagnostic.CA1508.severity = suggestion
 
 # CA2007: Do not directly await a Task - no synchronisation context in a compute library.
-# Roslynator RCS1090 is disabled for the same reason; previously the two disagreed.
 dotnet_diagnostic.CA2007.severity = none
 
 # CA2234: Pass System.Uri objects instead of strings
@@ -91,30 +77,22 @@ dotnet_diagnostic.CA2234.severity = none
 
 #----------------------------------------------------------------------------------------------------------------------
 # Security
-#
-# Sci.NET is a numerics library with no security boundary: "randomness" here means sampling and test fixtures.
 #----------------------------------------------------------------------------------------------------------------------
 
 # CA5392: Use DefaultDllImportSearchPaths attribute for P/Invokes
 dotnet_diagnostic.CA5392.severity = none
 
-# CA5394: Do not use insecure randomness. Was suppressed with [SuppressMessage] in 6 test files.
+# CA5394: Do not use insecure randomness.
 dotnet_diagnostic.CA5394.severity = none
 
 #----------------------------------------------------------------------------------------------------------------------
 # Code style - formatting
-#
-# IDE0055 stays off because StyleCop's SA10xx/SA15xx rules own whitespace and the two disagree on details.
 #----------------------------------------------------------------------------------------------------------------------
 
 dotnet_diagnostic.IDE0055.severity = none
 
 #----------------------------------------------------------------------------------------------------------------------
 # Code style - collection expressions
-#
-# Previously IDE0028/IDE0300/IDE0301/IDE0303/IDE0305 were all "none" while IDE0302 and IDE0304 were left to
-# inherit "error" from category-Style, so the family was half on and half off. Collection expressions are now
-# the preferred form throughout; see dotnet_style_prefer_collection_expression in .editorconfig.
 #----------------------------------------------------------------------------------------------------------------------
 
 # IDE0028: Use collection initializer
@@ -135,53 +113,48 @@ dotnet_diagnostic.IDE0303.severity = warning
 # IDE0304: Use collection expression for builder
 dotnet_diagnostic.IDE0304.severity = warning
 
-# IDE0305: Use collection expression for fluent. Suggestion only - it rewrites LINQ chains ending in
-# ToArray()/ToList() into spread elements, which reads worse in the tensor pipelines.
+# IDE0305: Use collection expression for fluent
 dotnet_diagnostic.IDE0305.severity = suggestion
 
 #----------------------------------------------------------------------------------------------------------------------
 # Code style - constructs deliberately not adopted
 #----------------------------------------------------------------------------------------------------------------------
 
-# IDE0290: Use primary constructor - explicitly not wanted.
+# IDE0290: Use primary constructor
 dotnet_diagnostic.IDE0290.severity = none
 
-# IDE0008: Use explicit type instead of var - the var policy is expressed by csharp_style_var_* and IDE0007.
+# IDE0008: Use explicit type instead of var (covered by by csharp_style_var_* and IDE0007)
 dotnet_diagnostic.IDE0008.severity = none
 
-# IDE0023/IDE0024: Use expression body for conversion/operator - covered by csharp_style_expression_bodied_operators.
+# IDE0023/IDE0024: Use expression body for conversion/operator (covered by csharp_style_expression_bodied_operators)
 dotnet_diagnostic.IDE0023.severity = none
 dotnet_diagnostic.IDE0024.severity = none
 
-# IDE0046: Use conditional expression for return - hurts readability in branch-heavy kernel code.
+# IDE0046: Use conditional expression for return
 dotnet_diagnostic.IDE0046.severity = none
 
 # IDE0200: Remove unnecessary lambda expression
 dotnet_diagnostic.IDE0200.severity = none
 
-# IDE0010: Add missing cases to switch statement. Dispatch switches are exhaustive over internal enums and
-# end in a throwing default. Suggestion rather than none so genuinely missing cases still surface.
-# Was suppressed with [SuppressMessage] in 5 files.
+# IDE0010: Add missing cases to switch statement.
 dotnet_diagnostic.IDE0010.severity = suggestion
 
-# IDE0130: Namespace does not match folder structure. The public extension-method surface is deliberately
-# flattened into Sci.NET.Mathematics.Tensors regardless of folder. Was suppressed with #pragma in 17 places.
-dotnet_diagnostic.IDE0130.severity = none
-dotnet_style_namespace_match_folder = false
+# IDE0130: Namespace does not match folder structure.
+dotnet_diagnostic.IDE0130.severity = suggestion
+dotnet_style_namespace_match_folder = true
 
 #----------------------------------------------------------------------------------------------------------------------
 # Compiler diagnostics
 #----------------------------------------------------------------------------------------------------------------------
 
-# CS1591: Missing XML comment for publicly visible type or member. Warning rather than error so a missing doc
-# comment does not block a local build; CI still fails on it via TreatWarningsAsErrors.
+# CS1591: Missing XML comment for publicly visible type or member.
 dotnet_diagnostic.CS1591.severity = warning
 
 # CS8509: Switch expression does not handle all possible values
-dotnet_diagnostic.CS8509.severity = none
+dotnet_diagnostic.CS8509.severity = suggestion
 
 # SYSLIB1054: Use LibraryImportAttribute instead of DllImportAttribute
-dotnet_diagnostic.SYSLIB1054.severity = none
+dotnet_diagnostic.SYSLIB1054.severity = warning
 
 #----------------------------------------------------------------------------------------------------------------------
 # NuGet

@@ -1,23 +1,12 @@
 ########################################################################################################################
-# Benchmark project overlay.
-#
-# Applied on top of the severity.*.globalconfig family for projects whose name ends in "Benchmarks".
-# Sits at level 300 rather than 200 so that it resolves deterministically against the test overlay even
-# though Directory.Build.props never marks a project as both.
-#
-# Previously the benchmark projects were handed severity.tests.globalconfig, which relaxed xUnit-shaped rules
-# that benchmarks never hit while leaving the BenchmarkDotNet-shaped ones (CA1001, CA1822, CA1024) in force.
-# That mismatch is what the [SuppressMessage] attributes in Sci.NET.Benchmarks were working around.
+# Benchmark projects
 ########################################################################################################################
 
 is_global = true
 global_level = 300
 
 #----------------------------------------------------------------------------------------------------------------------
-# BenchmarkDotNet mechanics
-#
-# BenchmarkDotNet instantiates the class itself and drives setup/cleanup through [GlobalSetup] and
-# [GlobalCleanup], so the usual ownership and staticness rules do not apply.
+# BenchmarkDotNet design specific rules
 #----------------------------------------------------------------------------------------------------------------------
 
 # CA1001: Types that own disposable fields should be disposable - [GlobalCleanup] releases them.
@@ -38,17 +27,15 @@ dotnet_diagnostic.CA2000.severity = none
 # CA1814: Prefer jagged arrays over multidimensional
 dotnet_diagnostic.CA1814.severity = none
 
-# IDE0058: Expression value is never used - benchmark bodies exist for their side effects.
+# IDE0058: Expression value is never used
 dotnet_diagnostic.IDE0058.severity = none
 
-# RCS1213 / IDE0051: Unused member - [Params] fields are assigned by the harness through reflection.
+# RCS1213 / IDE0051: Unused member - [Params] fields are assigned violate this rule.
 dotnet_diagnostic.RCS1213.severity = none
 dotnet_diagnostic.IDE0051.severity = none
 
 #----------------------------------------------------------------------------------------------------------------------
 # Naming and documentation
-#
-# Benchmarks are not public API and their names encode the scenario.
 #----------------------------------------------------------------------------------------------------------------------
 
 # CA1707: Identifiers should not contain underscores
@@ -94,9 +81,6 @@ dotnet_diagnostic.CS1591.severity = none
 # RCS1163: Unused parameter
 dotnet_diagnostic.RCS1163.severity = none
 
-# MA0084: Local variables should not hide other symbols
-dotnet_diagnostic.MA0084.severity = none
-
-# MA0105/MA0106: Closure allocation warnings - a benchmark may be measuring exactly that.
+# MA0105/MA0106: Closure allocation warnings
 dotnet_diagnostic.MA0105.severity = none
 dotnet_diagnostic.MA0106.severity = none

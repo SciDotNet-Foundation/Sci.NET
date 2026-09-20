@@ -1,16 +1,5 @@
 ########################################################################################################################
 # Meziantou.Analyzer rule severities.
-#
-# Package: Meziantou.Analyzer 3.0.262.
-#
-# Meziantou ships ~236 rules, 176 of them enabled by default, and reuses the standard Design/Usage/Performance/
-# Style categories. That means a category-level default would collide with the CA and IDE settings in
-# severity.dotnet.globalconfig, so every rule is listed explicitly here instead.
-#
-# The policy is opt-in: MA rules default to "none" and are turned on one at a time. Rules that merely restate
-# something Roslynator, StyleCop or the .NET analyzers already enforce stay off, so a violation is reported once
-# rather than three times. Rules that would contradict a preference set elsewhere are listed at the bottom with
-# the reason.
 ########################################################################################################################
 
 is_global = true
@@ -36,7 +25,7 @@ dotnet_diagnostic.MA0168.severity = warning
 dotnet_diagnostic.MA0189.severity = warning
 
 # MA0209: Use in keyword for in parameter
-dotnet_diagnostic.MA0209.severity = suggestion
+dotnet_diagnostic.MA0209.severity = warning
 
 # MA0210: Use in keyword to call the in overload
 dotnet_diagnostic.MA0210.severity = suggestion
@@ -67,8 +56,7 @@ dotnet_diagnostic.MA0097.severity = warning
 dotnet_diagnostic.MA0103.severity = warning
 
 # MA0186: Equals method should use [NotNullWhen(true)] on the parameter
-# 9 outstanding site(s) - promote to warning once they are fixed.
-dotnet_diagnostic.MA0186.severity = suggestion
+dotnet_diagnostic.MA0186.severity = warning
 
 #----------------------------------------------------------------------------------------------------------------------
 # Numeric correctness
@@ -91,8 +79,7 @@ dotnet_diagnostic.MA0105.severity = warning
 dotnet_diagnostic.MA0106.severity = warning
 
 # MA0217: Use a static lambda
-# 66 outstanding site(s) - promote to warning once they are fixed.
-dotnet_diagnostic.MA0217.severity = suggestion
+dotnet_diagnostic.MA0217.severity = warning
 
 #----------------------------------------------------------------------------------------------------------------------
 # LINQ and collections
@@ -108,8 +95,7 @@ dotnet_diagnostic.MA0029.severity = warning
 dotnet_diagnostic.MA0030.severity = warning
 
 # MA0031: Optimize Enumerable.Count() usage
-# 6 outstanding site(s) - promote to warning once they are fixed.
-dotnet_diagnostic.MA0031.severity = suggestion
+dotnet_diagnostic.MA0031.severity = none
 
 # MA0063: Use Where before OrderBy
 dotnet_diagnostic.MA0063.severity = warning
@@ -140,8 +126,7 @@ dotnet_diagnostic.MA0013.severity = warning
 dotnet_diagnostic.MA0014.severity = warning
 
 # MA0015: Specify the parameter name in ArgumentException
-# 14 outstanding site(s) - promote to warning once they are fixed.
-dotnet_diagnostic.MA0015.severity = suggestion
+dotnet_diagnostic.MA0015.severity = warning
 
 # MA0043: Use nameof operator in ArgumentException
 dotnet_diagnostic.MA0043.severity = warning
@@ -185,8 +170,7 @@ dotnet_diagnostic.MA0035.severity = warning
 dotnet_diagnostic.MA0042.severity = warning
 
 # MA0045: Do not use blocking calls, even when the calling method must become async
-# 1 outstanding site(s) - promote to warning once they are fixed.
-dotnet_diagnostic.MA0045.severity = suggestion
+dotnet_diagnostic.MA0045.severity = warning
 
 # MA0100: Await task before disposing of resources
 dotnet_diagnostic.MA0100.severity = warning
@@ -242,8 +226,7 @@ dotnet_diagnostic.MA0213.severity = warning
 dotnet_diagnostic.MA0140.severity = warning
 
 # MA0172: Both sides of the logical operation are identical
-# 1 outstanding site(s) - promote to warning once they are fixed.
-dotnet_diagnostic.MA0172.severity = suggestion
+dotnet_diagnostic.MA0172.severity = warning
 
 # MA0182: Avoid unused internal types
 dotnet_diagnostic.MA0182.severity = warning
@@ -265,8 +248,7 @@ dotnet_diagnostic.MA0067.severity = warning
 dotnet_diagnostic.MA0068.severity = warning
 
 # MA0089: Optimize string method usage
-# 2 outstanding site(s) - promote to warning once they are fixed.
-dotnet_diagnostic.MA0089.severity = suggestion
+dotnet_diagnostic.MA0089.severity = warning
 
 # MA0108: Remove redundant argument value
 dotnet_diagnostic.MA0108.severity = warning
@@ -278,8 +260,7 @@ dotnet_diagnostic.MA0111.severity = warning
 dotnet_diagnostic.MA0130.severity = warning
 
 # MA0144: Use System.OperatingSystem to check the current OS
-# 5 outstanding site(s) - promote to warning once they are fixed.
-dotnet_diagnostic.MA0144.severity = suggestion
+dotnet_diagnostic.MA0144.severity = warning
 
 # MA0145: Signature for [UnsafeAccessorAttribute] method is not valid
 dotnet_diagnostic.MA0145.severity = warning
@@ -309,16 +290,14 @@ dotnet_diagnostic.MA0183.severity = warning
 dotnet_diagnostic.MA0185.severity = warning
 
 # MA0239: Use 'typeof' instead of 'GetType()' when the type is sealed
-# 1 outstanding site(s) - promote to warning once they are fixed.
-dotnet_diagnostic.MA0239.severity = suggestion
+dotnet_diagnostic.MA0239.severity = warning
 
 #----------------------------------------------------------------------------------------------------------------------
 # Events and members
 #----------------------------------------------------------------------------------------------------------------------
 
 # MA0061: Method overrides should not change default values
-# 4 outstanding site(s) - promote to warning once they are fixed.
-dotnet_diagnostic.MA0061.severity = suggestion
+dotnet_diagnostic.MA0061.severity = warning
 
 # MA0083: ConstructorArgument parameters should exist in constructors
 dotnet_diagnostic.MA0083.severity = warning
@@ -349,8 +328,7 @@ dotnet_diagnostic.MA0093.severity = warning
 #----------------------------------------------------------------------------------------------------------------------
 
 # MA0154: Use langword in XML comment
-# 37 outstanding site(s) - promote to warning once they are fixed.
-dotnet_diagnostic.MA0154.severity = suggestion
+dotnet_diagnostic.MA0154.severity = warning
 
 # MA0196: Do not use inheritdoc on non-inheriting members
 dotnet_diagnostic.MA0196.severity = warning
@@ -368,100 +346,77 @@ dotnet_diagnostic.MA0211.severity = warning
 # Off: already covered elsewhere, or contradicts a preference set in this repository
 #----------------------------------------------------------------------------------------------------------------------
 
-# MA0004: Use Task.ConfigureAwait
-#   -> CA2007 and RCS1090 are both off - no ConfigureAwait policy in a compute library
+# MA0004: Use Task.ConfigureAwait (CA2007 and RCS1090 are both off)
 dotnet_diagnostic.MA0004.severity = none
 
 # MA0005: Use Array.Empty<T>()
-#   -> IDE0301 prefers a collection expression [] over Array.Empty<T>()
 dotnet_diagnostic.MA0005.severity = none
 
 # MA0007: Add a comma after the last value
-#   -> SA1413 (trailing comma in multi-line initializers) is off
 dotnet_diagnostic.MA0007.severity = none
 
-# MA0011: IFormatProvider is missing
-#   -> CA1305 already requires IFormatProvider
+# MA0011: IFormatProvider is missing (covered by CA1305)
 dotnet_diagnostic.MA0011.severity = none
 
-# MA0025: Implement the functionality instead of throwing NotImplementedException
-#   -> RCS1079 already flags NotImplementedException
+# MA0025: Implement the functionality instead of throwing NotImplementedException (covered by RCS1079)
 dotnet_diagnostic.MA0025.severity = none
 
-# MA0036: Make class static
-#   -> RCS1102 already requires static classes
+# MA0036: Make class static (covered by RCS1102)
 dotnet_diagnostic.MA0036.severity = none
 
-# MA0044: Remove useless ToString call
-#   -> RCS1097 already removes redundant ToString calls
+# MA0044: Remove useless ToString call (covered by RCS1097)
 dotnet_diagnostic.MA0044.severity = none
 
-# MA0047: Declare types in namespaces
-#   -> RCS1110 already requires types inside a namespace
+# MA0047: Declare types in namespaces (covered by RCS1110)
 dotnet_diagnostic.MA0047.severity = none
 
-# MA0048: File name must match type name
-#   -> SA1649 already matches file name to type name
+# MA0048: File name must match type name (covered by SA1649)
 dotnet_diagnostic.MA0048.severity = none
 
-# MA0053: Make class or record sealed
-#   -> RCS1225 already requires sealed classes
+# MA0053: Make class or record sealed (covered by RCS1225)
 dotnet_diagnostic.MA0053.severity = none
 
-# MA0064: Avoid locking on publicly accessible instance
-#   -> RCS1059 already forbids locking on a public instance
+# MA0064: Avoid locking on publicly accessible instance (covered by RCS1059)
 dotnet_diagnostic.MA0064.severity = none
 
-# MA0071: Avoid using redundant else
-#   -> RCS1211 already removes redundant else
+# MA0071: Avoid using redundant else (covered by RCS1211)
 dotnet_diagnostic.MA0071.severity = none
 
-# MA0073: Avoid comparison with bool constant
-#   -> RCS1033 and RCS1049 already cover bool constant comparisons
+# MA0073: Avoid comparison with bool constant (covered by RCS1033 and RCS1049)
 dotnet_diagnostic.MA0073.severity = none
 
-# MA0081: Method overrides should not omit params keyword
-#   -> RCS1193 already covers params on overrides
+# MA0081: Method overrides should not omit params keyword (covered by RCS1193)
 dotnet_diagnostic.MA0081.severity = none
 
 # MA0104: Do not create a type with a name from the BCL
-#   -> Matrix, Vector and Tensor deliberately mirror BCL names
 dotnet_diagnostic.MA0104.severity = none
 
 # MA0109: Consider adding an overload with a Span<T> or Memory<T>
-#   -> adding a Span<T> overload everywhere is not actionable advice here
 dotnet_diagnostic.MA0109.severity = none
 
-# MA0112: Use 'Count > 0' instead of 'Any()'
-#   -> RCS1080 (Count/Length over Any) is deliberately off
+# MA0112: Use 'Count > 0' instead of 'Any()' (covered by RCS1080)
 dotnet_diagnostic.MA0112.severity = none
 
-# MA0137: Use 'Async' suffix when a method returns an awaitable type
-#   -> RCS1046 and VSTHRD200 already own the Async suffix policy
+# MA0137: Use 'Async' suffix when a method returns an awaitable type (covered by RCS1046 and VSTHRD200)
 dotnet_diagnostic.MA0137.severity = none
 
-# MA0138: Do not use 'Async' suffix when a method does not return an awaitable type
-#   -> RCS1047 already owns the non-async suffix policy
+# MA0138: Do not use 'Async' suffix when a method does not return an awaitable type (covered by RCS1047)
 dotnet_diagnostic.MA0138.severity = none
 
 # MA0148: Use 'is' patterns instead of '==' for constant values
-#   -> would fire on every numeric "== 0" comparison in kernel code
-dotnet_diagnostic.MA0148.severity = none
+dotnet_diagnostic.MA0148.severity = suggestion
 
 # MA0149: Use 'is not' patterns instead of '!=' for constant values
-#   -> same as MA0148
-dotnet_diagnostic.MA0149.severity = none
+dotnet_diagnostic.MA0149.severity = suggestion
 
 # MA0177: Use single-line XML comment syntax when possible
-#   -> contradicts roslynator_doc_comment_summary_style = multi_line and RCS1253
 dotnet_diagnostic.MA0177.severity = none
 
 # MA0192: Use HasFlag instead of bitwise checks
-#   -> contradicts roslynator_enum_has_flag_style = operator and RCS1096
 dotnet_diagnostic.MA0192.severity = none
 
 #----------------------------------------------------------------------------------------------------------------------
-# Off by default: not adopted yet. Promote individually as the team decides to take each one on.
+# Not adopted yet
 #----------------------------------------------------------------------------------------------------------------------
 
 # MA0001: StringComparison is missing
@@ -510,7 +465,7 @@ dotnet_diagnostic.MA0023.severity = none
 dotnet_diagnostic.MA0024.severity = none
 
 # MA0026: Fix TODO comment
-dotnet_diagnostic.MA0026.severity = none
+dotnet_diagnostic.MA0026.severity = warning
 
 # MA0027: Prefer rethrowing an exception implicitly
 dotnet_diagnostic.MA0027.severity = none

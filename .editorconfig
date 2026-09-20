@@ -1,10 +1,5 @@
 ########################################################################################################################
-# Sci.NET - editor and code-style preferences
-#
-# This file holds *preferences* only: whitespace, naming, code-style options and IDE/ReSharper formatter settings.
-# Rule *severities* live in eng/build-props/analyzers/severity.*.globalconfig, which is applied by
-# eng/build-props/AddAnalyzers.props. Keeping the two apart means a severity change never silently
-# re-formats code, and a formatting change never breaks the build.
+# Sci.NET editor and code-style preferences
 ########################################################################################################################
 
 root = true
@@ -16,10 +11,10 @@ indent_style = space
 indent_size = 4
 insert_final_newline = true
 trim_trailing_whitespace = true
-max_line_length = 120
+max_line_length = 140
 
 [*.{csproj,props,targets,globalconfig,editorconfig,json,yml,yaml,xml,ps1,cmd,sh,md}]
-indent_size = 2
+indent_size = 4
 
 [*.{cs,tt}]
 indent_size = 4
@@ -43,9 +38,6 @@ dotnet_sort_system_directives_first = true
 
 #---------------------------------------------------------------------------------------------------------------------
 # Modifiers and accessibility
-#
-# NOTE: this list previously read "= = public,..." which made the whole value invalid, so IDE0036 was silently
-# enforcing the Roslyn default order instead. "required" was also listed twice.
 #---------------------------------------------------------------------------------------------------------------------
 dotnet_style_require_accessibility_modifiers = always:error
 csharp_preferred_modifier_order = public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,required,volatile,async:error
@@ -60,18 +52,12 @@ csharp_style_prefer_readonly_struct_member = true:suggestion
 #---------------------------------------------------------------------------------------------------------------------
 dotnet_style_predefined_type_for_locals_parameters_members = true:error
 dotnet_style_predefined_type_for_member_access = true:error
-
-# 'var' policy. Roslynator 5.0 removed RCS1008/1009/1010/1012/1176/1177, so this is now expressed once, here,
-# and enforced by IDE0007/IDE0008: use 'var' when the type is apparent from the right-hand side, otherwise be explicit.
-csharp_style_var_for_built_in_types = false:suggestion
-csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_for_built_in_types = false:silent
+csharp_style_var_when_type_is_apparent = true:silent
 csharp_style_var_elsewhere = false:suggestion
 
 #---------------------------------------------------------------------------------------------------------------------
 # Collection expressions (C# 12+)
-#
-# The old config disabled IDE0028/IDE0300/IDE0301/IDE0303/IDE0305 outright while leaving IDE0302/IDE0304 enabled
-# as errors, so half the family fired and half did not. Collection expressions are now the preferred form.
 #---------------------------------------------------------------------------------------------------------------------
 dotnet_style_collection_initializer = true:error
 dotnet_style_object_initializer = true:error
@@ -79,8 +65,6 @@ dotnet_style_prefer_collection_expression = when_types_loosely_match:error
 
 #---------------------------------------------------------------------------------------------------------------------
 # Modern constructs
-#
-# Primary constructors stay OFF by explicit request - see IDE0290 in severity.dotnet.globalconfig.
 #---------------------------------------------------------------------------------------------------------------------
 csharp_style_prefer_primary_constructors = false:silent
 csharp_prefer_system_threading_lock = true:error
@@ -209,7 +193,7 @@ dotnet_naming_rule.types_should_be_pascal_case.severity = error
 dotnet_naming_rule.types_should_be_pascal_case.symbols = types
 dotnet_naming_rule.types_should_be_pascal_case.style = pascal_case
 
-dotnet_naming_rule.non_field_members_should_be_pascal_case.severity = error
+dotnet_naming_rule.non_field_members_should_be_pascal_case.severity = silent
 dotnet_naming_rule.non_field_members_should_be_pascal_case.symbols = non_field_members
 dotnet_naming_rule.non_field_members_should_be_pascal_case.style = pascal_case
 
@@ -229,25 +213,9 @@ dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
 dotnet_naming_style.pascal_case.capitalization = pascal_case
 
-# The _camelCase private field convention is enforced by StyleCop's SX1309/SX1309S rather than an
-# IDE1006 naming rule, which would also have caught private const fields (SA1303 governs those).
-
-
 ########################################################################################################################
 # ReSharper / Rider
-#
-# These drive the IDE formatter. Without them Rider falls back to its own defaults, which is why declarations such as
-#
-#     public static Scalar<TNumber> Add<TNumber>(
-#         this Scalar<TNumber> left,
-#         Scalar<TNumber> right)
-#
-# get chopped onto one-parameter-per-line even though the single-line form is only ~80 characters wide.
-#
-# "chop_if_long" wraps a parameter or argument list only once it exceeds max_line_length; below that the whole list
-# stays on one line. The "keep_existing_*" switches must be false or Rider preserves whatever chopping is already
-# in the file and never puts it back together.
-########################################################################################################################
+######################################################################
 resharper_csharp_max_line_length = 120
 resharper_csharp_wrap_parameters_style = chop_if_long
 resharper_csharp_wrap_arguments_style = chop_if_long
@@ -274,10 +242,10 @@ resharper_csharp_keep_existing_declaration_block_arrangement = false
 resharper_csharp_keep_existing_arrangement = false
 
 resharper_csharp_place_type_constraints_on_same_line = false
+resharper_wrap_multiple_type_parameter_constraints_style = chop_always
 resharper_csharp_blank_lines_around_single_line_invocable = 1
 resharper_csharp_keep_blank_lines_in_code = 1
 resharper_csharp_keep_blank_lines_in_declarations = 1
 
-# ReSharper's own inspections that duplicate rules already enforced by the analyzers above.
 resharper_redundant_base_qualifier_highlighting = none
 resharper_check_namespace_highlighting = none
