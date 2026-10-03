@@ -141,8 +141,8 @@
 
 using Sci.NET.Mathematics.Tensors;
 using Sci.NET.Mathematics.Backends.Devices;
-using Sci.NET.Tests.Framework.Assertions;
-using Sci.NET.Tests.Framework.Integration;
+using Sci.NET.Mathematics.UnitTests.TestFramework.Assertions;
+using Sci.NET.Mathematics.UnitTests.TestFramework.Integration;
 
 namespace Sci.NET.Mathematics.UnitTests.Tensors.Differentiation;
 

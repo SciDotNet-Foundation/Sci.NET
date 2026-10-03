@@ -1,4 +1,5 @@
-﻿<#@ template language="C#" #>
+<#@ template language="C#" #>
+<#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#
     var tensorTypes = new List<(string type, string typeName, string precision)>
@@ -225,11 +226,11 @@
             "0",
             "0.523598775598299",
             "1.57079632679490",
-            "\u221e",
+            "inf",
             "1.15470053837925",
             "1.00000000000000",
             "1.15470053837925",
-            "\u221e"),
+            "inf"),
         new(
             "Acos",
             "-1.0",
@@ -242,11 +243,11 @@
             "1.5707963267948966",
             "1.0471975511965979",
             "0",
-            "-\u221e",
+            "-inf",
             "-1.1547005383792517",
             "-1.00000000000000",
             "-1.1547005383792517",
-            "-\u221e"),
+            "-inf"),
         new(
             "Atan",
             "-2.0",
@@ -276,11 +277,11 @@
             "0",
             "0.274155677808038",
             "2.46740110027234",
-            "-\u221e",
+            "-inf",
             "-1.20919957615615",
             "0",
             "1.20919957615615",
-            "\u221e"),
+            "inf"),
         new(
             "Acos2",
             "-1.0",
@@ -293,7 +294,7 @@
             "2.46740110027234",
             "1.09662271123215",
             "0",
-            "-\u221e",
+            "-inf",
             "-4.83679830462458",
             "-3.14159265358979",
             "-2.41839915231229",
@@ -344,7 +345,7 @@
             "1.76274717403909",
             "2.06343706889556",
             "2.29243166956118",
-            "\u221e",
+            "inf",
             "0.577350269189626",
             "0.353553390593274",
             "0.258198889747161",
@@ -528,12 +529,12 @@
             "2.0",
             "-0.275720564771783",
             "-0.850918128239322",
-            "\u221e",
+            "inf",
             "0.850918128239322",
             "0.275720564771783",
             "-0.286009000645084",
             "-1.11728552744927",
-            "-\u221e",
+            "-inf",
             "-1.11728552744927",
             "-0.286009000645084"),
         new(
@@ -562,12 +563,12 @@
             "2.0",
             "-1.03731472072755",
             "-1.31303528549933",
-            "\u221e",
+            "inf",
             "1.31303528549933",
             "1.03731472072755",
             "-0.0760218298380711",
             "-0.724061660966310",
-            "-\u221e",
+            "-inf",
             "-0.724061660966310",
             "-0.0760218298380711"),
         new(
@@ -579,12 +580,12 @@
             "2.0",
             "0.0760218298380711",
             "0.724061660966310",
-            "\u221e",
+            "inf",
             "0.724061660966310",
             "0.0760218298380711",
             "0.157717126375352",
             "1.90143701945204",
-            "-\u221e",
+            "-inf",
             "-1.90143701945204",
             "-0.157717126375352"),
         new(
@@ -613,12 +614,12 @@
             "2.0",
             "1.07602182983807",
             "1.72406166096631",
-            "\u221e",
+            "inf",
             "1.72406166096631",
             "1.07602182983807",
             "0.157717126375352",
             "1.90143701945204",
-            "-\u221e",
+            "-inf",
             "-1.90143701945204",
             "-0.157717126375352"),
         new(
@@ -634,8 +635,8 @@
             "0.523598775598299",
             "0.339836909454122",
             "-0.288675134594813",
-            "-\u221e",
-            "-\u221e",
+            "-inf",
+            "-inf",
             "-0.288675134594813",
             "-0.117851130197758"),
         new(
@@ -651,8 +652,8 @@
             "1.04719755119660",
             "1.23095941734077",
             "0.288675134594813",
-            "\u221e",
-            "\u221e",
+            "inf",
+            "inf",
             "0.288675134594813",
             "0.117851130197758"),
         new(
@@ -685,8 +686,8 @@
             "0.274155677808038",
             "0.115489125027329",
             "0.302299894039036",
-            "\u221e",
-            "-\u221e",
+            "inf",
+            "-inf",
             "-0.302299894039036",
             "-0.0801003277241628"),
         new(
@@ -702,7 +703,7 @@
             "1.09662271123215",
             "1.51526108713994",
             "1.20919957615615",
-            "\u221e",
+            "inf",
             "NaN",
             "0.604599788078073",
             "0.290139917122368"),
@@ -756,7 +757,7 @@
             "-3.49428278907306",
             "-2.30940107675850",
             "-2.08333333333333",
-            "-\u221e"),
+            "-inf"),
         new(
             "Acoth",
             "-2.0",
@@ -765,13 +766,13 @@
             "2.0",
             "3.0",
             "-0.549306144334055",
-            "-\u221e",
-            "\u221e",
+            "-inf",
+            "inf",
             "0.549306144334055",
             "0.346573590279973",
             "-0.333333333333333",
-            "-\u221e",
-            "-\u221e",
+            "-inf",
+            "-inf",
             "-0.333333333333333",
             "-0.125000000000000"),
         new(
@@ -816,13 +817,13 @@
             "2.0",
             "3.0",
             "0.301737240203146",
-            "\u221e",
-            "\u221e",
+            "inf",
+            "inf",
             "0.301737240203146",
             "0.120113253479550",
             "0.366204096222703",
-            "\u221e",
-            "-\u221e",
+            "inf",
+            "-inf",
             "-0.366204096222703",
             "-0.0866433975699932")
     };
@@ -830,14 +831,12 @@
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 // <auto-generated />
 
-using System.Numerics;
 using Sci.NET.Mathematics.Backends.Devices;
-using Sci.NET.Mathematics.Numerics;
 using Sci.NET.Mathematics.Tensors;
-using Sci.NET.Tests.Framework.Assertions;
-using Sci.NET.Tests.Framework.Integration;
+using Sci.NET.Mathematics.UnitTests.TestFramework.Assertions;
+using Sci.NET.Mathematics.UnitTests.TestFramework.Integration;
 
-namespace Sci.NET.Mathematics.IntegrationTests.Tensors.Trigonometry;
+namespace Sci.NET.Mathematics.UnitTests.Tensors.Trigonometry;
 
 public class TrigWithBackwardsShould : IntegrationTestBase
 {
@@ -852,8 +851,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_For<#= function.FunctionName #><#= type #>(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<<#= typeName #>>(new <#= typeName #>[] 
-        { 
+        using var input = Tensor.FromArray<<#= typeName #>>(new <#= typeName #>[]
+        {
             <#= TrigPrimalAndDerivativeState.Parse(function.Input1, typeName) #>,
             <#= TrigPrimalAndDerivativeState.Parse(function.Input2, typeName) #>,
             <#= TrigPrimalAndDerivativeState.Parse(function.Input3, typeName) #>,
@@ -862,29 +861,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<<#= typeName #>>(new <#= typeName #>[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<<#= typeName #>>(new <#= typeName #>[]
+        {
             <#= TrigPrimalAndDerivativeState.Parse(function.Primal1, typeName) #>,
             <#= TrigPrimalAndDerivativeState.Parse(function.Primal2, typeName) #>,
             <#= TrigPrimalAndDerivativeState.Parse(function.Primal3, typeName) #>,
             <#= TrigPrimalAndDerivativeState.Parse(function.Primal4, typeName) #>,
-            <#= TrigPrimalAndDerivativeState.Parse(function.Primal5, typeName) #> 
+            <#= TrigPrimalAndDerivativeState.Parse(function.Primal5, typeName) #>
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<<#= typeName #>>(new <#= typeName #>[] 
+        using var expectedGradient = Tensor.FromArray<<#= typeName #>>(new <#= typeName #>[]
         {
             <#= TrigPrimalAndDerivativeState.Parse(function.Derivative1, typeName) #>,
             <#= TrigPrimalAndDerivativeState.Parse(function.Derivative2, typeName) #>,
             <#= TrigPrimalAndDerivativeState.Parse(function.Derivative3, typeName) #>,
             <#= TrigPrimalAndDerivativeState.Parse(function.Derivative4, typeName) #>,
-            <#= TrigPrimalAndDerivativeState.Parse(function.Derivative5, typeName) #> 
+            <#= TrigPrimalAndDerivativeState.Parse(function.Derivative5, typeName) #>
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.<#= function.FunctionName #>();
-        
+
         result.Backward();
 
         // Assert
@@ -969,16 +968,18 @@ public class TrigWithBackwardsShould : IntegrationTestBase
 
         public static string Parse(string value, string typeName)
         {
-            var result = double.Parse(value);
-
-            if (double.IsPositiveInfinity(result))
+            if (value == "inf")
             {
                 return $"{typeName}.PositiveInfinity";
             }
-            if (double.IsNegativeInfinity(result))
+
+            if (value == "-inf")
             {
                 return $"{typeName}.NegativeInfinity";
             }
+
+            var result = double.Parse(value);
+
             if (double.IsNaN(result))
             {
                 return $"{typeName}.NaN";
