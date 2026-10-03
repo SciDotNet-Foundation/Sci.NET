@@ -16,8 +16,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSinFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -26,29 +26,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             -0.909297426825682f,
             -0.841470984807897f,
             0f,
             0.841470984807897f,
-            0.909297426825682f 
+            0.909297426825682f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -0.416146836547142f,
             0.54030230586814f,
             1f,
             0.54030230586814f,
-            -0.416146836547142f 
+            -0.416146836547142f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sin();
-        
+
         result.Backward();
 
         // Assert
@@ -61,8 +61,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSinFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -71,29 +71,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             -0.909297426825682,
             -0.841470984807897,
             0,
             0.841470984807897,
-            0.909297426825682 
+            0.909297426825682
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -0.416146836547142,
             0.54030230586814,
             1,
             0.54030230586814,
-            -0.416146836547142 
+            -0.416146836547142
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sin();
-        
+
         result.Backward();
 
         // Assert
@@ -106,8 +106,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCosFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -116,29 +116,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             -0.416146836547142f,
             0.54030230586814f,
             1f,
             0.54030230586814f,
-            -0.416146836547142f 
+            -0.416146836547142f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.909297426825682f,
             0.841470984807897f,
             0f,
             -0.841470984807897f,
-            -0.909297426825682f 
+            -0.909297426825682f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Cos();
-        
+
         result.Backward();
 
         // Assert
@@ -151,8 +151,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCosFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -161,29 +161,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             -0.416146836547142,
             0.54030230586814,
             1,
             0.54030230586814,
-            -0.416146836547142 
+            -0.416146836547142
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.909297426825682,
             0.841470984807897,
             0,
             -0.841470984807897,
-            -0.909297426825682 
+            -0.909297426825682
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Cos();
-        
+
         result.Backward();
 
         // Assert
@@ -196,8 +196,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForTanFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -206,29 +206,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             2.18503986326152f,
             -1.5574077246549f,
             0f,
             1.5574077246549f,
-            -2.18503986326152f 
+            -2.18503986326152f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             5.77439920404192f,
             3.42551882081476f,
             1f,
             3.42551882081476f,
-            5.77439920404192f 
+            5.77439920404192f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Tan();
-        
+
         result.Backward();
 
         // Assert
@@ -241,8 +241,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForTanFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -251,29 +251,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             2.18503986326152,
             -1.5574077246549,
             0,
             1.5574077246549,
-            -2.18503986326152 
+            -2.18503986326152
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             5.77439920404192,
             3.42551882081476,
             1,
             3.42551882081476,
-            5.77439920404192 
+            5.77439920404192
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Tan();
-        
+
         result.Backward();
 
         // Assert
@@ -286,8 +286,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSin2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -296,29 +296,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             0.826821810431806f,
             0.708073418273571f,
             0f,
             0.708073418273571f,
-            0.826821810431806f 
+            0.826821810431806f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.756802495307928f,
             -0.909297426825682f,
             0f,
             0.909297426825682f,
-            -0.756802495307928f 
+            -0.756802495307928f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sin2();
-        
+
         result.Backward();
 
         // Assert
@@ -331,8 +331,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSin2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -341,29 +341,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             0.826821810431806,
             0.708073418273571,
             0,
             0.708073418273571,
-            0.826821810431806 
+            0.826821810431806
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.756802495307928,
             -0.909297426825682,
             0,
             0.909297426825682,
-            -0.756802495307928 
+            -0.756802495307928
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sin2();
-        
+
         result.Backward();
 
         // Assert
@@ -376,8 +376,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCos2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -386,29 +386,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             0.173178189568194f,
             0.291926581726429f,
             1f,
             0.291926581726429f,
-            0.173178189568194f 
+            0.173178189568194f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -0.756802495307928f,
             0.909297426825682f,
             0f,
             -0.909297426825682f,
-            0.756802495307928f 
+            0.756802495307928f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Cos2();
-        
+
         result.Backward();
 
         // Assert
@@ -421,8 +421,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCos2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -431,29 +431,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             0.173178189568194,
             0.291926581726429,
             1,
             0.291926581726429,
-            0.173178189568194 
+            0.173178189568194
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -0.756802495307928,
             0.909297426825682,
             0,
             -0.909297426825682,
-            0.756802495307928 
+            0.756802495307928
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Cos2();
-        
+
         result.Backward();
 
         // Assert
@@ -466,8 +466,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForTan2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -476,29 +476,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             4.77439920404192f,
             2.42551882081476f,
             0f,
             2.42551882081476f,
-            4.77439920404192f 
+            4.77439920404192f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             25.2345848944344f,
             -10.6698589449753f,
             0f,
             10.6698589449753f,
-            -25.2345848944344f 
+            -25.2345848944344f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Tan2();
-        
+
         result.Backward();
 
         // Assert
@@ -511,8 +511,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForTan2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -521,29 +521,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             4.77439920404192,
             2.42551882081476,
             0,
             2.42551882081476,
-            4.77439920404192 
+            4.77439920404192
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             25.2345848944344,
             -10.6698589449753,
             0,
             10.6698589449753,
-            -25.2345848944344 
+            -25.2345848944344
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Tan2();
-        
+
         result.Backward();
 
         // Assert
@@ -556,8 +556,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSinhFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -566,29 +566,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             -3.62686040784702f,
             -1.1752011936438f,
             0f,
             1.1752011936438f,
-            3.62686040784702f 
+            3.62686040784702f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             3.76219569108363f,
             1.54308063481524f,
             1f,
             1.54308063481524f,
-            3.76219569108363f 
+            3.76219569108363f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sinh();
-        
+
         result.Backward();
 
         // Assert
@@ -601,8 +601,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSinhFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -611,29 +611,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             -3.62686040784702,
             -1.1752011936438,
             0,
             1.1752011936438,
-            3.62686040784702 
+            3.62686040784702
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             3.76219569108363,
             1.54308063481524,
             1,
             1.54308063481524,
-            3.76219569108363 
+            3.76219569108363
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sinh();
-        
+
         result.Backward();
 
         // Assert
@@ -646,8 +646,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCoshFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -656,29 +656,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             3.76219569108363f,
             1.54308063481524f,
             1f,
             1.54308063481524f,
-            3.76219569108363f 
+            3.76219569108363f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -3.62686040784702f,
             -1.1752011936438f,
             0f,
             1.1752011936438f,
-            3.62686040784702f 
+            3.62686040784702f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Cosh();
-        
+
         result.Backward();
 
         // Assert
@@ -691,8 +691,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCoshFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -701,29 +701,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             3.76219569108363,
             1.54308063481524,
             1,
             1.54308063481524,
-            3.76219569108363 
+            3.76219569108363
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -3.62686040784702,
             -1.1752011936438,
             0,
             1.1752011936438,
-            3.62686040784702 
+            3.62686040784702
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Cosh();
-        
+
         result.Backward();
 
         // Assert
@@ -736,8 +736,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForTanhFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -746,29 +746,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             -0.964027580075817f,
             -0.761594155955765f,
             0f,
             0.761594155955765f,
-            0.964027580075817f 
+            0.964027580075817f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.0706508248531645f,
             0.419974341614026f,
             1f,
             0.419974341614026f,
-            0.0706508248531645f 
+            0.0706508248531645f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Tanh();
-        
+
         result.Backward();
 
         // Assert
@@ -781,8 +781,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForTanhFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -791,29 +791,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             -0.964027580075817,
             -0.761594155955765,
             0,
             0.761594155955765,
-            0.964027580075817 
+            0.964027580075817
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.0706508248531645,
             0.419974341614026,
             1,
             0.419974341614026,
-            0.0706508248531645 
+            0.0706508248531645
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Tanh();
-        
+
         result.Backward();
 
         // Assert
@@ -826,8 +826,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSinh2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -836,29 +836,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             13.1541164180082f,
             1.38109784554182f,
             0f,
             1.38109784554182f,
-            13.1541164180082f 
+            13.1541164180082f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -27.2899171971278f,
             -3.62686040784702f,
             0f,
             3.62686040784702f,
-            27.2899171971278f 
+            27.2899171971278f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sinh2();
-        
+
         result.Backward();
 
         // Assert
@@ -871,8 +871,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSinh2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -881,29 +881,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             13.1541164180082,
             1.38109784554182,
             0,
             1.38109784554182,
-            13.1541164180082 
+            13.1541164180082
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -27.2899171971278,
             -3.62686040784702,
             0,
             3.62686040784702,
-            27.2899171971278 
+            27.2899171971278
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sinh2();
-        
+
         result.Backward();
 
         // Assert
@@ -916,8 +916,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCosh2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -926,29 +926,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             14.1541164180082f,
             2.38109784554182f,
             1f,
             2.38109784554182f,
-            14.1541164180082f 
+            14.1541164180082f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -27.2899171971278f,
             -3.62686040784702f,
             0f,
             3.62686040784702f,
-            27.2899171971278f 
+            27.2899171971278f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Cosh2();
-        
+
         result.Backward();
 
         // Assert
@@ -961,8 +961,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCosh2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -971,29 +971,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             14.1541164180082,
             2.38109784554182,
             1,
             2.38109784554182,
-            14.1541164180082 
+            14.1541164180082
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -27.2899171971278,
             -3.62686040784702,
             0,
             3.62686040784702,
-            27.2899171971278 
+            27.2899171971278
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Cosh2();
-        
+
         result.Backward();
 
         // Assert
@@ -1006,8 +1006,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForTanh2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -1016,29 +1016,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             0.929349175146836f,
             0.580025658385974f,
             0f,
             0.580025658385974f,
-            0.929349175146836f 
+            0.929349175146836f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -0.136218687427113f,
             -0.639700008449224f,
             0f,
             0.639700008449224f,
-            0.136218687427113f 
+            0.136218687427113f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Tanh2();
-        
+
         result.Backward();
 
         // Assert
@@ -1051,8 +1051,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForTanh2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -1061,29 +1061,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             0.929349175146836,
             0.580025658385974,
             0,
             0.580025658385974,
-            0.929349175146836 
+            0.929349175146836
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -0.136218687427113,
             -0.639700008449224,
             0,
             0.639700008449224,
-            0.136218687427113 
+            0.136218687427113
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Tanh2();
-        
+
         result.Backward();
 
         // Assert
@@ -1096,8 +1096,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsinFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -1f,
             -0.5f,
             0f,
@@ -1106,29 +1106,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             -1.5707963267949f,
             -0.523598775598299f,
             0f,
             0.523598775598299f,
-            1.5707963267949f 
+            1.5707963267949f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             float.PositiveInfinity,
             1.15470053837925f,
             1f,
             1.15470053837925f,
-            float.PositiveInfinity 
+            float.PositiveInfinity
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asin();
-        
+
         result.Backward();
 
         // Assert
@@ -1141,8 +1141,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsinFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -1,
             -0.5,
             0,
@@ -1151,29 +1151,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             -1.5707963267949,
             -0.523598775598299,
             0,
             0.523598775598299,
-            1.5707963267949 
+            1.5707963267949
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             double.PositiveInfinity,
             1.15470053837925,
             1,
             1.15470053837925,
-            double.PositiveInfinity 
+            double.PositiveInfinity
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asin();
-        
+
         result.Backward();
 
         // Assert
@@ -1186,8 +1186,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcosFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -1f,
             -0.5f,
             0f,
@@ -1196,29 +1196,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             3.14159265358979f,
             2.09439510239319f,
             1.5707963267948966f,
             1.0471975511965979f,
-            0f 
+            0f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             float.NegativeInfinity,
             -1.1547005383792517f,
             -1f,
             -1.1547005383792517f,
-            float.NegativeInfinity 
+            float.NegativeInfinity
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acos();
-        
+
         result.Backward();
 
         // Assert
@@ -1231,8 +1231,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcosFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -1,
             -0.5,
             0,
@@ -1241,29 +1241,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             3.14159265358979,
             2.09439510239319,
             1.5707963267948966,
             1.0471975511965979,
-            0 
+            0
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             double.NegativeInfinity,
             -1.1547005383792517,
             -1,
             -1.1547005383792517,
-            double.NegativeInfinity 
+            double.NegativeInfinity
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acos();
-        
+
         result.Backward();
 
         // Assert
@@ -1276,8 +1276,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAtanFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -1286,29 +1286,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             -1.10714871779409f,
             -0.785398163397448f,
             0f,
             0.785398163397448f,
-            1.10714871779409f 
+            1.10714871779409f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.2f,
             0.5f,
             1f,
             0.5f,
-            0.2f 
+            0.2f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Atan();
-        
+
         result.Backward();
 
         // Assert
@@ -1321,8 +1321,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAtanFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -1331,29 +1331,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             -1.10714871779409,
             -0.785398163397448,
             0,
             0.785398163397448,
-            1.10714871779409 
+            1.10714871779409
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.2,
             0.5,
             1,
             0.5,
-            0.2 
+            0.2
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Atan();
-        
+
         result.Backward();
 
         // Assert
@@ -1366,8 +1366,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsin2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -1f,
             -0.5f,
             0f,
@@ -1376,29 +1376,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             2.46740110027234f,
             0.274155677808038f,
             0f,
             0.274155677808038f,
-            2.46740110027234f 
+            2.46740110027234f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             float.NegativeInfinity,
             -1.20919957615615f,
             0f,
             1.20919957615615f,
-            float.PositiveInfinity 
+            float.PositiveInfinity
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asin2();
-        
+
         result.Backward();
 
         // Assert
@@ -1411,8 +1411,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsin2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -1,
             -0.5,
             0,
@@ -1421,29 +1421,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             2.46740110027234,
             0.274155677808038,
             0,
             0.274155677808038,
-            2.46740110027234 
+            2.46740110027234
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             double.NegativeInfinity,
             -1.20919957615615,
             0,
             1.20919957615615,
-            double.PositiveInfinity 
+            double.PositiveInfinity
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asin2();
-        
+
         result.Backward();
 
         // Assert
@@ -1456,8 +1456,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcos2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -1f,
             -0.5f,
             0f,
@@ -1466,29 +1466,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             9.86960440108936f,
             4.3864908449286f,
             2.46740110027234f,
             1.09662271123215f,
-            0f 
+            0f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             float.NegativeInfinity,
             -4.83679830462458f,
             -3.14159265358979f,
             -2.41839915231229f,
-            float.NaN 
+            float.NaN
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acos2();
-        
+
         result.Backward();
 
         // Assert
@@ -1501,8 +1501,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcos2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -1,
             -0.5,
             0,
@@ -1511,29 +1511,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             9.86960440108936,
             4.3864908449286,
             2.46740110027234,
             1.09662271123215,
-            0 
+            0
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             double.NegativeInfinity,
             -4.83679830462458,
             -3.14159265358979,
             -2.41839915231229,
-            double.NaN 
+            double.NaN
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acos2();
-        
+
         result.Backward();
 
         // Assert
@@ -1546,8 +1546,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAtan2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -1556,29 +1556,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             1.2257782833131f,
             0.616850275068085f,
             0f,
             0.616850275068085f,
-            1.2257782833131f 
+            1.2257782833131f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -0.442859487117636f,
             -0.785398163397448f,
             0f,
             0.785398163397448f,
-            0.442859487117636f 
+            0.442859487117636f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Atan2();
-        
+
         result.Backward();
 
         // Assert
@@ -1591,8 +1591,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAtan2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -1601,29 +1601,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             1.2257782833131,
             0.616850275068085,
             0,
             0.616850275068085,
-            1.2257782833131 
+            1.2257782833131
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -0.442859487117636,
             -0.785398163397448,
             0,
             0.785398163397448,
-            0.442859487117636 
+            0.442859487117636
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Atan2();
-        
+
         result.Backward();
 
         // Assert
@@ -1636,8 +1636,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsinhFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -1646,29 +1646,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             -1.44363547517881f,
             -0.881373587019543f,
             0f,
             0.881373587019543f,
-            1.44363547517881f 
+            1.44363547517881f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.447213595499958f,
             0.707106781186548f,
             1f,
             0.707106781186548f,
-            0.447213595499958f 
+            0.447213595499958f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asinh();
-        
+
         result.Backward();
 
         // Assert
@@ -1681,8 +1681,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsinhFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -1691,29 +1691,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             -1.44363547517881,
             -0.881373587019543,
             0,
             0.881373587019543,
-            1.44363547517881 
+            1.44363547517881
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.447213595499958,
             0.707106781186548,
             1,
             0.707106781186548,
-            0.447213595499958 
+            0.447213595499958
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asinh();
-        
+
         result.Backward();
 
         // Assert
@@ -1726,8 +1726,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcoshFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             1f,
             2f,
             3f,
@@ -1736,29 +1736,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             0f,
             1.31695789692482f,
             1.76274717403909f,
             2.06343706889556f,
-            2.29243166956118f 
+            2.29243166956118f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             float.PositiveInfinity,
             0.577350269189626f,
             0.353553390593274f,
             0.258198889747161f,
-            0.204124145231932f 
+            0.204124145231932f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acosh();
-        
+
         result.Backward();
 
         // Assert
@@ -1771,8 +1771,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcoshFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             1,
             2,
             3,
@@ -1781,29 +1781,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             0,
             1.31695789692482,
             1.76274717403909,
             2.06343706889556,
-            2.29243166956118 
+            2.29243166956118
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             double.PositiveInfinity,
             0.577350269189626,
             0.353553390593274,
             0.258198889747161,
-            0.204124145231932 
+            0.204124145231932
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acosh();
-        
+
         result.Backward();
 
         // Assert
@@ -1816,8 +1816,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAtanhFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -0.9f,
             -0.5f,
             0f,
@@ -1826,29 +1826,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             -1.47221948958322f,
             -0.549306144334055f,
             0f,
             0.549306144334055f,
-            1.47221948958322f 
+            1.47221948958322f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             5.26315789473684f,
             1.33333333333333f,
             1f,
             1.33333333333333f,
-            5.26315789473684f 
+            5.26315789473684f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Atanh();
-        
+
         result.Backward();
 
         // Assert
@@ -1861,8 +1861,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAtanhFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -0.9,
             -0.5,
             0,
@@ -1871,29 +1871,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             -1.47221948958322,
             -0.549306144334055,
             0,
             0.549306144334055,
-            1.47221948958322 
+            1.47221948958322
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             5.26315789473684,
             1.33333333333333,
             1,
             1.33333333333333,
-            5.26315789473684 
+            5.26315789473684
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Atanh();
-        
+
         result.Backward();
 
         // Assert
@@ -1906,8 +1906,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsinh2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -1916,29 +1916,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             2.08408338519475f,
             0.776819399895696f,
             0f,
             0.776819399895696f,
-            2.08408338519475f 
+            2.08408338519475f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -1.29122682289201f,
             -1.24645048028046f,
             0f,
             1.24645048028046f,
-            1.29122682289201f 
+            1.29122682289201f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asinh2();
-        
+
         result.Backward();
 
         // Assert
@@ -1951,8 +1951,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsinh2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -1961,29 +1961,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             2.08408338519475,
             0.776819399895696,
             0,
             0.776819399895696,
-            2.08408338519475 
+            2.08408338519475
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -1.29122682289201,
             -1.24645048028046,
             0,
             1.24645048028046,
-            1.29122682289201 
+            1.29122682289201
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asinh2();
-        
+
         result.Backward();
 
         // Assert
@@ -1996,8 +1996,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcosh2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             1f,
             2f,
             3f,
@@ -2006,29 +2006,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             0f,
             1.73437810227264f,
             3.10727759958278f,
             4.2577725372923f,
-            5.25524295960705f 
+            5.25524295960705f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             float.NaN,
             1.52069199260189f,
             1.24645048028046f,
             1.06555432050394f,
-            0.93588131010357f 
+            0.93588131010357f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acosh2();
-        
+
         result.Backward();
 
         // Assert
@@ -2041,8 +2041,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcosh2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             1,
             2,
             3,
@@ -2051,29 +2051,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             0,
             1.73437810227264,
             3.10727759958278,
             4.2577725372923,
-            5.25524295960705 
+            5.25524295960705
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             double.NaN,
             1.52069199260189,
             1.24645048028046,
             1.06555432050394,
-            0.93588131010357 
+            0.93588131010357
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acosh2();
-        
+
         result.Backward();
 
         // Assert
@@ -2086,8 +2086,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAtanh2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -0.9f,
             -0.5f,
             0f,
@@ -2096,29 +2096,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             2.16743022550868f,
             0.301737240203146f,
             0f,
             0.301737240203146f,
-            2.16743022550868f 
+            2.16743022550868f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -15.4970472587707f,
             -1.46481638489081f,
             0f,
             1.46481638489081f,
-            15.4970472587707f 
+            15.4970472587707f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Atanh2();
-        
+
         result.Backward();
 
         // Assert
@@ -2131,8 +2131,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAtanh2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -0.9,
             -0.5,
             0,
@@ -2141,29 +2141,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             2.16743022550868,
             0.301737240203146,
             0,
             0.301737240203146,
-            2.16743022550868 
+            2.16743022550868
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -15.4970472587707,
             -1.46481638489081,
             0,
             1.46481638489081,
-            15.4970472587707 
+            15.4970472587707
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Atanh2();
-        
+
         result.Backward();
 
         // Assert
@@ -2176,8 +2176,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCscFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             0.523598775598299f,
             1.0471975511966f,
             2.0943951023932f,
@@ -2186,29 +2186,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             2f,
             1.15470053837925f,
             1.15470053837925f,
             1.4142135623731f,
-            2f 
+            2f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -3.46410161513775f,
             -0.666666666666667f,
             0.666666666666667f,
             1.4142135623731f,
-            3.46410161513775f 
+            3.46410161513775f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Csc();
-        
+
         result.Backward();
 
         // Assert
@@ -2221,8 +2221,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCscFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             0.523598775598299,
             1.0471975511966,
             2.0943951023932,
@@ -2231,29 +2231,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             2,
             1.15470053837925,
             1.15470053837925,
             1.4142135623731,
-            2 
+            2
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -3.46410161513775,
             -0.666666666666667,
             0.666666666666667,
             1.4142135623731,
-            3.46410161513775 
+            3.46410161513775
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Csc();
-        
+
         result.Backward();
 
         // Assert
@@ -2266,8 +2266,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSecFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             0.523598775598299f,
             1.0471975511966f,
             2.0943951023932f,
@@ -2276,29 +2276,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             1.15470053837925f,
             2f,
             -2f,
             -1.4142135623731f,
-            -1.15470053837925f 
+            -1.15470053837925f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.666666666666667f,
             3.46410161513775f,
             3.46410161513775f,
             1.4142135623731f,
-            0.666666666666667f 
+            0.666666666666667f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sec();
-        
+
         result.Backward();
 
         // Assert
@@ -2311,8 +2311,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSecFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             0.523598775598299,
             1.0471975511966,
             2.0943951023932,
@@ -2321,29 +2321,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             1.15470053837925,
             2,
             -2,
             -1.4142135623731,
-            -1.15470053837925 
+            -1.15470053837925
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.666666666666667,
             3.46410161513775,
             3.46410161513775,
             1.4142135623731,
-            0.666666666666667 
+            0.666666666666667
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sec();
-        
+
         result.Backward();
 
         // Assert
@@ -2356,8 +2356,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCotFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             0.523598775598299f,
             1.0471975511966f,
             2.0943951023932f,
@@ -2366,29 +2366,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             1.73205080756888f,
             0.577350269189626f,
             -0.577350269189626f,
             -1f,
-            -1.73205080756888f 
+            -1.73205080756888f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -4f,
             -1.33333333333333f,
             -1.33333333333333f,
             -2f,
-            -4f 
+            -4f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Cot();
-        
+
         result.Backward();
 
         // Assert
@@ -2401,8 +2401,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCotFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             0.523598775598299,
             1.0471975511966,
             2.0943951023932,
@@ -2411,29 +2411,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             1.73205080756888,
             0.577350269189626,
             -0.577350269189626,
             -1,
-            -1.73205080756888 
+            -1.73205080756888
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -4,
             -1.33333333333333,
             -1.33333333333333,
             -2,
-            -4 
+            -4
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Cot();
-        
+
         result.Backward();
 
         // Assert
@@ -2446,8 +2446,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCsc2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             0.523598775598299f,
             1.0471975511966f,
             2.0943951023932f,
@@ -2456,29 +2456,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             4f,
             1.33333333333333f,
             1.33333333333333f,
             2f,
-            4f 
+            4f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -13.856406460551f,
             -1.539600717839f,
             1.539600717839f,
             4f,
-            13.856406460551f 
+            13.856406460551f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Csc2();
-        
+
         result.Backward();
 
         // Assert
@@ -2491,8 +2491,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCsc2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             0.523598775598299,
             1.0471975511966,
             2.0943951023932,
@@ -2501,29 +2501,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             4,
             1.33333333333333,
             1.33333333333333,
             2,
-            4 
+            4
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -13.856406460551,
             -1.539600717839,
             1.539600717839,
             4,
-            13.856406460551 
+            13.856406460551
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Csc2();
-        
+
         result.Backward();
 
         // Assert
@@ -2536,8 +2536,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSec2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             0.523598775598299f,
             1.0471975511966f,
             2.0943951023932f,
@@ -2546,29 +2546,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             1.33333333333333f,
             4f,
             4f,
             2f,
-            1.33333333333333f 
+            1.33333333333333f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             1.539600717839f,
             13.856406460551f,
             -13.856406460551f,
             -4f,
-            -1.539600717839f 
+            -1.539600717839f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sec2();
-        
+
         result.Backward();
 
         // Assert
@@ -2581,8 +2581,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSec2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             0.523598775598299,
             1.0471975511966,
             2.0943951023932,
@@ -2591,29 +2591,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             1.33333333333333,
             4,
             4,
             2,
-            1.33333333333333 
+            1.33333333333333
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             1.539600717839,
             13.856406460551,
             -13.856406460551,
             -4,
-            -1.539600717839 
+            -1.539600717839
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sec2();
-        
+
         result.Backward();
 
         // Assert
@@ -2626,8 +2626,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCot2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             0.523598775598299f,
             1.0471975511966f,
             2.0943951023932f,
@@ -2636,29 +2636,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             3f,
             0.333333333333333f,
             0.333333333333333f,
             1f,
-            3f 
+            3f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -13.856406460551f,
             -1.539600717839f,
             1.539600717839f,
             4f,
-            13.856406460551f 
+            13.856406460551f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Cot2();
-        
+
         result.Backward();
 
         // Assert
@@ -2671,8 +2671,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCot2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             0.523598775598299,
             1.0471975511966,
             2.0943951023932,
@@ -2681,29 +2681,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             3,
             0.333333333333333,
             0.333333333333333,
             1,
-            3 
+            3
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -13.856406460551,
             -1.539600717839,
             1.539600717839,
             4,
-            13.856406460551 
+            13.856406460551
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Cot2();
-        
+
         result.Backward();
 
         // Assert
@@ -2716,8 +2716,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCschFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -2726,29 +2726,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             -0.275720564771783f,
             -0.850918128239322f,
             float.PositiveInfinity,
             0.850918128239322f,
-            0.275720564771783f 
+            0.275720564771783f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -0.286009000645084f,
             -1.11728552744927f,
             float.NegativeInfinity,
             -1.11728552744927f,
-            -0.286009000645084f 
+            -0.286009000645084f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Csch();
-        
+
         result.Backward();
 
         // Assert
@@ -2761,8 +2761,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCschFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -2771,29 +2771,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             -0.275720564771783,
             -0.850918128239322,
             double.PositiveInfinity,
             0.850918128239322,
-            0.275720564771783 
+            0.275720564771783
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -0.286009000645084,
             -1.11728552744927,
             double.NegativeInfinity,
             -1.11728552744927,
-            -0.286009000645084 
+            -0.286009000645084
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Csch();
-        
+
         result.Backward();
 
         // Assert
@@ -2806,8 +2806,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSechFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -2816,29 +2816,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             0.26580222883408f,
             0.648054273663885f,
             1f,
             0.648054273663885f,
-            0.26580222883408f 
+            0.26580222883408f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.256240679441676f,
             0.493554347564573f,
             0f,
             -0.493554347564573f,
-            -0.256240679441676f 
+            -0.256240679441676f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sech();
-        
+
         result.Backward();
 
         // Assert
@@ -2851,8 +2851,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSechFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -2861,29 +2861,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             0.26580222883408,
             0.648054273663885,
             1,
             0.648054273663885,
-            0.26580222883408 
+            0.26580222883408
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.256240679441676,
             0.493554347564573,
             0,
             -0.493554347564573,
-            -0.256240679441676 
+            -0.256240679441676
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sech();
-        
+
         result.Backward();
 
         // Assert
@@ -2896,8 +2896,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCothFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -2906,29 +2906,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             -1.03731472072755f,
             -1.31303528549933f,
             float.PositiveInfinity,
             1.31303528549933f,
-            1.03731472072755f 
+            1.03731472072755f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -0.0760218298380711f,
             -0.72406166096631f,
             float.NegativeInfinity,
             -0.72406166096631f,
-            -0.0760218298380711f 
+            -0.0760218298380711f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Coth();
-        
+
         result.Backward();
 
         // Assert
@@ -2941,8 +2941,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCothFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -2951,29 +2951,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             -1.03731472072755,
             -1.31303528549933,
             double.PositiveInfinity,
             1.31303528549933,
-            1.03731472072755 
+            1.03731472072755
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -0.0760218298380711,
             -0.72406166096631,
             double.NegativeInfinity,
             -0.72406166096631,
-            -0.0760218298380711 
+            -0.0760218298380711
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Coth();
-        
+
         result.Backward();
 
         // Assert
@@ -2986,8 +2986,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCsch2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -2996,29 +2996,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             0.0760218298380711f,
             0.72406166096631f,
             float.PositiveInfinity,
             0.72406166096631f,
-            0.0760218298380711f 
+            0.0760218298380711f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.157717126375352f,
             1.90143701945204f,
             float.NegativeInfinity,
             -1.90143701945204f,
-            -0.157717126375352f 
+            -0.157717126375352f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Csch2();
-        
+
         result.Backward();
 
         // Assert
@@ -3031,8 +3031,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCsch2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -3041,29 +3041,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             0.0760218298380711,
             0.72406166096631,
             double.PositiveInfinity,
             0.72406166096631,
-            0.0760218298380711 
+            0.0760218298380711
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.157717126375352,
             1.90143701945204,
             double.NegativeInfinity,
             -1.90143701945204,
-            -0.157717126375352 
+            -0.157717126375352
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Csch2();
-        
+
         result.Backward();
 
         // Assert
@@ -3076,8 +3076,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSech2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -3086,29 +3086,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             0.0706508248531645f,
             0.419974341614026f,
             1f,
             0.419974341614026f,
-            0.0706508248531645f 
+            0.0706508248531645f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.136218687427113f,
             0.639700008449224f,
             0f,
             -0.639700008449224f,
-            -0.136218687427113f 
+            -0.136218687427113f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sech2();
-        
+
         result.Backward();
 
         // Assert
@@ -3121,8 +3121,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForSech2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -3131,29 +3131,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             0.0706508248531645,
             0.419974341614026,
             1,
             0.419974341614026,
-            0.0706508248531645 
+            0.0706508248531645
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.136218687427113,
             0.639700008449224,
             0,
             -0.639700008449224,
-            -0.136218687427113 
+            -0.136218687427113
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Sech2();
-        
+
         result.Backward();
 
         // Assert
@@ -3166,8 +3166,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCoth2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -3176,29 +3176,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             1.07602182983807f,
             1.72406166096631f,
             float.PositiveInfinity,
             1.72406166096631f,
-            1.07602182983807f 
+            1.07602182983807f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.157717126375352f,
             1.90143701945204f,
             float.NegativeInfinity,
             -1.90143701945204f,
-            -0.157717126375352f 
+            -0.157717126375352f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Coth2();
-        
+
         result.Backward();
 
         // Assert
@@ -3211,8 +3211,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForCoth2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -3221,29 +3221,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             1.07602182983807,
             1.72406166096631,
             double.PositiveInfinity,
             1.72406166096631,
-            1.07602182983807 
+            1.07602182983807
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.157717126375352,
             1.90143701945204,
             double.NegativeInfinity,
             -1.90143701945204,
-            -0.157717126375352 
+            -0.157717126375352
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Coth2();
-        
+
         result.Backward();
 
         // Assert
@@ -3256,8 +3256,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcscFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             1f,
@@ -3266,29 +3266,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             -0.523598775598299f,
             -1.5707963267949f,
             1.5707963267949f,
             0.523598775598299f,
-            0.339836909454122f 
+            0.339836909454122f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -0.288675134594813f,
             float.NegativeInfinity,
             float.NegativeInfinity,
             -0.288675134594813f,
-            -0.117851130197758f 
+            -0.117851130197758f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acsc();
-        
+
         result.Backward();
 
         // Assert
@@ -3301,8 +3301,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcscFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             1,
@@ -3311,29 +3311,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             -0.523598775598299,
             -1.5707963267949,
             1.5707963267949,
             0.523598775598299,
-            0.339836909454122 
+            0.339836909454122
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -0.288675134594813,
             double.NegativeInfinity,
             double.NegativeInfinity,
             -0.288675134594813,
-            -0.117851130197758 
+            -0.117851130197758
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acsc();
-        
+
         result.Backward();
 
         // Assert
@@ -3346,8 +3346,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsecFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             1f,
@@ -3356,29 +3356,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             2.0943951023932f,
             3.14159265358979f,
             0f,
             1.0471975511966f,
-            1.23095941734077f 
+            1.23095941734077f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.288675134594813f,
             float.PositiveInfinity,
             float.PositiveInfinity,
             0.288675134594813f,
-            0.117851130197758f 
+            0.117851130197758f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asec();
-        
+
         result.Backward();
 
         // Assert
@@ -3391,8 +3391,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsecFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             1,
@@ -3401,29 +3401,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             2.0943951023932,
             3.14159265358979,
             0,
             1.0471975511966,
-            1.23095941734077 
+            1.23095941734077
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.288675134594813,
             double.PositiveInfinity,
             double.PositiveInfinity,
             0.288675134594813,
-            0.117851130197758 
+            0.117851130197758
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asec();
-        
+
         result.Backward();
 
         // Assert
@@ -3436,8 +3436,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcotFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -3446,29 +3446,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             -0.463647609000806f,
             -0.785398163397448f,
             1.5707963267949f,
             0.785398163397448f,
-            0.463647609000806f 
+            0.463647609000806f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -0.2f,
             -0.5f,
             -1f,
             -0.5f,
-            -0.2f 
+            -0.2f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acot();
-        
+
         result.Backward();
 
         // Assert
@@ -3481,8 +3481,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcotFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -3491,29 +3491,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             -0.463647609000806,
             -0.785398163397448,
             1.5707963267949,
             0.785398163397448,
-            0.463647609000806 
+            0.463647609000806
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -0.2,
             -0.5,
             -1,
             -0.5,
-            -0.2 
+            -0.2
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acot();
-        
+
         result.Backward();
 
         // Assert
@@ -3526,8 +3526,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcsc2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             1f,
@@ -3536,29 +3536,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             0.274155677808038f,
             2.46740110027234f,
             2.46740110027234f,
             0.274155677808038f,
-            0.115489125027329f 
+            0.115489125027329f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.302299894039036f,
             float.PositiveInfinity,
             float.NegativeInfinity,
             -0.302299894039036f,
-            -0.0801003277241628f 
+            -0.0801003277241628f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acsc2();
-        
+
         result.Backward();
 
         // Assert
@@ -3571,8 +3571,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcsc2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             1,
@@ -3581,29 +3581,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             0.274155677808038,
             2.46740110027234,
             2.46740110027234,
             0.274155677808038,
-            0.115489125027329 
+            0.115489125027329
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.302299894039036,
             double.PositiveInfinity,
             double.NegativeInfinity,
             -0.302299894039036,
-            -0.0801003277241628 
+            -0.0801003277241628
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acsc2();
-        
+
         result.Backward();
 
         // Assert
@@ -3616,8 +3616,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsec2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             1f,
@@ -3626,29 +3626,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             4.3864908449286f,
             9.86960440108936f,
             0f,
             1.09662271123215f,
-            1.51526108713994f 
+            1.51526108713994f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             1.20919957615615f,
             float.PositiveInfinity,
             float.NaN,
             0.604599788078073f,
-            0.290139917122368f 
+            0.290139917122368f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asec2();
-        
+
         result.Backward();
 
         // Assert
@@ -3661,8 +3661,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsec2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             1,
@@ -3671,29 +3671,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             4.3864908449286,
             9.86960440108936,
             0,
             1.09662271123215,
-            1.51526108713994 
+            1.51526108713994
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             1.20919957615615,
             double.PositiveInfinity,
             double.NaN,
             0.604599788078073,
-            0.290139917122368 
+            0.290139917122368
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asec2();
-        
+
         result.Backward();
 
         // Assert
@@ -3706,8 +3706,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcot2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             0f,
@@ -3716,29 +3716,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             0.214969105332164f,
             0.616850275068085f,
             2.46740110027234f,
             0.616850275068085f,
-            0.214969105332164f 
+            0.214969105332164f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.185459043600322f,
             0.785398163397448f,
             -3.14159265358979f,
             -0.785398163397448f,
-            -0.185459043600322f 
+            -0.185459043600322f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acot2();
-        
+
         result.Backward();
 
         // Assert
@@ -3751,8 +3751,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcot2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             0,
@@ -3761,29 +3761,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             0.214969105332164,
             0.616850275068085,
             2.46740110027234,
             0.616850275068085,
-            0.214969105332164 
+            0.214969105332164
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.185459043600322,
             0.785398163397448,
             -3.14159265358979,
             -0.785398163397448,
-            -0.185459043600322 
+            -0.185459043600322
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acot2();
-        
+
         result.Backward();
 
         // Assert
@@ -3796,8 +3796,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcschFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             1f,
@@ -3806,29 +3806,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             -0.481211825059603f,
             -0.881373587019543f,
             0.881373587019543f,
             0.481211825059603f,
-            0.327450150237258f 
+            0.327450150237258f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -0.223606797749979f,
             -0.707106781186548f,
             -0.707106781186548f,
             -0.223606797749979f,
-            -0.105409255338946f 
+            -0.105409255338946f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acsch();
-        
+
         result.Backward();
 
         // Assert
@@ -3841,8 +3841,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcschFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             1,
@@ -3851,29 +3851,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             -0.481211825059603,
             -0.881373587019543,
             0.881373587019543,
             0.481211825059603,
-            0.327450150237258 
+            0.327450150237258
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -0.223606797749979,
             -0.707106781186548,
             -0.707106781186548,
             -0.223606797749979,
-            -0.105409255338946 
+            -0.105409255338946
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acsch();
-        
+
         result.Backward();
 
         // Assert
@@ -3886,8 +3886,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsechFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             0.2f,
             0.3f,
             0.5f,
@@ -3896,29 +3896,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             2.29243166956118f,
             1.87382024252741f,
             1.31695789692482f,
             0.693147180559945f,
-            0f 
+            0f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -5.10310363079829f,
             -3.49428278907306f,
             -2.3094010767585f,
             -2.08333333333333f,
-            float.NegativeInfinity 
+            float.NegativeInfinity
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asech();
-        
+
         result.Backward();
 
         // Assert
@@ -3931,8 +3931,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsechFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             0.2,
             0.3,
             0.5,
@@ -3941,29 +3941,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             2.29243166956118,
             1.87382024252741,
             1.31695789692482,
             0.693147180559945,
-            0 
+            0
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -5.10310363079829,
             -3.49428278907306,
             -2.3094010767585,
             -2.08333333333333,
-            double.NegativeInfinity 
+            double.NegativeInfinity
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asech();
-        
+
         result.Backward();
 
         // Assert
@@ -3976,8 +3976,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcothFp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             1f,
@@ -3986,29 +3986,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             -0.549306144334055f,
             float.NegativeInfinity,
             float.PositiveInfinity,
             0.549306144334055f,
-            0.346573590279973f 
+            0.346573590279973f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -0.333333333333333f,
             float.NegativeInfinity,
             float.NegativeInfinity,
             -0.333333333333333f,
-            -0.125f 
+            -0.125f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acoth();
-        
+
         result.Backward();
 
         // Assert
@@ -4021,8 +4021,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcothFp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             1,
@@ -4031,29 +4031,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             -0.549306144334055,
             double.NegativeInfinity,
             double.PositiveInfinity,
             0.549306144334055,
-            0.346573590279973 
+            0.346573590279973
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -0.333333333333333,
             double.NegativeInfinity,
             double.NegativeInfinity,
             -0.333333333333333,
-            -0.125 
+            -0.125
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acoth();
-        
+
         result.Backward();
 
         // Assert
@@ -4066,8 +4066,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcsch2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             1f,
@@ -4076,29 +4076,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             0.231564820577194f,
             0.776819399895696f,
             0.776819399895696f,
             0.231564820577194f,
-            0.107223600890403f 
+            0.107223600890403f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.215204470482002f,
             1.24645048028046f,
             -1.24645048028046f,
             -0.215204470482002f,
-            -0.0690325529942708f 
+            -0.0690325529942708f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acsch2();
-        
+
         result.Backward();
 
         // Assert
@@ -4111,8 +4111,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcsch2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             1,
@@ -4121,29 +4121,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             0.231564820577194,
             0.776819399895696,
             0.776819399895696,
             0.231564820577194,
-            0.107223600890403 
+            0.107223600890403
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.215204470482002,
             1.24645048028046,
             -1.24645048028046,
             -0.215204470482002,
-            -0.0690325529942708 
+            -0.0690325529942708
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acsch2();
-        
+
         result.Backward();
 
         // Assert
@@ -4156,8 +4156,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsech2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             0.2f,
             0.3f,
             0.5f,
@@ -4166,29 +4166,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             5.25524295960705f,
             3.5112023013055f,
             1.73437810227264f,
             0.480453013918201f,
-            0f 
+            0f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             -23.3970327525893f,
             -13.0953156465605f,
             -6.08276797040757f,
             -2.88811325233311f,
-            float.NaN 
+            float.NaN
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asech2();
-        
+
         result.Backward();
 
         // Assert
@@ -4201,8 +4201,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAsech2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             0.2,
             0.3,
             0.5,
@@ -4211,29 +4211,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             5.25524295960705,
             3.5112023013055,
             1.73437810227264,
             0.480453013918201,
-            0 
+            0
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             -23.3970327525893,
             -13.0953156465605,
             -6.08276797040757,
             -2.88811325233311,
-            double.NaN 
+            double.NaN
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Asech2();
-        
+
         result.Backward();
 
         // Assert
@@ -4246,8 +4246,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcoth2Fp32(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<float>(new float[] 
-        { 
+        using var input = Tensor.FromArray<float>(new float[]
+        {
             -2f,
             -1f,
             1f,
@@ -4256,29 +4256,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<float>(new float[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<float>(new float[]
+        {
             0.301737240203146f,
             float.PositiveInfinity,
             float.PositiveInfinity,
             0.301737240203146f,
-            0.12011325347955f 
+            0.12011325347955f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<float>(new float[] 
+        using var expectedGradient = Tensor.FromArray<float>(new float[]
         {
             0.366204096222703f,
             float.PositiveInfinity,
             float.NegativeInfinity,
             -0.366204096222703f,
-            -0.0866433975699932f 
+            -0.0866433975699932f
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acoth2();
-        
+
         result.Backward();
 
         // Assert
@@ -4291,8 +4291,8 @@ public class TrigWithBackwardsShould : IntegrationTestBase
     public void ReturnCorrectResult_ForAcoth2Fp64(IDevice device)
     {
         // Arrange
-        using var input = Tensor.FromArray<double>(new double[] 
-        { 
+        using var input = Tensor.FromArray<double>(new double[]
+        {
             -2,
             -1,
             1,
@@ -4301,29 +4301,29 @@ public class TrigWithBackwardsShould : IntegrationTestBase
         },
         requiresGradient: true).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedOutput = Tensor.FromArray<double>(new double[] 
-        { 
+        using var expectedOutput = Tensor.FromArray<double>(new double[]
+        {
             0.301737240203146,
             double.PositiveInfinity,
             double.PositiveInfinity,
             0.301737240203146,
-            0.12011325347955 
+            0.12011325347955
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
-        using var expectedGradient = Tensor.FromArray<double>(new double[] 
+        using var expectedGradient = Tensor.FromArray<double>(new double[]
         {
             0.366204096222703,
             double.PositiveInfinity,
             double.NegativeInfinity,
             -0.366204096222703,
-            -0.0866433975699932 
+            -0.0866433975699932
         }).Broadcast(new Shape(10, 5)).ClearGradient();
 
         input.To(device);
 
         // Act
         var result = input.Acoth2();
-        
+
         result.Backward();
 
         // Assert

@@ -7,10 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Update="Tensors\Extensions\TrigExtensions.tt">
-        <Generator>TextTemplatingFileGenerator</Generator>
-        <LastGenOutput>TrigExtensions.cs</LastGenOutput>
-      </None>
+      <PackageReference Include="Newtonsoft.Json" />
+      <PackageReference Include="System.Management" />
+    </ItemGroup>
+
+    <ItemGroup>
       <None Update="Tensors\Extensions\TrigonometryExtensions.tt">
         <Generator>TextTemplatingFileGenerator</Generator>
         <LastGenOutput>TrigonometryExtensions.cs</LastGenOutput>
@@ -18,19 +19,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Tensors\Extensions\TrigExtensions.cs">
-        <AutoGen>True</AutoGen>
-        <DesignTime>True</DesignTime>
-        <DependentUpon>TrigExtensions.tt</DependentUpon>
-      </Compile>
       <Compile Update="Tensors\Extensions\TrigonometryExtensions.cs">
         <DependentUpon>TrigonometryExtensions.tt</DependentUpon>
       </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Newtonsoft.Json" />
-      <PackageReference Include="System.Management" />
     </ItemGroup>
 
 </Project>
