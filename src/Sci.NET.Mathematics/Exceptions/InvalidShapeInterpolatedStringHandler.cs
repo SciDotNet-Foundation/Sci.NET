@@ -13,7 +13,6 @@ namespace Sci.NET.Mathematics.Exceptions;
 /// </summary>
 [InterpolatedStringHandler]
 [ExcludeFromCodeCoverage]
-[PublicAPI]
 public readonly ref struct InvalidShapeInterpolatedStringHandler
 {
     private readonly StringBuilder _builder;
@@ -49,6 +48,11 @@ public readonly ref struct InvalidShapeInterpolatedStringHandler
         if (value is Shape shape)
         {
             _shapes.Add(shape);
+        }
+
+        if (value is IEnumerable<Shape> shapes)
+        {
+            _shapes.AddRange(shapes);
         }
 
         _ = _builder.Append(value);

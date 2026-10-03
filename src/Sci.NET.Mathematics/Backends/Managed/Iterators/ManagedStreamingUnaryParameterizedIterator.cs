@@ -1,7 +1,6 @@
 // Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.Intrinsics.X86;
 using Sci.NET.Mathematics.Backends.Devices;
@@ -13,8 +12,12 @@ namespace Sci.NET.Mathematics.Backends.Managed.Iterators;
 
 internal static class ManagedStreamingUnaryParameterizedIterator
 {
-    [SuppressMessage("Style", "IDE0010:Add missing cases", Justification = "Reviewed")]
-    public static unsafe void Apply<TOp, TNumber>(TNumber* inputPtr, TNumber* resultPtr, TOp instance, long n, ICpuComputeDevice device)
+    public static unsafe void Apply<TOp, TNumber>(
+        TNumber* inputPtr,
+        TNumber* resultPtr,
+        TOp instance,
+        long n,
+        ICpuComputeDevice device)
         where TOp : IUnaryParameterizedOperation<TOp, TNumber>, IUnaryParameterizedOperationAvx2<TOp>
         where TNumber : unmanaged, INumber<TNumber>
     {
@@ -23,8 +26,9 @@ internal static class ManagedStreamingUnaryParameterizedIterator
         using var tasks = TNumber.Zero switch
         {
             float when device.IsAvx2Supported() && TOp.IsAvx2Supported() => ParallelExecutorTaskFactory
-                .RepeatedConstantOffset<long>(processes, tid =>
-                    InnerLoopAvx2(
+                .RepeatedConstantOffset<long>(
+                    processes,
+                    tid => InnerLoopAvx2(
                         tid,
                         n,
                         processes,
@@ -32,41 +36,42 @@ internal static class ManagedStreamingUnaryParameterizedIterator
                         (float*)resultPtr,
                         instance)),
             double when device.IsAvx2Supported() && TOp.IsAvx2Supported() => ParallelExecutorTaskFactory
-                .RepeatedConstantOffset<long>(processes, tid =>
-                    InnerLoopAvx2(
+                .RepeatedConstantOffset<long>(
+                    processes,
+                    tid => InnerLoopAvx2(
                         tid,
                         n,
                         processes,
                         (double*)inputPtr,
                         (double*)resultPtr,
                         instance)),
-            float => ParallelExecutorTaskFactory
-                .RepeatedConstantOffset<long>(processes, tid =>
-                    InnerLoopScalar(
-                        tid,
-                        n,
-                        processes,
-                        (float*)inputPtr,
-                        (float*)resultPtr,
-                        instance)),
-            double => ParallelExecutorTaskFactory
-                .RepeatedConstantOffset<long>(processes, tid =>
-                    InnerLoopScalar(
-                        tid,
-                        n,
-                        processes,
-                        (double*)inputPtr,
-                        (double*)resultPtr,
-                        instance)),
-            _ => ParallelExecutorTaskFactory
-                .RepeatedConstantOffset<long>(processes, tid =>
-                    InnerLoopScalar(
-                        tid,
-                        n,
-                        processes,
-                        inputPtr,
-                        resultPtr,
-                        instance)),
+            float => ParallelExecutorTaskFactory.RepeatedConstantOffset<long>(
+                processes,
+                tid => InnerLoopScalar(
+                    tid,
+                    n,
+                    processes,
+                    (float*)inputPtr,
+                    (float*)resultPtr,
+                    instance)),
+            double => ParallelExecutorTaskFactory.RepeatedConstantOffset<long>(
+                processes,
+                tid => InnerLoopScalar(
+                    tid,
+                    n,
+                    processes,
+                    (double*)inputPtr,
+                    (double*)resultPtr,
+                    instance)),
+            _ => ParallelExecutorTaskFactory.RepeatedConstantOffset<long>(
+                processes,
+                tid => InnerLoopScalar(
+                    tid,
+                    n,
+                    processes,
+                    inputPtr,
+                    resultPtr,
+                    instance)),
         };
 
         ManagedTensorBackend.ParallelExecutor.Run(tasks);

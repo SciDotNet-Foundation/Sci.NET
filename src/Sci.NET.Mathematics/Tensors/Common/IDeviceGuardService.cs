@@ -12,7 +12,6 @@ namespace Sci.NET.Mathematics.Tensors.Common;
 /// operations taking place between <see cref="ITensor{TNumber}"/> instances
 /// with backing memory stored on different devices.
 /// </summary>
-[PublicAPI]
 public interface IDeviceGuardService
 {
     /// <summary>

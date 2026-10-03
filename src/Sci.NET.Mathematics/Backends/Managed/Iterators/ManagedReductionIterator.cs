@@ -1,7 +1,6 @@
 // Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
@@ -16,7 +15,6 @@ using Sci.NET.Mathematics.Tensors;
 
 namespace Sci.NET.Mathematics.Backends.Managed.Iterators;
 
-[SuppressMessage("Style", "IDE0010:Add missing cases", Justification = "All cases are covered.")]
 internal static class ManagedReductionIterator<TNumber, TReduction>
     where TNumber : unmanaged, INumber<TNumber>
     where TReduction : IReductionOperation<TNumber>, IReductionOperationAvx2
@@ -33,18 +31,18 @@ internal static class ManagedReductionIterator<TNumber, TReduction>
         switch (geometry.Pattern)
         {
             case ReductionPattern.FullReduction:
-                ApplyFullReduction(inputMemory, outputMemory, geometry, (ICpuComputeDevice)input.Device);
+                ApplyFullReduction(inputMemory, outputMemory, in geometry, (ICpuComputeDevice)input.Device);
                 break;
 
             case ReductionPattern.ContiguousInner:
-                ApplyContiguousInner(inputMemory, outputMemory, geometry, (ICpuComputeDevice)input.Device);
+                ApplyContiguousInner(inputMemory, outputMemory, in geometry, (ICpuComputeDevice)input.Device);
                 break;
 
             case ReductionPattern.ContiguousOuter:
-                ApplyContiguousOuter(inputMemory.ToPointer(), outputMemory.ToPointer(), geometry);
+                ApplyContiguousOuter(inputMemory.ToPointer(), outputMemory.ToPointer(), in geometry);
                 break;
             case ReductionPattern.Strided:
-                ApplyStrided(inputMemory.ToPointer(), outputMemory.ToPointer(), geometry);
+                ApplyStrided(inputMemory.ToPointer(), outputMemory.ToPointer(), in geometry);
                 break;
             default:
                 throw new InvalidOperationException($"Unsupported reduction pattern: {geometry.Pattern}");

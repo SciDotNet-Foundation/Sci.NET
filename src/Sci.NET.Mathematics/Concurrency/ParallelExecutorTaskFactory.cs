@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Concurrency;
 /// <summary>
 /// A factory for creating batches of <see cref="ParallelExecutorTask{TIndex}"/> instances.
 /// </summary>
-[PublicAPI]
 public static class ParallelExecutorTaskFactory
 {
     /// <summary>
@@ -20,7 +19,7 @@ public static class ParallelExecutorTaskFactory
     /// <param name="replicas">The number of tasks to create.</param>
     /// <param name="action">The action each task invokes.</param>
     /// <returns>A disposable collection of the created tasks.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="action"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="action"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="replicas"/> is not positive or exceeds <see cref="int.MaxValue"/>.</exception>
     public static ParallelExecutorTaskCollection<TIndex> RepeatedConstantOffset<TIndex>(
         TIndex replicas,
@@ -63,7 +62,7 @@ public static class ParallelExecutorTaskFactory
     /// <param name="partitioner">The partitioner producing the elements to process.</param>
     /// <param name="action">The action each task invokes.</param>
     /// <returns>A disposable collection of the created tasks.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="partitioner"/> or <paramref name="action"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="partitioner"/> or <paramref name="action"/> is <see langword="null"/>.</exception>
     public static ParallelExecutorTaskCollection<int> FromPartitioner<TSource>(
         Partitioner<TSource> partitioner,
         Action<TSource> action)

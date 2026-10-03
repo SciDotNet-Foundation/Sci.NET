@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Tensors.Random;
 /// <summary>
 /// A service for generating random <see cref="ITensor{TNumber}"/>s.
 /// </summary>
-[PublicAPI]
 public interface IRandomService
 {
     /// <summary>

@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Tensors.Common;
 /// <summary>
 /// A service for adding gradients to tensors.
 /// </summary>
-[PublicAPI]
 public interface IGradientAppenderService
 {
     /// <summary>

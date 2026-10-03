@@ -7,7 +7,6 @@ namespace Sci.NET.Mathematics.Memory;
 /// Represents a contiguous region of memory.
 /// </summary>
 /// <typeparam name="T">The type of memory stored within that region of memory.</typeparam>
-[PublicAPI]
 public interface IMemoryBlock<T> : IDisposable
     where T : unmanaged
 {

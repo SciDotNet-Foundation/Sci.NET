@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Tensors.LinearAlgebra;
 /// <summary>
 /// An interface for norm functions.
 /// </summary>
-[PublicAPI]
 public interface INormService
 {
     /// <summary>

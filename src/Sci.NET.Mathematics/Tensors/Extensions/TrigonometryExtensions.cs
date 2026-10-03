@@ -10,7 +10,6 @@ namespace Sci.NET.Mathematics.Tensors;
 /// <summary>
 /// A class containing extension methods for trigonometric functions.
 /// </summary>
-[PublicAPI]
 public static class TrigonometryExtensions
 {
     /// <summary>

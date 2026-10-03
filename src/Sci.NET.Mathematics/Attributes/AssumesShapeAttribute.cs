@@ -11,7 +11,6 @@ namespace Sci.NET.Mathematics.Attributes;
 /// An attribute describing the expected shapes of an <see cref="ITensor{TNumber}"/>
 /// for a parameter of a function.
 /// </summary>
-[PublicAPI]
 [AttributeUsage(AttributeTargets.Parameter)]
 [ExcludeFromCodeCoverage]
 public sealed class AssumesShapeAttribute : Attribute

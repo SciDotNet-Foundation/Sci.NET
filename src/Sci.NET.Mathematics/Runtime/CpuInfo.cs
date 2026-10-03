@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Management;
-using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
 namespace Sci.NET.Mathematics.Runtime;
@@ -12,7 +11,6 @@ namespace Sci.NET.Mathematics.Runtime;
 /// <summary>
 /// Provides information about the CPU.
 /// </summary>
-[PublicAPI]
 [ExcludeFromCodeCoverage]
 public static class CpuInfo
 {
@@ -22,7 +20,7 @@ public static class CpuInfo
         var model = "Unknown Model";
         var clockSpeed = 0.0d;
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (OperatingSystem.IsWindows())
         {
             try
             {
@@ -33,7 +31,7 @@ public static class CpuInfo
                 // ignored
             }
         }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        else if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
         {
             try
             {

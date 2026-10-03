@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Attributes;
 /// An attribute which decorates a method which performs memory manipulations without any checks. It doesn't do anything
 /// other than remind you that calling this method (without caution) will cause you to have a bad day.
 /// </summary>
-[PublicAPI]
 [AttributeUsage(AttributeTargets.Method, Inherited = false)]
 [ExcludeFromCodeCoverage]
 public sealed class MemoryCorrupterAttribute : Attribute

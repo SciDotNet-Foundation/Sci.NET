@@ -6,7 +6,6 @@ namespace Sci.NET.Mathematics.Backends.Devices;
 /// <summary>
 /// An interface for a computation device.
 /// </summary>
-[PublicAPI]
 public interface IDevice : IEquatable<IDevice>
 {
     /// <summary>

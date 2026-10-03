@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Memory;
 /// An enumerator for <see cref="SystemMemoryBlock{T}"/>.
 /// </summary>
 /// <typeparam name="T">The type of element in the enumeration.</typeparam>
-[PublicAPI]
 public ref struct SystemMemoryBlockEnumerator<T>
     where T : unmanaged
 {
@@ -30,7 +29,7 @@ public ref struct SystemMemoryBlockEnumerator<T>
     /// <summary>
     /// Advances the enumerator to the next element of the <see cref="SystemMemoryBlock{T}"/>.
     /// </summary>
-    /// <returns><c>true</c> if the index was incremented, else <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if the index was incremented, else <see langword="false"/>.</returns>
     public bool MoveNext()
     {
         var index = _index + 1;

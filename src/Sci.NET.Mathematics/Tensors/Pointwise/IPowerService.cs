@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Tensors.Pointwise;
 /// <summary>
 /// Provides power operations for <see cref="ITensor{TNumber}"/>s.
 /// </summary>
-[PublicAPI]
 public interface IPowerService
 {
     /// <summary>

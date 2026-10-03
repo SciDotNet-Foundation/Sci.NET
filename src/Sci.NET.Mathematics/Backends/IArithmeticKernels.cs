@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// An interface for arithmetic kernels.
 /// </summary>
-[PublicAPI]
 public interface IArithmeticKernels
 {
     /// <summary>

@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// An interface for a backend that provides power operations.
 /// </summary>
-[PublicAPI]
 public interface IExponentialKernels
 {
     /// <summary>

@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// An interface for permutation kernels.
 /// </summary>
-[PublicAPI]
 public interface IPermutationKernels
 {
     /// <summary>

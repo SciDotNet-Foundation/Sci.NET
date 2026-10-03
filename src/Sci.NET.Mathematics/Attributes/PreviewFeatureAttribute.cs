@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Attributes;
 /// An attribute to mark a feature as preview only.
 /// </summary>
 [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true)]
-[PublicAPI]
 [ExcludeFromCodeCoverage]
 public sealed class PreviewFeatureAttribute : Attribute
 {

@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Tensors.NeuralNetworks;
 /// <summary>
 /// Service for tensor normalisation.
 /// </summary>
-[PublicAPI]
 public interface INormalisationService
 {
     /// <summary>

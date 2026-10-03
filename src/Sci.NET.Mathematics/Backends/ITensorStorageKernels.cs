@@ -10,7 +10,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// Represents a storage backend.
 /// </summary>
-[PublicAPI]
 public interface ITensorStorageKernels
 {
     /// <summary>

@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Exceptions;
 /// <summary>
 /// An exception thrown when an intrinsic type is not implemented.
 /// </summary>
-[PublicAPI]
 [ExcludeFromCodeCoverage]
 public class IntrinsicTypeNotImplementedException : Exception
 {

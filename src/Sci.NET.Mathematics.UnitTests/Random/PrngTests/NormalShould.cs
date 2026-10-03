@@ -180,7 +180,7 @@ public class NormalShould : PrngTestBase
         // Assert
         var array = memory.ToArray();
 
-        array.Should().OnlyContain(x => x == (Half)5.0f);
+        array.Should().OnlyContain(static x => x == (Half)5.0f);
     }
 
     [Theory]
@@ -197,7 +197,7 @@ public class NormalShould : PrngTestBase
         // Assert
         var array = memory.ToArray();
 
-        array.Should().OnlyContain(x => x == 5.0f);
+        array.Should().OnlyContain(static x => x == 5.0f);
     }
 
     [Theory]
@@ -214,7 +214,7 @@ public class NormalShould : PrngTestBase
         // Assert
         var array = memory.ToArray();
 
-        array.Should().OnlyContain(x => x == 5.0f);
+        array.Should().OnlyContain(static x => x == 5.0f);
     }
 
     [Theory]
@@ -231,7 +231,7 @@ public class NormalShould : PrngTestBase
         // Assert
         var array = memory.ToArray();
 
-        array.Should().OnlyContain(x => x == 5.0);
+        array.Should().OnlyContain(static x => x == 5.0);
     }
 
     [Theory]

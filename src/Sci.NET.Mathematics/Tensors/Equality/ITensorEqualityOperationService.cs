@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Tensors.Equality;
 /// Provides a set of operations to perform element-wise <see cref="ITensor{TNumber}"/> comparisons, including equality,
 /// greater than, less than, and their respective inclusive comparisons.
 /// </summary>
-[PublicAPI]
 public interface ITensorEqualityOperationService
 {
     /// <summary>

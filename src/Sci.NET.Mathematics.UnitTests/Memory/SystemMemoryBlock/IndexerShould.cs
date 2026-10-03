@@ -14,7 +14,7 @@ public class IndexerShould
     [InlineData(100000)]
     public void GivenValidIndex_ReturnCorrectValue(int length)
     {
-        var array = Enumerable.Range(0, length).Select(x => (byte)x).ToArray();
+        var array = Enumerable.Range(0, length).Select(static x => (byte)x).ToArray();
         var memoryBlock = new SystemMemoryBlock<byte>(length);
         memoryBlock.CopyFrom(array);
 

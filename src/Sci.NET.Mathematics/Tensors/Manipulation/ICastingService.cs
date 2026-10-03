@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Tensors.Manipulation;
 /// <summary>
 /// Provides tensor casting functionality.
 /// </summary>
-[PublicAPI]
 public interface ICastingService
 {
     /// <summary>

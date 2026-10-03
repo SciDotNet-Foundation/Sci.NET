@@ -10,7 +10,7 @@ public class ParallelExecutorTaskCollectionTests
     [Fact]
     public void Factory_Throws_WhenReplicasNotPositive()
     {
-        var act = () => ParallelExecutorTaskFactory.RepeatedConstantOffset(0, _ => { });
+        var act = static () => ParallelExecutorTaskFactory.RepeatedConstantOffset(0, static _ => { });
 
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
@@ -18,7 +18,7 @@ public class ParallelExecutorTaskCollectionTests
     [Fact]
     public void Factory_Throws_WhenActionIsNull()
     {
-        var act = () => ParallelExecutorTaskFactory.RepeatedConstantOffset(4, null!);
+        var act = static () => ParallelExecutorTaskFactory.RepeatedConstantOffset(4, null!);
 
         act.Should().Throw<ArgumentNullException>();
     }
@@ -26,15 +26,15 @@ public class ParallelExecutorTaskCollectionTests
     [Fact]
     public void Factory_AssignsSequentialVirtualThreadIndices()
     {
-        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(4, _ => { });
+        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(4, static _ => { });
 
-        workItems.Select(task => task.VirtualThreadIdx).Should().Equal(0, 1, 2, 3);
+        workItems.Select(static task => task.VirtualThreadIdx).Should().Equal(0, 1, 2, 3);
     }
 
     [Fact]
     public void Enumerator_YieldsEveryTask_IncludingTheFirst()
     {
-        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(3, _ => { });
+        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(3, static _ => { });
 
         workItems.ToArray().Should().HaveCount(3);
         workItems.Count.Should().Be(3);
@@ -43,7 +43,7 @@ public class ParallelExecutorTaskCollectionTests
     [Fact]
     public void Enumerator_StopsYielding_WhenCollectionIsDisposed()
     {
-        var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(3, _ => { });
+        var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(3, static _ => { });
         workItems.Dispose();
 
         workItems.ToArray().Should().BeEmpty();
@@ -52,7 +52,7 @@ public class ParallelExecutorTaskCollectionTests
     [Fact]
     public void WaitAll_ReturnsImmediately_WhenAllTasksAlreadyExecuted()
     {
-        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(3, _ => { });
+        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(3, static _ => { });
 
         foreach (var task in workItems)
         {
@@ -67,7 +67,7 @@ public class ParallelExecutorTaskCollectionTests
     [Fact]
     public void WaitAll_WithTimeout_ReturnsFalse_WhenTasksHaveNotExecuted()
     {
-        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(3, _ => { });
+        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(3, static _ => { });
 
         workItems.WaitAll(TimeSpan.FromMilliseconds(10)).Should().BeFalse();
     }
@@ -75,7 +75,7 @@ public class ParallelExecutorTaskCollectionTests
     [Fact]
     public void WaitAll_Throws_WhenDisposed()
     {
-        var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(3, _ => { });
+        var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(3, static _ => { });
         workItems.Dispose();
 
         var act = () => workItems.WaitAll();
@@ -88,7 +88,7 @@ public class ParallelExecutorTaskCollectionTests
     {
         using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(
             3,
-            tid => throw new InvalidOperationException($"boom {tid}"));
+            static tid => throw new InvalidOperationException($"boom {tid}"));
 
         foreach (var task in workItems)
         {
@@ -103,7 +103,7 @@ public class ParallelExecutorTaskCollectionTests
     [Fact]
     public void Execute_CapturesException_InsteadOfThrowing()
     {
-        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(1, _ => throw new InvalidOperationException("boom"));
+        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(1, static _ => throw new InvalidOperationException("boom"));
         var task = workItems.Single();
 
         var act = task.Execute;
@@ -115,7 +115,7 @@ public class ParallelExecutorTaskCollectionTests
     [Fact]
     public void Dispose_CanBeCalledMultipleTimes()
     {
-        var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(3, _ => { });
+        var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(3, static _ => { });
 
         workItems.Dispose();
         var act = () => workItems.Dispose();

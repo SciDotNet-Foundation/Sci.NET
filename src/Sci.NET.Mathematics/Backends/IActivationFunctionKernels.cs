@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// An interface for activation function kernels.
 /// </summary>
-[PublicAPI]
 public interface IActivationFunctionKernels
 {
     /// <summary>

@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/Benchmarks/">
+    <Project Path="src/Sci.NET.Benchmarks/Sci.NET.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/Samples/">
+    <Project Path="Samples/Basics.Arithmetic/Basics.Arithmetic.csproj" />
+    <Project Path="Samples/Basics.MatrixMultiply/Basics.MatrixMultiply.csproj" />
+    <Project Path="Samples/Basics.Reduction/Basics.Reduction.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="eng/build-props/AddAnalyzers.props" />
+    <File Path="eng/build-props/AddCommonTestNugetPackages.props" />
+    <File Path="eng/build-props/MakeInternalsVisibleToTestProjects.props" />
+    <File Path="src/Directory.Build.props" />
+    <File Path="src/Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/Solution Items/Pipelines/">
+    <File Path=".github/workflows/ci.yml" />
+    <File Path=".github/workflows/sonarcloud.yml" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="src/Sci.NET.Mathematics.UnitTests/Sci.NET.Mathematics.UnitTests.csproj" />
+  </Folder>
+  <Project Path="src/Sci.NET.Mathematics/Sci.NET.Mathematics.csproj" />
+</Solution>

@@ -10,7 +10,6 @@ using Sci.NET.Mathematics.Performance;
 
 namespace Sci.NET.Mathematics.Backends.Managed.MicroKernels.ActivationFunctions;
 
-[SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter", Justification = "By design")]
 internal class MishBackwardMicroKernel<TNumber> : IUnaryOperation<TNumber>, IUnaryOperationAvx2
     where TNumber : unmanaged, INumber<TNumber>, IExponentialFunctions<TNumber>, ILogarithmicFunctions<TNumber>
 {
@@ -29,18 +28,18 @@ internal class MishBackwardMicroKernel<TNumber> : IUnaryOperation<TNumber>, IUna
 
         // mish'\left(x\right)=\frac{-1+\left(1+e^{x}\right)^{2}}{1+\left(1+e^{x}\right)^{2}}-\frac{2e^{x}\left(1+e^{x}\right)\left(-1+\left(1+e^{x}\right)^{2}\right)x}{\left(1+\left(1+e^{x}\right)^{2}\right)^{2}}+\frac{2e^{x}\left(1+e^{x}\right)x}{1+\left(1+e^{x}\right)^{2}}
         var eToTheX = TNumber.Exp(input);
-        var onePlusEX = TNumber.One + eToTheX;
-        var onePlusEXSquared = onePlusEX * onePlusEX;
+        var onePlusEx = TNumber.One + eToTheX;
+        var onePlusExSquared = onePlusEx * onePlusEx;
 
         // \frac{-1+\left(1+e^{x}\right)^{2}}{1+\left(1+e^{x}\right)^{2}}
-        var firstTerm = (minusOne + onePlusEXSquared) / (TNumber.One + onePlusEXSquared);
+        var firstTerm = (minusOne + onePlusExSquared) / (TNumber.One + onePlusExSquared);
 
         // \frac{2e^{x}\left(1+e^{x}\right)\left(-1+\left(1+e^{x}\right)^{2}\right)x}{\left(1+\left(1+e^{x}\right)^{2}\right)^{2}}
-        var onePlusExpXSquared = (TNumber.One + onePlusEXSquared) * (TNumber.One + onePlusEXSquared);
-        var secondTerm = minusTwo * eToTheX * onePlusEX * (minusOne + onePlusEXSquared) * input / onePlusExpXSquared;
+        var onePlusExpXSquared = (TNumber.One + onePlusExSquared) * (TNumber.One + onePlusExSquared);
+        var secondTerm = minusTwo * eToTheX * onePlusEx * (minusOne + onePlusExSquared) * input / onePlusExpXSquared;
 
         // \frac{2e^{x}\left(1+e^{x}\right)x}{1+\left(1+e^{x}\right)^{2}}
-        var thirdTerm = two * eToTheX * onePlusEX * input / (TNumber.One + onePlusEXSquared);
+        var thirdTerm = two * eToTheX * onePlusEx * input / (TNumber.One + onePlusExSquared);
 
         return firstTerm + secondTerm + thirdTerm;
     }
@@ -50,18 +49,18 @@ internal class MishBackwardMicroKernel<TNumber> : IUnaryOperation<TNumber>, IUna
     {
         // mish'\left(x\right)=\frac{-1+\left(1+e^{x}\right)^{2}}{1+\left(1+e^{x}\right)^{2}}-\frac{2e^{x}\left(1+e^{x}\right)\left(-1+\left(1+e^{x}\right)^{2}\right)x}{\left(1+\left(1+e^{x}\right)^{2}\right)^{2}}+\frac{2e^{x}\left(1+e^{x}\right)x}{1+\left(1+e^{x}\right)^{2}}
         var eToTheX = MathF.Exp(input);
-        var onePlusEX = 1.0f + eToTheX;
-        var onePlusEXSquared = onePlusEX * onePlusEX;
+        var onePlusEx = 1.0f + eToTheX;
+        var onePlusExSquared = onePlusEx * onePlusEx;
 
         // \frac{-1+\left(1+e^{x}\right)^{2}}{1+\left(1+e^{x}\right)^{2}}
-        var firstTerm = (-1.0f + onePlusEXSquared) / (1.0f + onePlusEXSquared);
+        var firstTerm = (-1.0f + onePlusExSquared) / (1.0f + onePlusExSquared);
 
         // \frac{2e^{x}\left(1+e^{x}\right)\left(-1+\left(1+e^{x}\right)^{2}\right)x}{\left(1+\left(1+e^{x}\right)^{2}\right)^{2}}
-        var onePlusExpXSquared = (1.0f + onePlusEXSquared) * (1.0f + onePlusEXSquared);
-        var secondTerm = -2.0f * eToTheX * onePlusEX * (-1.0f + onePlusEXSquared) * input / onePlusExpXSquared;
+        var onePlusExpXSquared = (1.0f + onePlusExSquared) * (1.0f + onePlusExSquared);
+        var secondTerm = -2.0f * eToTheX * onePlusEx * (-1.0f + onePlusExSquared) * input / onePlusExpXSquared;
 
         // \frac{2e^{x}\left(1+e^{x}\right)x}{1+\left(1+e^{x}\right)^{2}}
-        var thirdTerm = 2.0f * eToTheX * onePlusEX * input / (1.0f + onePlusEXSquared);
+        var thirdTerm = 2.0f * eToTheX * onePlusEx * input / (1.0f + onePlusExSquared);
 
         return firstTerm + secondTerm + thirdTerm;
     }
@@ -71,18 +70,18 @@ internal class MishBackwardMicroKernel<TNumber> : IUnaryOperation<TNumber>, IUna
     {
         // mish'\left(x\right)=\frac{-1+\left(1+e^{x}\right)^{2}}{1+\left(1+e^{x}\right)^{2}}-\frac{2e^{x}\left(1+e^{x}\right)\left(-1+\left(1+e^{x}\right)^{2}\right)x}{\left(1+\left(1+e^{x}\right)^{2}\right)^{2}}+\frac{2e^{x}\left(1+e^{x}\right)x}{1+\left(1+e^{x}\right)^{2}}
         var eToTheX = Math.Exp(input);
-        var onePlusEX = 1.0 + eToTheX;
-        var onePlusEXSquared = onePlusEX * onePlusEX;
+        var onePlusEx = 1.0 + eToTheX;
+        var onePlusExSquared = onePlusEx * onePlusEx;
 
         // \frac{-1+\left(1+e^{x}\right)^{2}}{1+\left(1+e^{x}\right)^{2}}
-        var firstTerm = (-1.0 + onePlusEXSquared) / (1.0 + onePlusEXSquared);
+        var firstTerm = (-1.0 + onePlusExSquared) / (1.0 + onePlusExSquared);
 
         // \frac{2e^{x}\left(1+e^{x}\right)\left(-1+\left(1+e^{x}\right)^{2}\right)x}{\left(1+\left(1+e^{x}\right)^{2}\right)^{2}}
-        var onePlusExpXSquared = (1.0 + onePlusEXSquared) * (1.0 + onePlusEXSquared);
-        var secondTerm = -2.0 * eToTheX * onePlusEX * (-1.0 + onePlusEXSquared) * input / onePlusExpXSquared;
+        var onePlusExpXSquared = (1.0 + onePlusExSquared) * (1.0 + onePlusExSquared);
+        var secondTerm = -2.0 * eToTheX * onePlusEx * (-1.0 + onePlusExSquared) * input / onePlusExpXSquared;
 
         // \frac{2e^{x}\left(1+e^{x}\right)x}{1+\left(1+e^{x}\right)^{2}}
-        var thirdTerm = 2.0 * eToTheX * onePlusEX * input / (1.0 + onePlusEXSquared);
+        var thirdTerm = 2.0 * eToTheX * onePlusEx * input / (1.0 + onePlusExSquared);
 
         return firstTerm + secondTerm + thirdTerm;
     }

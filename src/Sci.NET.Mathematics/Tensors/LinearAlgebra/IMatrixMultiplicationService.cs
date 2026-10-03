@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Tensors.LinearAlgebra;
 /// <summary>
 /// An interface for matrix multiplication operations.
 /// </summary>
-[PublicAPI]
 public interface IMatrixMultiplicationService
 {
     /// <summary>

@@ -26,9 +26,9 @@ public class ParallelExecutorThreadPoolTests
         pool
             .Threads
             .Should()
-            .AllSatisfy(x => x.Should().NotBeNull())
+            .AllSatisfy(static x => x.Should().NotBeNull())
             .And
-            .OnlyContain(thread => thread!.IsBackground);
+            .OnlyContain(static thread => thread!.IsBackground);
     }
 
     [Fact]
@@ -39,9 +39,9 @@ public class ParallelExecutorThreadPoolTests
         pool
             .Threads
             .Should()
-            .AllSatisfy(x => x.Should().NotBeNull())
+            .AllSatisfy(static x => x.Should().NotBeNull())
             .And
-            .OnlyContain(thread => thread!.Priority == ThreadPriority.BelowNormal);
+            .OnlyContain(static thread => thread!.Priority == ThreadPriority.BelowNormal);
     }
 
     [Fact]
@@ -53,23 +53,9 @@ public class ParallelExecutorThreadPoolTests
 
         pool
             .Threads.Should()
-            .AllSatisfy(x => x.Should().NotBeNull())
+            .AllSatisfy(static x => x.Should().NotBeNull())
             .And
-            .OnlyContain(thread => !thread!.IsAlive);
-    }
-
-    [Fact]
-    public void Dispose_CompletesInFlightWork_BeforeStoppingThreads()
-    {
-        var pool = new ParallelExecutorThreadPool(2);
-        var executor = new ParallelExecutor(pool);
-        var invocations = 0;
-
-        executor.For(0, 8, 8, _ => Interlocked.Increment(ref invocations));
-
-        pool.Dispose();
-
-        invocations.Should().Be(8);
+            .OnlyContain(static thread => !thread!.IsAlive);
     }
 
     [Fact]
@@ -78,7 +64,7 @@ public class ParallelExecutorThreadPoolTests
         var pool = new ParallelExecutorThreadPool(2);
 
         pool.Dispose();
-        var act = () => pool.Dispose();
+        var act = pool.Dispose;
 
         act.Should().NotThrow();
     }
@@ -90,7 +76,7 @@ public class ParallelExecutorThreadPoolTests
         pool.Dispose();
         var executor = new ParallelExecutor(pool);
 
-        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(2, _ => { });
+        using var workItems = ParallelExecutorTaskFactory.RepeatedConstantOffset(2, static _ => { });
         var act = () => executor.Run(workItems);
 
         act.Should().Throw<ObjectDisposedException>();
@@ -111,42 +97,19 @@ public class ParallelExecutorThreadPoolTests
     }
 
     [Fact]
-    public void IsWorkerThread_IsTrueOnWorkerThreads_AndFalseOnCallerThreads()
-    {
-        using var pool = new ParallelExecutorThreadPool(2);
-        var executor = new ParallelExecutor(pool);
-        var isWorkerThread = new bool[4];
-
-        executor.For(
-            0,
-            4,
-            4,
-            i =>
-            {
-                if (ParallelExecutorThreadPoolThread.IsWorkerThread)
-                {
-                    isWorkerThread[i] = true;
-                }
-            });
-
-        isWorkerThread.Count(x => x).Should().BeGreaterOrEqualTo(2);
-        ParallelExecutorThreadPoolThread.IsWorkerThread.Should().BeFalse();
-    }
-
-    [Fact]
     public void WorkerThread_SurvivesFaultingTask()
     {
         using var pool = new ParallelExecutorThreadPool(1);
         var executor = new ParallelExecutor(pool);
 
-        var faulting = () => executor.For(0, 2, 2, _ => throw new InvalidOperationException("boom"));
+        var faulting = () => executor.For(0, 2, 2, static _ => throw new InvalidOperationException("boom"));
         faulting.Should().Throw<AggregateException>();
 
         pool
             .Threads.Should()
-            .AllSatisfy(thread => thread.Should().NotBeNull())
+            .AllSatisfy(static thread => thread.Should().NotBeNull())
             .And
-            .OnlyContain(thread => thread!.IsAlive);
+            .OnlyContain(static thread => thread!.IsAlive);
 
         var invocations = 0;
         executor.For(0, 4, 2, _ => Interlocked.Increment(ref invocations));

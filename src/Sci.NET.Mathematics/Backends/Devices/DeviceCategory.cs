@@ -6,7 +6,6 @@ namespace Sci.NET.Mathematics.Backends.Devices;
 /// <summary>
 /// Enumerates device categories.
 /// </summary>
-[PublicAPI]
 public enum DeviceCategory
 {
     /// <summary>

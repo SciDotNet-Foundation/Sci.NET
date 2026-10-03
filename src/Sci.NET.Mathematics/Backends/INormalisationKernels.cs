@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// An interface for normalisation kernels.
 /// </summary>
-[PublicAPI]
 public interface INormalisationKernels
 {
     /// <summary>

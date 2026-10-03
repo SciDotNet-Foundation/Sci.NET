@@ -56,14 +56,8 @@
         <DebugType>portable</DebugType>
     </PropertyGroup>
 
-    <ItemGroup>
-        <Compile Include="$(RootDirectory)src/common/BaseGlobalUsings.cs" Link="base.globalusings.cs"/>
-    </ItemGroup>
     <ItemGroup Condition="'$(TestProject)' == 'true'">
         <Compile Include="$(RootDirectory)src/common/TestGlobalUsings.cs" Link="test.globalusings.cs"/>
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="JetBrains.Annotations"/>
     </ItemGroup>
     <ItemGroup>
         <None Include="$(RootDirectory)eng/build-props/images/icon-small.png" Pack="true" Link="icon-small.png" PackagePath="\"/>

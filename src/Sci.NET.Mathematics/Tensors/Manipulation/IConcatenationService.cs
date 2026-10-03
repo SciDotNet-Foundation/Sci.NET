@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Tensors.Manipulation;
 /// <summary>
 /// A service for concatenating tensors.
 /// </summary>
-[PublicAPI]
 public interface IConcatenationService
 {
     /// <summary>

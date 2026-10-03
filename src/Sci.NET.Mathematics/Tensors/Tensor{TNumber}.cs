@@ -14,7 +14,6 @@ namespace Sci.NET.Mathematics.Tensors;
 /// A rank-N tensor, which is an immutable N-Dimensional array.
 /// </summary>
 /// <typeparam name="TNumber">The number type of the <see cref="ITensor{TNumber}"/>.</typeparam>
-[PublicAPI]
 public sealed class Tensor<TNumber> : ITensor<TNumber>
     where TNumber : unmanaged, INumber<TNumber>
 {
@@ -55,7 +54,7 @@ public sealed class Tensor<TNumber> : ITensor<TNumber>
     {
         if (newShape.ElementCount != previousTensor.Shape.ElementCount)
         {
-            throw new ArgumentException("The new shape must have the same number of elements as the previous tensor.");
+            throw new ArgumentException("The new shape must have the same number of elements as the previous tensor.", nameof(newShape));
         }
 
         Memory = previousTensor.Memory;
@@ -114,7 +113,8 @@ public sealed class Tensor<TNumber> : ITensor<TNumber>
     public bool IsGradient { get; init; }
 
     /// <inheritdoc/>
-    ICollection<(string Name, ITensor<TNumber> Parent, Func<ITensor<TNumber>, ITensor<TNumber>> Gradient)> ITensor<TNumber>.Parents { get; } = new List<(string Name, ITensor<TNumber> Parent, Func<ITensor<TNumber>, ITensor<TNumber>> Gradient)>();
+    ICollection<(string Name, ITensor<TNumber> Parent, Func<ITensor<TNumber>, ITensor<TNumber>> Gradient)>
+        ITensor<TNumber>.Parents { get; } = [];
 
     /// <inheritdoc/>
     public IDevice Device => Backend.Device;
@@ -122,7 +122,7 @@ public sealed class Tensor<TNumber> : ITensor<TNumber>
 #pragma warning disable IDE0051, RCS1213
     [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
     [ExcludeFromCodeCoverage]
-    private Array Data => Shape.All(x => x < 10000) ? ToArray() : new[] { "The tensor too big to view" };
+    private Array Data => Shape.All(static x => x < 10000) ? ToArray() : new[] { "The tensor too big to view" };
 #pragma warning restore RCS1213, IDE0051
 
     /// <inheritdoc />

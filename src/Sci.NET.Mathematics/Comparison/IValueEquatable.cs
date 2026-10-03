@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 namespace Sci.NET.Mathematics.Comparison;
 
 /// <inheritdoc cref="System.IEquatable{T}"/>
-[PublicAPI]
 public interface IValueEquatable<T> : IEquatable<T>
     where T : struct, IValueEquatable<T>
 {
@@ -15,8 +14,8 @@ public interface IValueEquatable<T> : IEquatable<T>
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
-    /// <returns><c>true</c> if <paramref name="left"/> is equal to
-    /// <paramref name="right"/>, else <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if <paramref name="left"/> is equal to
+    /// <paramref name="right"/>, else <see langword="false"/>.</returns>
     public static abstract bool operator ==(T left, T right);
 
     /// <summary>
@@ -24,16 +23,16 @@ public interface IValueEquatable<T> : IEquatable<T>
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
-    /// <returns><c>true</c> if <paramref name="left"/> is not
-    /// equal to <paramref name="right"/>, else <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if <paramref name="left"/> is not
+    /// equal to <paramref name="right"/>, else <see langword="false"/>.</returns>
     public static abstract bool operator !=(T left, T right);
 
     /// <summary>
     /// Determines whether the specified object is equal to the current object.
     /// </summary>
     /// <param name="other">The object to compare to.</param>
-    /// <returns><c>true</c> if the <paramref name="other"/>
-    /// is equal to <c>this</c> instance, else <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if the <paramref name="other"/>
+    /// is equal to <see langword="this"/> instance, else <see langword="false"/>.</returns>
     public new bool Equals(T other);
 
     /// <inheritdoc cref="object.Equals(object?)"/>

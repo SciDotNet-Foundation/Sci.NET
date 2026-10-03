@@ -5,16 +5,14 @@ using System.Diagnostics;
 using System.Numerics;
 using Sci.NET.Mathematics.Attributes;
 
-#pragma warning disable IDE0130
-
 // ReSharper disable once CheckNamespace
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Sci.NET.Mathematics.Tensors;
 #pragma warning restore IDE0130
 
 /// <summary>
 /// Extension methods for activation functions.
 /// </summary>
-[PublicAPI]
 public static class ActivationFunctionExtensions
 {
     /// <summary>

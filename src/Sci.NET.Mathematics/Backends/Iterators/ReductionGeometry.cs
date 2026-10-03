@@ -10,59 +10,8 @@ namespace Sci.NET.Mathematics.Backends.Iterators;
 /// <summary>
 /// Describes the geometry of a reduction operation.
 /// </summary>
-[SuppressMessage("Design", "CA1051:Do not declare visible instance fields", Justification = "Structs are immutable data containers.")]
 public readonly struct ReductionGeometry : IValueEquatable<ReductionGeometry>
 {
-    /// <summary>
-    /// The reduction pattern.
-    /// </summary>
-    public readonly ReductionPattern Pattern;
-
-    /// <summary>
-    /// The number of outer elements.
-    /// </summary>
-    public readonly long OuterCount;
-
-    /// <summary>
-    /// The number of inner elements.
-    /// </summary>
-    public readonly long InnerCount;
-
-    /// <summary>
-    /// The total number of elements.
-    /// </summary>
-    public readonly long TotalElements;
-
-    /// <summary>
-    /// The tensor strides.
-    /// </summary>
-    public readonly long[] TensorStrides;
-
-    /// <summary>
-    /// The mapping from result dimensions to tensor dimensions.
-    /// </summary>
-    public readonly int[] ResultToTensorDim;
-
-    /// <summary>
-    /// The dimensions of the reduction axes.
-    /// </summary>
-    public readonly int[] ReduceAxisDims;
-
-    /// <summary>
-    /// The strides of the reduction axes.
-    /// </summary>
-    public readonly long[] ReduceAxisStrides;
-
-    /// <summary>
-    /// The outer stride (used for contiguous outer reductions).
-    /// </summary>
-    public readonly long OuterStride;
-
-    /// <summary>
-    /// The input shape for which this geometry was computed.
-    /// </summary>
-    public readonly int[] InputShape;
-
     private ReductionGeometry(
         ReductionPattern pattern,
         long outerCount,
@@ -79,13 +28,63 @@ public readonly struct ReductionGeometry : IValueEquatable<ReductionGeometry>
         OuterCount = outerCount;
         InnerCount = innerCount;
         TotalElements = totalElements;
-        TensorStrides = tensorStrides ?? Array.Empty<long>();
-        ResultToTensorDim = resultToTensorDim ?? Array.Empty<int>();
-        ReduceAxisDims = reduceAxisDims ?? Array.Empty<int>();
-        ReduceAxisStrides = reduceAxisStrides ?? Array.Empty<long>();
+        TensorStrides = tensorStrides ?? [];
+        ResultToTensorDim = resultToTensorDim ?? [];
+        ReduceAxisDims = reduceAxisDims ?? [];
+        ReduceAxisStrides = reduceAxisStrides ?? [];
         OuterStride = outerStride;
         InputShape = inputShape;
     }
+
+    /// <summary>
+    /// Gets the reduction pattern.
+    /// </summary>
+    public ReductionPattern Pattern { get; }
+
+    /// <summary>
+    /// Gets the number of outer elements.
+    /// </summary>
+    public long OuterCount { get; }
+
+    /// <summary>
+    /// Gets the number of inner elements.
+    /// </summary>
+    public long InnerCount { get; }
+
+    /// <summary>
+    /// Gets the total number of elements.
+    /// </summary>
+    public long TotalElements { get; }
+
+    /// <summary>
+    /// Gets the tensor strides.
+    /// </summary>
+    public long[] TensorStrides { get; }
+
+    /// <summary>
+    /// Gets the mapping from result dimensions to tensor dimensions.
+    /// </summary>
+    public int[] ResultToTensorDim { get; }
+
+    /// <summary>
+    /// Gets the dimensions of the reduction axes.
+    /// </summary>
+    public int[] ReduceAxisDims { get; }
+
+    /// <summary>
+    /// Gets the strides of the reduction axes.
+    /// </summary>
+    public long[] ReduceAxisStrides { get; }
+
+    /// <summary>
+    /// Gets the outer stride (used for contiguous outer reductions).
+    /// </summary>
+    public long OuterStride { get; }
+
+    /// <summary>
+    /// Gets the input shape for which this geometry was computed.
+    /// </summary>
+    public int[] InputShape { get; }
 
     /// <inheritdoc />
     public static bool operator ==(ReductionGeometry left, ReductionGeometry right) => left.Equals(right);
@@ -166,19 +165,15 @@ public readonly struct ReductionGeometry : IValueEquatable<ReductionGeometry>
     /// <returns>true if the specified <see cref="ReductionGeometry"/> is equal to the current <see cref="ReductionGeometry"/>; otherwise, false.</returns>
     public bool Equals(ReductionGeometry other)
     {
-        return Pattern == other.Pattern &&
-               OuterCount == other.OuterCount &&
-               InnerCount == other.InnerCount &&
-               TotalElements == other.TotalElements &&
-               TensorStrides.SequenceEqual(other.TensorStrides) &&
+        return Pattern == other.Pattern && OuterCount == other.OuterCount && InnerCount == other.InnerCount &&
+               TotalElements == other.TotalElements && TensorStrides.SequenceEqual(other.TensorStrides) &&
                ResultToTensorDim.SequenceEqual(other.ResultToTensorDim) &&
                ReduceAxisDims.SequenceEqual(other.ReduceAxisDims) &&
-               ReduceAxisStrides.SequenceEqual(other.ReduceAxisStrides) &&
-               OuterStride == other.OuterStride;
+               ReduceAxisStrides.SequenceEqual(other.ReduceAxisStrides) && OuterStride == other.OuterStride;
     }
 
     /// <inheritdoc cref="IEquatable{T}.Equals" />
-    public override bool Equals(object? obj)
+    public override bool Equals([NotNullWhen(true)] object? obj)
     {
         if (obj is ReductionGeometry other)
         {

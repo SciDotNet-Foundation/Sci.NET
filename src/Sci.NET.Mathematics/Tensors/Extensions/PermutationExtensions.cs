@@ -5,14 +5,13 @@ using System.Diagnostics;
 using System.Numerics;
 
 // ReSharper disable once CheckNamespace
-#pragma warning disable IDE0130 // API accessibility
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Sci.NET.Mathematics.Tensors;
 #pragma warning restore IDE0130
 
 /// <summary>
 /// Extension methods to permute a <see cref="ITensor{TNumber}"/>.
 /// </summary>
-[PublicAPI]
 public static class PermutationExtensions
 {
     /// <summary>
@@ -81,7 +80,7 @@ public static class PermutationExtensions
         return TensorServiceProvider
             .GetTensorOperationServiceProvider()
             .GetPermutationService()
-            .Permute(matrix, new[] { 1, 0 })
+            .Permute(matrix, [1, 0])
             .ToMatrix();
     }
 

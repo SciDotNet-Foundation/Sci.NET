@@ -13,7 +13,6 @@ namespace Sci.NET.Mathematics.Tensors;
 /// An interface for a rank-N tensor, which is an immutable N-Dimensional array.
 /// </summary>
 /// <typeparam name="TNumber">The type of the numbers stored in the <see cref="ITensor{TNumber}"/>.</typeparam>
-[PublicAPI]
 public interface ITensor<TNumber> : ITensorLocalityOperations
     where TNumber : unmanaged, INumber<TNumber>
 {
@@ -231,7 +230,7 @@ public interface ITensor<TNumber> : ITensorLocalityOperations
     /// <summary>
     /// Checks if the <see cref="ITensor{TNumber}"/> is a <see cref="Scalar{TNumber}"/>.
     /// </summary>
-    /// <returns><c>true</c> if the <see cref="ITensor{TNumber}"/> is a <see cref="Scalar{TNumber}"/> else, <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if the <see cref="ITensor{TNumber}"/> is a <see cref="Scalar{TNumber}"/> else, <see langword="false"/>.</returns>
     public bool IsScalar()
     {
         return Shape.IsScalar;
@@ -240,7 +239,7 @@ public interface ITensor<TNumber> : ITensorLocalityOperations
     /// <summary>
     /// Checks if the <see cref="ITensor{TNumber}"/> is a <see cref="Vector{TNumber}"/>.
     /// </summary>
-    /// <returns><c>true</c> if the <see cref="ITensor{TNumber}"/> is a <see cref="Vector{TNumber}"/> else, <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if the <see cref="ITensor{TNumber}"/> is a <see cref="Vector{TNumber}"/> else, <see langword="false"/>.</returns>
     public bool IsVector()
     {
         return Shape.IsVector;
@@ -249,7 +248,7 @@ public interface ITensor<TNumber> : ITensorLocalityOperations
     /// <summary>
     /// Checks if the <see cref="ITensor{TNumber}"/> is a <see cref="Matrix{TNumber}"/>.
     /// </summary>
-    /// <returns><c>true</c> if the <see cref="ITensor{TNumber}"/> is a <see cref="Matrix{TNumber}"/> else, <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if the <see cref="ITensor{TNumber}"/> is a <see cref="Matrix{TNumber}"/> else, <see langword="false"/>.</returns>
     public bool IsMatrix()
     {
         return Shape.IsMatrix;
@@ -258,7 +257,7 @@ public interface ITensor<TNumber> : ITensorLocalityOperations
     /// <summary>
     /// Checks if the <see cref="ITensor{TNumber}"/> is a <see cref="Tensor{TNumber}"/>.
     /// </summary>
-    /// <returns><c>true</c> if the <see cref="ITensor{TNumber}"/> is a <see cref="Tensor{TNumber}"/> else, <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if the <see cref="ITensor{TNumber}"/> is a <see cref="Tensor{TNumber}"/> else, <see langword="false"/>.</returns>
     public bool IsTensor()
     {
         return Shape.IsTensor;
@@ -322,7 +321,7 @@ public interface ITensor<TNumber> : ITensorLocalityOperations
     /// <exception cref="InvalidShapeException">Throws when the shape of the parent gradient tensor is invalid.</exception>
     protected void AccumulateGradient(ITensor<TNumber> parentGradient)
     {
-        ArgumentNullException.ThrowIfNull(Gradient);
+        InvalidOperationException.ThrowIfNull(Gradient, "The gradient must not be null.");
         InvalidShapeException.ThrowIfDifferentShape(Gradient.Shape, parentGradient.Shape);
 
         if (parentGradient.Shape != Shape)

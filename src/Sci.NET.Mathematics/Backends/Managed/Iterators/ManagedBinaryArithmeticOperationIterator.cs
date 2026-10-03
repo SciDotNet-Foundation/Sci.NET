@@ -2,7 +2,6 @@
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
@@ -45,7 +44,6 @@ internal class ManagedBinaryArithmeticOperationIterator<TOp, TNumber>
     /// <summary>
     /// Iterates over the tensors and applies the given action to each element.
     /// </summary>
-    [SuppressMessage("Style", "IDE0010:Add missing cases", Justification = "By design")]
     public unsafe void Apply()
     {
         var rank = _dimRanges.Length;

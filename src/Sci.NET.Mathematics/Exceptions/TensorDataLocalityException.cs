@@ -11,7 +11,6 @@ namespace Sci.NET.Mathematics.Exceptions;
 /// An exception thrown when a tensor operation is attempted on between <see cref="ITensor{TNumber}"/>
 /// instances which are not stored on the same <see cref="IDevice"/>.
 /// </summary>
-[PublicAPI]
 [ExcludeFromCodeCoverage]
 public class TensorDataLocalityException : Exception
 {
@@ -20,7 +19,6 @@ public class TensorDataLocalityException : Exception
     /// </summary>
     /// <param name="reason">The reason the devices are invalid.</param>
     /// <param name="devices">The devices of the <see cref="ITensor{TNumber}"/> associated with the operation.</param>
-    [StringFormatMethod(nameof(reason))]
     public TensorDataLocalityException(string reason, params IDevice[] devices)
 #pragma warning disable CA1305
         : base($"The devices are not compatible to operate between. {string.Format(reason, devices.ToList())}.")

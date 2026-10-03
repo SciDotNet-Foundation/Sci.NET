@@ -9,25 +9,24 @@ namespace Sci.NET.Mathematics.Numerics;
 /// <summary>
 /// A helper class for generic math operations.
 /// </summary>
-[PublicAPI]
 public static class GenericMath
 {
     /// <summary>
     /// Determines if the number type is floating point.
     /// </summary>
     /// <typeparam name="TNumber">The number type to test.</typeparam>
-    /// <returns><c>true</c> if the number is a floating point type, else, <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if the number is a floating point type, else, <see langword="false"/>.</returns>
     public static bool IsFloatingPoint<TNumber>()
         where TNumber : unmanaged, INumber<TNumber>
     {
-        return TNumber.CreateChecked(0.01f) != TNumber.Zero;
+        return Epsilon<TNumber>() != TNumber.One;
     }
 
     /// <summary>
     /// Determines if the number type is signed.
     /// </summary>
     /// <typeparam name="TNumber">The number type to test.</typeparam>
-    /// <returns><c>true</c> if the number is a signed type, else, <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if the number is a signed type, else, <see langword="false"/>.</returns>
     public static bool IsSigned<TNumber>()
         where TNumber : unmanaged, INumber<TNumber>
     {
@@ -42,19 +41,11 @@ public static class GenericMath
     public static unsafe TNumber Epsilon<TNumber>()
         where TNumber : unmanaged, INumber<TNumber>
     {
-        var numBytes = Unsafe.SizeOf<TNumber>();
-        var bytes = stackalloc byte[Unsafe.SizeOf<TNumber>()];
+        var instance = TNumber.Zero;
 
-        if (BitConverter.IsLittleEndian)
-        {
-            bytes[0] = 0x01;
-        }
-        else
-        {
-            bytes[numBytes - 1] = 0x01;
-        }
+        Unsafe.Write(&instance, 0x01);
 
-        return Unsafe.Read<TNumber>(bytes);
+        return instance;
     }
 
     /// <summary>
@@ -65,24 +56,25 @@ public static class GenericMath
     /// <returns>The square root of the provided number.</returns>
     /// <exception cref="NotSupportedException">Thrown if the number type is not supported.</exception>
     public static TNumber Sqrt<TNumber>(TNumber number)
+        where TNumber : unmanaged
     {
         return number switch
         {
-            float f => (TNumber)(object)MathF.Sqrt(f),
-            double d => (TNumber)(object)Math.Sqrt(d),
-            BFloat16 b => (TNumber)(object)BFloat16.Sqrt(b),
-            Half h => (TNumber)(object)Half.Sqrt(h),
-            Complex c => (TNumber)(object)Complex.Sqrt(c),
-            byte b => (TNumber)(object)(byte)MathF.Sqrt(b),
-            short s => (TNumber)(object)(short)MathF.Sqrt(s),
-            int i => (TNumber)(object)(int)Math.Sqrt(i),
-            long l => (TNumber)(object)(long)Math.Sqrt(l),
-            nint n => (TNumber)(object)(nint)Math.Sqrt(n),
-            nuint n => (TNumber)(object)(nuint)Math.Sqrt(n),
-            sbyte s => (TNumber)(object)(sbyte)MathF.Sqrt(s),
-            ushort u => (TNumber)(object)(ushort)MathF.Sqrt(u),
-            uint u => (TNumber)(object)(uint)Math.Sqrt(u),
-            ulong u => (TNumber)(object)(ulong)Math.Sqrt(u),
+            float f => Unsafe.BitCast<float, TNumber>(MathF.Sqrt(f)),
+            double d => Unsafe.BitCast<double, TNumber>(Math.Sqrt(d)),
+            BFloat16 b => Unsafe.BitCast<BFloat16, TNumber>(BFloat16.Sqrt(b)),
+            Half h => Unsafe.BitCast<Half, TNumber>(Half.Sqrt(h)),
+            Complex c => Unsafe.BitCast<Complex, TNumber>(Complex.Sqrt(c)),
+            byte b => Unsafe.BitCast<byte, TNumber>((byte)MathF.Sqrt(b)),
+            short s => Unsafe.BitCast<short, TNumber>((short)MathF.Sqrt(s)),
+            int i => Unsafe.BitCast<int, TNumber>((int)Math.Sqrt(i)),
+            long l => Unsafe.BitCast<long, TNumber>((long)Math.Sqrt(l)),
+            nint n => Unsafe.BitCast<nint, TNumber>((IntPtr)Math.Sqrt(n)),
+            nuint n => Unsafe.BitCast<nuint, TNumber>((UIntPtr)Math.Sqrt(n)),
+            sbyte s => Unsafe.BitCast<sbyte, TNumber>((sbyte)MathF.Sqrt(s)),
+            ushort u => Unsafe.BitCast<ushort, TNumber>((ushort)MathF.Sqrt(u)),
+            uint u => Unsafe.BitCast<uint, TNumber>((uint)Math.Sqrt(u)),
+            ulong u => Unsafe.BitCast<ulong, TNumber>((ulong)Math.Sqrt(u)),
             _ => throw new NotSupportedException("Type not supported for square root."),
         };
     }
@@ -117,18 +109,18 @@ public static class GenericMath
     {
         return TNumber.Zero switch
         {
-            sbyte => TNumber.CreateChecked(sbyte.MaxValue),
-            byte => TNumber.CreateChecked(byte.MaxValue),
-            short => TNumber.CreateChecked(short.MaxValue),
-            ushort => TNumber.CreateChecked(ushort.MaxValue),
-            int => TNumber.CreateChecked(int.MaxValue),
-            uint => TNumber.CreateChecked(uint.MaxValue),
-            long => TNumber.CreateChecked(long.MaxValue),
-            ulong => TNumber.CreateChecked(ulong.MaxValue),
-            float => TNumber.CreateChecked(float.MaxValue),
-            double => TNumber.CreateChecked(double.MaxValue),
-            BFloat16 => TNumber.CreateChecked(BFloat16.MaxValue),
-            Half => TNumber.CreateChecked(Half.MaxValue),
+            sbyte => Unsafe.BitCast<sbyte, TNumber>(sbyte.MaxValue),
+            byte => Unsafe.BitCast<byte, TNumber>(byte.MaxValue),
+            short => Unsafe.BitCast<short, TNumber>(short.MaxValue),
+            ushort => Unsafe.BitCast<ushort, TNumber>(ushort.MaxValue),
+            int => Unsafe.BitCast<int, TNumber>(int.MaxValue),
+            uint => Unsafe.BitCast<uint, TNumber>(uint.MaxValue),
+            long => Unsafe.BitCast<long, TNumber>(long.MaxValue),
+            ulong => Unsafe.BitCast<ulong, TNumber>(ulong.MaxValue),
+            float => Unsafe.BitCast<float, TNumber>(float.MaxValue),
+            double => Unsafe.BitCast<double, TNumber>(double.MaxValue),
+            BFloat16 => Unsafe.BitCast<BFloat16, TNumber>(BFloat16.MaxValue),
+            Half => Unsafe.BitCast<Half, TNumber>(Half.MaxValue),
             _ => throw new NotSupportedException("Type not supported for MaxValue."),
         };
     }
@@ -144,18 +136,18 @@ public static class GenericMath
     {
         return TNumber.Zero switch
         {
-            sbyte => TNumber.CreateChecked(sbyte.MinValue),
-            byte => TNumber.CreateChecked(byte.MinValue),
-            short => TNumber.CreateChecked(short.MinValue),
-            ushort => TNumber.CreateChecked(ushort.MinValue),
-            int => TNumber.CreateChecked(int.MinValue),
-            uint => TNumber.CreateChecked(uint.MinValue),
-            long => TNumber.CreateChecked(long.MinValue),
-            ulong => TNumber.CreateChecked(ulong.MinValue),
-            float => TNumber.CreateChecked(float.MinValue),
-            double => TNumber.CreateChecked(double.MinValue),
-            BFloat16 => TNumber.CreateChecked(BFloat16.MinValue),
-            Half => TNumber.CreateChecked(Half.MinValue),
+            sbyte => Unsafe.BitCast<sbyte, TNumber>(sbyte.MinValue),
+            byte => Unsafe.BitCast<byte, TNumber>(byte.MinValue),
+            short => Unsafe.BitCast<short, TNumber>(short.MinValue),
+            ushort => Unsafe.BitCast<ushort, TNumber>(ushort.MinValue),
+            int => Unsafe.BitCast<int, TNumber>(int.MinValue),
+            uint => Unsafe.BitCast<uint, TNumber>(uint.MinValue),
+            long => Unsafe.BitCast<long, TNumber>(long.MinValue),
+            ulong => Unsafe.BitCast<ulong, TNumber>(ulong.MinValue),
+            float => Unsafe.BitCast<float, TNumber>(float.MinValue),
+            double => Unsafe.BitCast<double, TNumber>(double.MinValue),
+            BFloat16 => Unsafe.BitCast<BFloat16, TNumber>(BFloat16.MinValue),
+            Half => Unsafe.BitCast<Half, TNumber>(Half.MinValue),
             _ => throw new NotSupportedException("Type not supported for MaxValue."),
         };
     }

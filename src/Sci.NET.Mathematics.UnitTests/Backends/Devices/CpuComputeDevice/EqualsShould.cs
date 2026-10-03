@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using Sci.NET.Mathematics.Backends.Devices;
 
 namespace Sci.NET.Mathematics.UnitTests.Backends.Devices.CpuComputeDevice;
@@ -23,7 +22,6 @@ public class EqualsShould
     }
 
     [Fact]
-    [SuppressMessage("Maintainability", "CA1508:Avoid dead conditional code", Justification = "Test method")]
     public void ReturnFalse_WhenOtherIsNull()
     {
         // Arrange
@@ -44,10 +42,10 @@ public class EqualsShould
         var sut = new Mathematics.Backends.Devices.CpuComputeDevice();
         var other = new Mock<IDevice>();
 
-        other.Setup(x => x.Id)
+        other.Setup(static x => x.Id)
             .Returns(Guid.NewGuid());
 
-        other.Setup(x => x.Name)
+        other.Setup(static x => x.Name)
             .Returns("Some other device");
 
         // Act

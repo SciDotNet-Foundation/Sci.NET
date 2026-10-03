@@ -18,7 +18,7 @@ public sealed class ParallelExecutorTests : IDisposable
     [Fact]
     public void Ctor_Throws_WhenThreadPoolIsNull()
     {
-        var act = () => new ParallelExecutor(null!);
+        var act = static () => new ParallelExecutor(null!);
 
         act.Should().Throw<ArgumentNullException>();
     }
@@ -38,7 +38,7 @@ public sealed class ParallelExecutorTests : IDisposable
 
         sut.Run(tasks);
 
-        invocationsPerIndex.Should().OnlyContain(count => count == 1);
+        invocationsPerIndex.Should().OnlyContain(static count => count == 1);
     }
 
     [Fact]
@@ -72,9 +72,9 @@ public sealed class ParallelExecutorTests : IDisposable
         var sut = new ParallelExecutor(_threadPool);
         using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(
             4,
-            tid =>
+            static tid =>
             {
-                if (tid == 2)
+                if (tid is 2)
                 {
                     throw new InvalidOperationException("message");
                 }
@@ -85,7 +85,7 @@ public sealed class ParallelExecutorTests : IDisposable
         act.Should()
             .Throw<AggregateException>()
             .Which.InnerExceptions.Should()
-            .ContainSingle(ex => ex is InvalidOperationException && ex.Message == "message");
+            .ContainSingle(static ex => ex is InvalidOperationException && ex.Message == "message");
     }
 
     [Fact]
@@ -94,14 +94,14 @@ public sealed class ParallelExecutorTests : IDisposable
         var sut = new ParallelExecutor(_threadPool);
         using var tasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(
             1,
-            _ => throw new InvalidOperationException("message"));
+            static _ => throw new InvalidOperationException("message"));
 
         var act = () => sut.Run(tasks);
 
         act.Should()
             .Throw<AggregateException>()
             .Which.InnerExceptions.Should()
-            .ContainSingle(ex => ex is InvalidOperationException);
+            .ContainSingle(static ex => ex is InvalidOperationException);
     }
 
     [Fact]
@@ -109,7 +109,7 @@ public sealed class ParallelExecutorTests : IDisposable
     {
         var sut = new ParallelExecutor(_threadPool);
 
-        using (var faultingTasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(4, _ => throw new InvalidOperationException("message")))
+        using (var faultingTasks = ParallelExecutorTaskFactory.RepeatedConstantOffset(4, static _ => throw new InvalidOperationException("message")))
         {
             var act = () => sut.Run(faultingTasks);
 
@@ -123,7 +123,7 @@ public sealed class ParallelExecutorTests : IDisposable
 
         sut.Run(healthyTasks);
 
-        invocationsPerIndex.Should().OnlyContain(count => count == 1);
+        invocationsPerIndex.Should().OnlyContain(static count => count == 1);
     }
 
     [Fact]
@@ -164,7 +164,7 @@ public sealed class ParallelExecutorTests : IDisposable
             4,
             _ => sut.For(0, 4, 4, innerIdx => Interlocked.Increment(ref invocationsPerIndex[innerIdx])));
 
-        invocationsPerIndex.Should().OnlyContain(count => count == 4);
+        invocationsPerIndex.Should().OnlyContain(static count => count == 4);
     }
 
     [Fact]
@@ -257,7 +257,7 @@ public sealed class ParallelExecutorTests : IDisposable
             4L,
             idx => Interlocked.Increment(ref invocationsPerIndex[idx]));
 
-        invocationsPerIndex.Skip(5).Should().OnlyContain(count => count == 1);
+        invocationsPerIndex.Skip(5).Should().OnlyContain(static count => count == 1);
     }
 
     [Fact]
@@ -272,7 +272,7 @@ public sealed class ParallelExecutorTests : IDisposable
             4u,
             idx => Interlocked.Increment(ref invocationsPerIndex[idx]));
 
-        invocationsPerIndex.Should().OnlyContain(count => count == 1);
+        invocationsPerIndex.Should().OnlyContain(static count => count == 1);
     }
 
     [Fact]
@@ -280,7 +280,7 @@ public sealed class ParallelExecutorTests : IDisposable
     {
         var sut = new ParallelExecutor(_threadPool);
 
-        var act = () => sut.For(0, 128, 0, _ => { });
+        var act = () => sut.For(0, 128, 0, static _ => { });
 
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
@@ -313,7 +313,7 @@ public sealed class ParallelExecutorTests : IDisposable
                 }
             });
 
-        invocationsPerIndex.Should().OnlyContain(count => count == 1);
+        invocationsPerIndex.Should().OnlyContain(static count => count == 1);
     }
 
     [Fact]
@@ -321,7 +321,7 @@ public sealed class ParallelExecutorTests : IDisposable
     {
         var sut = new ParallelExecutor(_threadPool);
 
-        var act = () => sut.ForEach<long>(null!, _ => { });
+        var act = () => sut.ForEach<long>(null!, static _ => { });
 
         act.Should().Throw<ArgumentNullException>();
     }

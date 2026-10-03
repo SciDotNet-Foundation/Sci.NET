@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Streams;
 /// <summary>
 /// Provides extension methods for <see cref="Stream"/>.
 /// </summary>
-[PublicAPI]
 public static class StreamExtensions
 {
     /// <summary>

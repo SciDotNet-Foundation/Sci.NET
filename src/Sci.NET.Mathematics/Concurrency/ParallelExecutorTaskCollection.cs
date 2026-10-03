@@ -11,7 +11,6 @@ namespace Sci.NET.Mathematics.Concurrency;
 /// <see cref="CountdownEvent"/> for completion signalling.
 /// </summary>
 /// <typeparam name="TIndex">The integer type used for the virtual thread index.</typeparam>
-[PublicAPI]
 public sealed class ParallelExecutorTaskCollection<TIndex> : IEnumerable<IParallelExecutorCountdownVirtualIndexTask<TIndex>>, IDisposable
     where TIndex : IBinaryInteger<TIndex>
 {
@@ -61,7 +60,7 @@ public sealed class ParallelExecutorTaskCollection<TIndex> : IEnumerable<IParall
     /// Blocks until every task in the collection has completed or the timeout elapses.
     /// </summary>
     /// <param name="timeout">The maximum time to wait.</param>
-    /// <returns><c>true</c> if all tasks completed within the timeout; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if all tasks completed within the timeout; otherwise <see langword="false"/>.</returns>
     /// <exception cref="AggregateException">Thrown when all tasks completed but one or more task bodies threw.</exception>
     public bool WaitAll(TimeSpan timeout)
     {
@@ -110,7 +109,7 @@ public sealed class ParallelExecutorTaskCollection<TIndex> : IEnumerable<IParall
         {
             if (task.Exception is not null)
             {
-                exceptions ??= new List<Exception>();
+                exceptions ??= [];
                 exceptions.Add(task.Exception);
             }
         }

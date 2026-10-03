@@ -23,7 +23,7 @@ public interface IReductionOperationAvx2
     /// <summary>
     /// Determines whether AVX is supported on the current machine.
     /// </summary>
-    /// <returns><c>true</c> if AVX is supported; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if AVX is supported; otherwise, <see langword="false"/>.</returns>
     public static abstract bool HasAvx2Implementation();
 
     /// <summary>

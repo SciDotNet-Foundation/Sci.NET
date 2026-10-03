@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Attributes;
 /// <summary>
 /// Indicates that the method or property assumes that the <see cref="Shape"/> of the <see cref="ITensor{TNumber}"/> is valid.
 /// </summary>
-[PublicAPI]
 [AttributeUsage(AttributeTargets.Method)]
 [ExcludeFromCodeCoverage]
 public sealed class AssumesValidShapeAttribute : Attribute

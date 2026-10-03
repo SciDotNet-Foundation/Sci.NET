@@ -8,7 +8,6 @@ namespace Sci.NET.Mathematics.Tensors.NeuralNetworks;
 /// <summary>
 /// An interface for activation function service.
 /// </summary>
-[PublicAPI]
 public interface IActivationFunctionService
 {
     /// <summary>

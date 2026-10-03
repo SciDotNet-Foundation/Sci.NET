@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// An interface for trigonometry kernels.
 /// </summary>
-[PublicAPI]
 public interface ITrigonometryKernels
 {
     /// <summary>

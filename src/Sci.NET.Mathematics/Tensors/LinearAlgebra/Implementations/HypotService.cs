@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Sci.NET Foundation. All rights reserved.
 // Licensed under the Apache 2.0 license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Sci.NET.Mathematics.Tensors.Common;
 using Sci.NET.Mathematics.Tensors.Manipulation;
@@ -21,7 +20,6 @@ internal class HypotService : IHypotService
         _gradientAppenderService = TensorServiceProvider.GetTensorOperationServiceProvider().GetGradientAppenderService();
     }
 
-    [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "Generic implementation for all ITensor types.")]
     public ITensor<TNumber> Hypot<TNumber>(ITensor<TNumber> left, ITensor<TNumber> right)
         where TNumber : unmanaged, IFloatingPointIeee754<TNumber>, IRootFunctions<TNumber>
     {

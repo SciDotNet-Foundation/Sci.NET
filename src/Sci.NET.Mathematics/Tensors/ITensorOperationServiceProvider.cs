@@ -18,7 +18,6 @@ namespace Sci.NET.Mathematics.Tensors;
 /// <summary>
 /// An interface providing methods too build tensor operation services.
 /// </summary>
-[PublicAPI]
 public interface ITensorOperationServiceProvider
 {
 #pragma warning disable CA1024

@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// An interface for slicing kernels.
 /// </summary>
-[PublicAPI]
 public interface ISlicingKernels
 {
     /// <summary>

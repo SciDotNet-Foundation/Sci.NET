@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Concurrency;
 /// A single unit of work executed by a <see cref="ParallelExecutorThreadPool"/> worker thread.
 /// </summary>
 /// <typeparam name="TIndex">The integer type used for the virtual thread index.</typeparam>
-[PublicAPI]
 public sealed class ParallelExecutorTask<TIndex> : IParallelExecutorCountdownVirtualIndexTask<TIndex>
     where TIndex : IBinaryInteger<TIndex>
 {

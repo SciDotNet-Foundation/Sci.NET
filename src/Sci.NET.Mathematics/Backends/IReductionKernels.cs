@@ -9,7 +9,6 @@ namespace Sci.NET.Mathematics.Backends;
 /// <summary>
 /// An interface providing tensor reduction operations.
 /// </summary>
-[PublicAPI]
 public interface IReductionKernels
 {
     /// <summary>

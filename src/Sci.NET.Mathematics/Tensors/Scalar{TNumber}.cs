@@ -14,7 +14,6 @@ namespace Sci.NET.Mathematics.Tensors;
 /// Represents a scalar.
 /// </summary>
 /// <typeparam name="TNumber">The number type of the <see cref="Scalar{TNumber}"/>.</typeparam>
-[PublicAPI]
 public sealed class Scalar<TNumber> : ITensor<TNumber>
     where TNumber : unmanaged, INumber<TNumber>
 {
@@ -30,7 +29,12 @@ public sealed class Scalar<TNumber> : ITensor<TNumber>
         Memory = Backend.Storage.Allocate<TNumber>(Shape);
         IsMemoryOwner = true;
         RequiresGradient = requiresGradient;
-        Gradient = RequiresGradient ? new Tensor<TNumber>(Shape, Backend, false) { IsGradient = true } : null;
+        Gradient = RequiresGradient
+            ? new Tensor<TNumber>(Shape, Backend, false)
+            {
+                IsGradient = true
+            }
+            : null;
     }
 
     /// <summary>
@@ -46,7 +50,12 @@ public sealed class Scalar<TNumber> : ITensor<TNumber>
         Memory = Backend.Storage.Allocate<TNumber>(Shape);
         IsMemoryOwner = true;
         RequiresGradient = requiresGradient;
-        Gradient = RequiresGradient ? new Tensor<TNumber>(Shape, Backend, false) { IsGradient = true } : null;
+        Gradient = RequiresGradient
+            ? new Tensor<TNumber>(Shape, Backend, false)
+            {
+                IsGradient = true
+            }
+            : null;
 
         using var systemMemory = new SystemMemoryBlock<TNumber>(1);
         systemMemory[0] = value;
@@ -67,7 +76,12 @@ public sealed class Scalar<TNumber> : ITensor<TNumber>
         Memory = handle;
         IsMemoryOwner = false;
         RequiresGradient = requiresGradient;
-        Gradient = RequiresGradient ? new Tensor<TNumber>(Shape, Backend, false) { IsGradient = true } : null;
+        Gradient = RequiresGradient
+            ? new Tensor<TNumber>(Shape, Backend, false)
+            {
+                IsGradient = true
+            }
+            : null;
     }
 
     /// <summary>
@@ -95,7 +109,7 @@ public sealed class Scalar<TNumber> : ITensor<TNumber>
 
     /// <inheritdoc />
     [MemberNotNullWhen(true, nameof(RequiresGradient))]
-    public ITensor<TNumber>? Gradient { get; private set; }
+    public ITensor<TNumber>? Gradient { get; }
 
     /// <inheritdoc />
     public bool RequiresGradient { get; }
@@ -104,7 +118,8 @@ public sealed class Scalar<TNumber> : ITensor<TNumber>
     public bool IsGradient { get; init; }
 
     /// <inheritdoc />
-    ICollection<(string Name, ITensor<TNumber> Parent, Func<ITensor<TNumber>, ITensor<TNumber>> Gradient)> ITensor<TNumber>.Parents { get; } = new List<(string Name, ITensor<TNumber> Parent, Func<ITensor<TNumber>, ITensor<TNumber>> Gradient)>();
+    ICollection<(string Name, ITensor<TNumber> Parent, Func<ITensor<TNumber>, ITensor<TNumber>> Gradient)>
+        ITensor<TNumber>.Parents { get; } = [];
 
     /// <summary>
     /// Gets the length of the <see cref="Vector{TNumber}"/>.
